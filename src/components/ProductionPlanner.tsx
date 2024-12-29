@@ -13,6 +13,7 @@ export const ProductionPlanner: React.FC = () => {
   const [productionChain, setProductionChain] = useState<ProductionNode | null>(null);
   const [viewMode, setViewMode] = useState<'tree' | 'summary'>('tree');
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
+  const [detailLevel, setDetailLevel] = useState<'compact' | 'normal' | 'detailed'>('normal');
 
   useEffect(() => {
     const loadData = async () => {
@@ -79,6 +80,32 @@ export const ProductionPlanner: React.FC = () => {
     });
   };
 
+  const renderDetailControls = () => (
+    <div className="detail-controls">
+      <button
+        className={`detail-button ${detailLevel === 'compact' ? 'active' : ''}`}
+        onClick={() => setDetailLevel('compact')}
+        title="Show minimal information"
+      >
+        Compact
+      </button>
+      <button
+        className={`detail-button ${detailLevel === 'normal' ? 'active' : ''}`}
+        onClick={() => setDetailLevel('normal')}
+        title="Show standard information"
+      >
+        Normal
+      </button>
+      <button
+        className={`detail-button ${detailLevel === 'detailed' ? 'active' : ''}`}
+        onClick={() => setDetailLevel('detailed')}
+        title="Show all information"
+      >
+        Detailed
+      </button>
+    </div>
+  );
+
   const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
     // Don't render the root node
     if (node.itemId === 'root') {
@@ -104,44 +131,58 @@ export const ProductionPlanner: React.FC = () => {
     const nominalRate = currentRecipe ? (currentRecipe.out[node.itemId] * 60) / currentRecipe.time : 0;
     const producer = currentRecipe ? currentRecipe.producers[0] : null;
 
+    // Helper function to format building name
+    const formatBuildingName = (name: string): string => {
+      return name.split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    };
+
     return (
-      <div className="production-node">
-        <div 
-          className={`node-content ${hasChildren ? 'collapsible' : ''}`}
-          onClick={() => hasChildren && toggleNode(node.itemId)}
-        >
-          <h3>
-            {hasChildren && (
-              <span className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}>
-                ▼  {/* Use only one symbol that will be rotated */}
-              </span>
-            )}
+      <div className={`production-node ${detailLevel}`}>
+        <div className={`node-content ${hasChildren ? 'collapsible' : ''}`}
+             onClick={() => hasChildren && toggleNode(node.itemId)}>
+          {hasChildren && (
+            <span className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}>▼</span>
+          )}
+          <div className="item-icon-container">
             <ItemIcon iconId={item.id} />
-            {item.name}
-          </h3>
-          <div className="node-info">
-            <p>{node.rate.toFixed(2)}/min</p>
-            {currentRecipe && (
-              <div className="recipe-info">
-                <span className="producer">{producer}</span>
-                <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
-              </div>
+          </div>
+
+          <div className="name-recipe-container">
+            <h3>{item.name}</h3>
+            {availableRecipes.length > 0 && (
+              <select
+                value={node.recipeId || ''}
+                onChange={(e) => handleRecipeChange(node.itemId, e.target.value)}
+                onClick={e => e.stopPropagation()}
+              >
+                {availableRecipes.map(recipe => (
+                  <option key={recipe.id} value={recipe.id}>
+                    {recipe.name}
+                  </option>
+                ))}
+              </select>
             )}
           </div>
-          {availableRecipes.length > 0 && (  // Only show select if recipes exist
-            <select
-              value={node.recipeId || ''}
-              onChange={(e) => handleRecipeChange(node.itemId, e.target.value)}
-              onClick={e => e.stopPropagation()} // Prevent collapse when clicking select
-            >
-              {availableRecipes.map(recipe => (
-                <option key={recipe.id} value={recipe.id}>
-                  {recipe.name}
-                </option>
-              ))}
-            </select>
+
+          {currentRecipe && producer && detailLevel !== 'compact' && (
+            <div className="building-container">
+              {detailLevel === 'detailed' && (
+                <ItemIcon iconId={producer.toLowerCase()} />
+              )}
+              <div className="building-info">
+                <span className="producer-name">{formatBuildingName(producer)}</span>
+                <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
+              </div>
+            </div>
           )}
+
+          <div className="production-rate">
+            {node.rate.toFixed(2)}/min
+          </div>
         </div>
+
         {hasChildren && !isCollapsed && (
           <div className="node-inputs">
             {node.children.map((child: ProductionNode, index: number) => (
@@ -202,61 +243,65 @@ export const ProductionPlanner: React.FC = () => {
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
-      <div className="targets-container">
-        {targetItems.map((target, index) => (
-          <div key={index} className="target-item">
-            <select
-              value={target.id}
-              onChange={e => updateTargetItem(index, 'id', e.target.value)}
+      <div className="controls-container">
+        <div className="view-mode-controls">
+          {renderDetailControls()}
+          <div className="view-controls">
+            <button
+              className={viewMode === 'tree' ? 'active' : ''}
+              onClick={() => setViewMode('tree')}
             >
-              <option value="">Select an item...</option>
-              {getProductionItems(items).map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="number"
-              value={target.rate}
-              onChange={e => updateTargetItem(index, 'rate', Number(e.target.value))}
-              min="0.01"
-              step="0.01"
-            />
-
-            <button 
-              className="remove-button"
-              onClick={() => removeTargetItem(index)}
-              disabled={targetItems.length === 1}
+              Tree View
+            </button>
+            <button
+              className={viewMode === 'summary' ? 'active' : ''}
+              onClick={() => setViewMode('summary')}
             >
-              ✕
+              Resource Summary
             </button>
           </div>
-        ))}
-
-        <div className="target-controls">
-          <button className="add-button" onClick={addTargetItem}>
-            Add Item
-          </button>
-          <button className="calculate-button" onClick={handleCalculate}>
-            Calculate
-          </button>
         </div>
+        <div className="targets-container">
+          {targetItems.map((target, index) => (
+            <div key={index} className="target-item">
+              <select
+                value={target.id}
+                onChange={e => updateTargetItem(index, 'id', e.target.value)}
+              >
+                <option value="">Select an item...</option>
+                {getProductionItems(items).map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
 
-        <div className="view-controls">
-          <button
-            className={viewMode === 'tree' ? 'active' : ''}
-            onClick={() => setViewMode('tree')}
-          >
-            Tree View
-          </button>
-          <button
-            className={viewMode === 'summary' ? 'active' : ''}
-            onClick={() => setViewMode('summary')}
-          >
-            Resource Summary
-          </button>
+              <input
+                type="number"
+                value={target.rate}
+                onChange={e => updateTargetItem(index, 'rate', Number(e.target.value))}
+                min="0.01"
+                step="0.01"
+              />
+
+              <button 
+                className="remove-button"
+                onClick={() => removeTargetItem(index)}
+                disabled={targetItems.length === 1}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <div className="target-controls">
+            <button className="add-button" onClick={addTargetItem}>
+              Add Item
+            </button>
+            <button className="calculate-button" onClick={handleCalculate}>
+              Calculate
+            </button>
+          </div>
         </div>
       </div>
 

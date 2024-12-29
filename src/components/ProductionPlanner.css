@@ -18,29 +18,29 @@
   
   .production-node {
     border: 1px solid var(--border-color);
-    padding: 20px;
-    margin: 16px 0;
+    padding: 16px;
+    margin: 8px 0;
     border-radius: 8px;
     background-color: var(--background-dark);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .node-content {
-    background: var(--background-light);
-    padding: 16px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    grid-template-areas: "collapse icon name building rate";
     gap: 16px;
-    color: var(--text-primary);
-    flex-wrap: wrap; /* Added to handle large icons */
+    align-items: center;
+    background: var(--background-light);
+    padding: 12px;
+    border-radius: 6px;
   }
   
   .node-inputs {
-    margin-left: 40px;
+    margin-left: 16px;
     border-left: 2px solid var(--border-color);
-    padding-left: 24px;
-    margin-top: 16px;
+    padding-left: 12px;
+    margin-top: 8px;
   }
   
   .input-node {
@@ -137,13 +137,34 @@
 }
 
 .node-content h3 {
+  grid-area: name;
   margin: 0;
   display: flex;
   align-items: center;
-  font-size: 18px;
-  flex: 1;
-  min-width: 300px; /* Added minimum width */
+  font-size: 16px;
   gap: 12px;
+}
+
+.node-content .collapse-icon {
+  margin-right: 4px;
+}
+
+.node-content select {
+  grid-area: recipe;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.node-info {
+  grid-area: rates / rates / info / info;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 150px;
+  margin-left: 24px;
+  border-left: 1px solid var(--border-color);
+  padding-left: 24px;
 }
 
 .resource-summary td:first-child {
@@ -252,7 +273,7 @@ select:hover, input:hover {
 
 .remove-button:hover {
   background: var(--danger-color);
-  color: var(--text-primary);
+  color: var (--text-primary);
 }
 
 .remove-button:disabled {
@@ -272,6 +293,7 @@ select:hover, input:hover {
 }
 
 .collapse-icon {
+  grid-area: collapse;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -299,23 +321,197 @@ select:hover, input:hover {
 }
 
 .node-info {
+  grid-area: rate / rate / info / info;
+  justify-self: end;
+  text-align: right;
+  min-width: 120px;
+}
+
+.recipe-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.producer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.producer .item-icon {
+  width: 24px !important;
+  height: 24px !important;
+  margin-right: 0 !important;
+}
+
+.nominal-rate {
+  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* ...existing styles... */
+
+.controls-container {
+  background: var(--background-dark);
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.view-mode-controls {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-button {
+  background: var(--background-light);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.detail-button.active {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+
+/* Adjust node spacing based on detail level */
+.production-node {
+  --node-padding: 20px;
+}
+
+.production-node.compact {
+  --node-padding: 12px;
+}
+
+.production-node.detailed {
+  --node-padding: 24px;
+}
+
+.production-node {
+  padding: var(--node-padding);
+}
+
+.node-inputs {
+  margin-left: 16px;
+  padding-left: 12px;
+}
+
+/* Adjust sizes based on detail level */
+.compact .node-content {
+  padding: 8px;
+  gap: 8px;
+}
+
+.detailed .node-content {
+  padding: 20px;
+  gap: 20px;
+}
+
+/* Remove the detailed view scaling */
+.detailed .item-icon {
+  /* Remove width and height overrides */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .node-inputs {
+    margin-left: 16px;
+    padding-left: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .node-content {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 
+      "name rate"
+      "recipe recipe"
+      "info info";
+  }
+
+  .node-inputs {
+    margin-left: 12px;
+    padding-left: 8px;
+  }
+}
+
+.item-icon-container {
+  grid-area: icon;
+  height: 64px;
+  width: 64px;
+}
+
+.name-recipe-container {
+  grid-area: name;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.name-recipe-container h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.name-recipe-container select {
+  width: 100%;
+}
+
+.building-container {
+  grid-area: building;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.building-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 150px;
 }
 
-.recipe-info {
+.production-rate {
+  grid-area: rate;
   display: flex;
+  align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  font-size: 16px;
 }
 
-.producer {
-  text-transform: capitalize;
+.collapse-icon {
+  color: var(--primary-color);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+  transform-origin: center;
 }
 
-.nominal-rate {
-  opacity: 0.8;
+.collapse-icon.collapsed {
+  transform: rotate(-90deg);
 }
+
+/* Detail level specific styles */
+.compact .building-container {
+  display: none;
+}
+
+.normal .building-container .item-icon {
+  display: none;
+}
+
+/* ...rest of existing styles... */
