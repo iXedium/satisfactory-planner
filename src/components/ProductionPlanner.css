@@ -297,3 +297,25 @@ select:hover, input:hover {
 .node-content select {
   pointer-events: all;
 }
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+}
+
+.recipe-info {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.producer {
+  text-transform: capitalize;
+}
+
+.nominal-rate {
+  opacity: 0.8;
+}

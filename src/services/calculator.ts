@@ -37,32 +37,11 @@ export class ProductionCalculator {
       };
     }
 
-    // Filter out any excluded recipes from data.json
-    const availableRecipes = Array.from(this.recipes.values())
-      .filter(r => {
-        return Object.keys(r.out).includes(itemId) && 
-               !r.id.includes('excluded-') && // Add any other exclusion criteria
-               r.producers.length > 0;
-      });
-
-    // Base case: treat as raw resource if no valid recipes
-    if (availableRecipes.length === 0) {
-      this.processingStack.delete(itemId);
-      return {
-        itemId,
-        rate,
-        recipeId: null,
-        children: []
-      };
-    }
-
-    // Use specified recipe or first available
-    const recipe = recipeId ? 
-      this.recipes.get(recipeId) : 
-      availableRecipes[0];
+    // Use findBestRecipe instead of direct filtering
+    const recipe = this.findBestRecipe(itemId, recipeId);
 
     if (!recipe) {
-      console.warn(`Recipe ${recipeId} not found for ${itemId}`);
+      console.warn(`No valid recipe found for ${itemId}`);
       this.processingStack.delete(itemId);
       return {
         itemId,
@@ -139,5 +118,45 @@ export class ProductionCalculator {
     }
 
     return resources;
+  }
+
+  private findBestRecipe(itemId: string, recipeId?: string): Recipe | null {
+    // Get all valid recipes for this item
+    const availableRecipes = Array.from(this.recipes.values())
+      .filter(r => {
+        return Object.keys(r.out).includes(itemId) && 
+               !r.id.includes('excluded-') && 
+               r.producers.length > 0;
+      });
+
+    if (availableRecipes.length === 0) return null;
+
+    // If specific recipe requested, try to use it
+    if (recipeId) {
+      const requested = this.recipes.get(recipeId);
+      if (requested && availableRecipes.includes(requested)) {
+        return requested;
+      }
+    }
+
+    // Try to find recipe with exactly matching ID
+    const defaultRecipe = availableRecipes.find(r => r.id === itemId);
+    if (defaultRecipe) {
+      return defaultRecipe;
+    }
+
+    // Try to find recipe that starts with the item ID
+    const alternativeRecipe = availableRecipes.find(r => r.id.startsWith(itemId));
+    if (alternativeRecipe) {
+      return alternativeRecipe;
+    }
+
+    // Fallback to first available recipe
+    return availableRecipes[0];
+  }
+
+  private calculateNominalRate(recipe: Recipe, itemId: string): number {
+    const baseOutputAmount = recipe.out[itemId] || 0;
+    return (baseOutputAmount * 60) / recipe.time; // Convert to per minute
   }
 }

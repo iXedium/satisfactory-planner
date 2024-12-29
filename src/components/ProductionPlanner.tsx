@@ -93,11 +93,16 @@ export const ProductionPlanner: React.FC = () => {
     const availableRecipes = recipes.filter(r => 
       Object.keys(r.out).includes(node.itemId)  // Changed from [0] === to includes()
     );
+    const currentRecipe = node.recipeId ? recipes.find(r => r.id === node.recipeId) : null;
     
     if (!item) return null;
 
     const isCollapsed = collapsedNodes.has(node.itemId);
     const hasChildren = node.children.length > 0;
+
+    // Calculate nominal rate and get producer info
+    const nominalRate = currentRecipe ? (currentRecipe.out[node.itemId] * 60) / currentRecipe.time : 0;
+    const producer = currentRecipe ? currentRecipe.producers[0] : null;
 
     return (
       <div className="production-node">
@@ -114,7 +119,15 @@ export const ProductionPlanner: React.FC = () => {
             <ItemIcon iconId={item.id} />
             {item.name}
           </h3>
-          <p>{node.rate.toFixed(2)}/min</p>
+          <div className="node-info">
+            <p>{node.rate.toFixed(2)}/min</p>
+            {currentRecipe && (
+              <div className="recipe-info">
+                <span className="producer">{producer}</span>
+                <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
+              </div>
+            )}
+          </div>
           {availableRecipes.length > 0 && (  // Only show select if recipes exist
             <select
               value={node.recipeId || ''}
@@ -179,6 +192,13 @@ export const ProductionPlanner: React.FC = () => {
     );
   };
 
+  const getProductionItems = (items: Item[]) => {
+    // Only show items from 'parts' and 'components' categories
+    return items.filter(item => 
+      ['parts', 'components'].includes(item.category)
+    ).sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+  };
+
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
@@ -190,7 +210,7 @@ export const ProductionPlanner: React.FC = () => {
               onChange={e => updateTargetItem(index, 'id', e.target.value)}
             >
               <option value="">Select an item...</option>
-              {items.map(item => (
+              {getProductionItems(items).map(item => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
