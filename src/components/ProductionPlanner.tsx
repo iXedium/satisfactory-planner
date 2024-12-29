@@ -12,6 +12,7 @@ export const ProductionPlanner: React.FC = () => {
   const [targetItems, setTargetItems] = useState<TargetItem[]>([{ id: '', rate: 1 }]);
   const [productionChain, setProductionChain] = useState<ProductionNode | null>(null);
   const [viewMode, setViewMode] = useState<'tree' | 'summary'>('tree');
+  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,6 +67,18 @@ export const ProductionPlanner: React.FC = () => {
     ));
   };
 
+  const toggleNode = (nodeId: string) => {
+    setCollapsedNodes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(nodeId)) {
+        newSet.delete(nodeId);
+      } else {
+        newSet.add(nodeId);
+      }
+      return newSet;
+    });
+  };
+
   const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
     // Don't render the root node
     if (node.itemId === 'root') {
@@ -83,11 +96,22 @@ export const ProductionPlanner: React.FC = () => {
     
     if (!item) return null;
 
+    const isCollapsed = collapsedNodes.has(node.itemId);
+    const hasChildren = node.children.length > 0;
+
     return (
       <div className="production-node">
-        <div className="node-content">
+        <div 
+          className={`node-content ${hasChildren ? 'collapsible' : ''}`}
+          onClick={() => hasChildren && toggleNode(node.itemId)}
+        >
           <h3>
-            <ItemIcon iconId={item.id} /> {/* Remove size prop to use default 64px */}
+            {hasChildren && (
+              <span className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}>
+                ▼  {/* Use only one symbol that will be rotated */}
+              </span>
+            )}
+            <ItemIcon iconId={item.id} />
             {item.name}
           </h3>
           <p>{node.rate.toFixed(2)}/min</p>
@@ -95,6 +119,7 @@ export const ProductionPlanner: React.FC = () => {
             <select
               value={node.recipeId || ''}
               onChange={(e) => handleRecipeChange(node.itemId, e.target.value)}
+              onClick={e => e.stopPropagation()} // Prevent collapse when clicking select
             >
               {availableRecipes.map(recipe => (
                 <option key={recipe.id} value={recipe.id}>
@@ -104,7 +129,7 @@ export const ProductionPlanner: React.FC = () => {
             </select>
           )}
         </div>
-        {node.children.length > 0 && (
+        {hasChildren && !isCollapsed && (
           <div className="node-inputs">
             {node.children.map((child: ProductionNode, index: number) => (
               <div key={index} className="input-node">

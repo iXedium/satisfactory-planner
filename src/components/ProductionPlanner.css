@@ -259,3 +259,41 @@ select:hover, input:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ...existing styles... */
+
+.node-content.collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+
+.node-content.collapsible:hover {
+  background: var(--background-dark);
+}
+
+.collapse-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  color: var(--primary-color);
+  transition: transform 0.2s ease;
+  transform-origin: center;
+  transform: rotate(0deg);  /* Start at 0 degrees */
+  font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+}
+
+.collapse-icon.collapsed {
+  transform: rotate(-90deg);  /* Rotate relative to 0 degrees */
+}
+
+/* Prevent text selection when clicking collapse */
+.node-content * {
+  pointer-events: none;
+}
+
+.node-content select {
+  pointer-events: all;
+}
