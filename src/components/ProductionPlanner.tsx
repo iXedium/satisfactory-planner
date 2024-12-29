@@ -1,5 +1,5 @@
 // src/components/ProductionPlanner.tsx
-import React, { useState, useEffect, JSX } from 'react';
+import React, { useState, useEffect, JSX, useRef } from 'react';
 import { db } from '../services/database';
 import { ProductionCalculator } from '../services/calculator';
 import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem } from '../types/types';
@@ -11,9 +11,13 @@ export const ProductionPlanner: React.FC = () => {
   const [calculator, setCalculator] = useState<ProductionCalculator | null>(null);
   const [targetItems, setTargetItems] = useState<TargetItem[]>([{ id: '', rate: 1 }]);
   const [productionChain, setProductionChain] = useState<ProductionNode | null>(null);
-  const [viewMode, setViewMode] = useState<'tree' | 'summary'>('tree');
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
   const [detailLevel, setDetailLevel] = useState<'compact' | 'normal' | 'detailed'>('normal');
+  const [machineOverrides, setMachineOverrides] = useState<Map<string, number>>(new Map());
+  const [summaryMode, setSummaryMode] = useState<'normal' | 'compact'>('normal');
+  const [isDragging, setIsDragging] = useState(false);
+  const productionResultRef = useRef<HTMLDivElement>(null);
+  const [treePanelWidth, setTreePanelWidth] = useState<number>(70); // percentage
 
   useEffect(() => {
     const loadData = async () => {
@@ -106,6 +110,59 @@ export const ProductionPlanner: React.FC = () => {
     </div>
   );
 
+  const getEfficiencyClass = (efficiency: number): string => {
+    if (efficiency === 100) return 'efficiency-optimal';
+    if (efficiency < 100) return 'efficiency-under';
+    return 'efficiency-over';
+  };
+
+  const handleMachineCountChange = (itemId: string, count: number) => {
+    setMachineOverrides(prev => {
+      const newOverrides = new Map(prev);
+      newOverrides.set(itemId, count);
+      return newOverrides;
+    });
+  };
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const container = productionResultRef.current;
+    if (!container) return;
+  
+    const startX = e.clientX;
+    const treePanel = container.firstElementChild as HTMLElement;
+    const summaryPanel = container.lastElementChild as HTMLElement;
+    const initialTreeWidth = treePanel.clientWidth;
+    const initialSummaryWidth = summaryPanel.clientWidth;
+  
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!container) return;
+      const delta = e.clientX - startX;
+      const containerWidth = container.clientWidth;
+      const newTreeWidth = Math.min(
+        Math.max(200, initialTreeWidth + delta),
+        containerWidth - 200 // Leave space for summary and divider
+      );
+      const newSummaryWidth = containerWidth - newTreeWidth - 8; // 8px for divider
+      if (newTreeWidth >= 200 && newSummaryWidth >= 200) {
+        treePanel.style.flexGrow = '0';
+        treePanel.style.flexBasis = `${newTreeWidth}px`;
+        summaryPanel.style.flexGrow = '0';
+        summaryPanel.style.flexBasis = `${newSummaryWidth}px`;
+      }
+    };
+  
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  
+    setIsDragging(true);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
   const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
     // Don't render the root node
     if (node.itemId === 'root') {
@@ -131,12 +188,65 @@ export const ProductionPlanner: React.FC = () => {
     const nominalRate = currentRecipe ? (currentRecipe.out[node.itemId] * 60) / currentRecipe.time : 0;
     const producer = currentRecipe ? currentRecipe.producers[0] : null;
 
+    // Calculate machine count and efficiency
+    const defaultMachineCount = currentRecipe ? Math.ceil(node.rate / nominalRate) : 0;
+    const actualMachineCount = machineOverrides.get(node.itemId) || defaultMachineCount;
+    const actualCapacity = actualMachineCount * nominalRate;
+    const efficiency = currentRecipe ? ((node.rate / actualCapacity) * 100).toFixed(2) : '0';
+
     // Helper function to format building name
     const formatBuildingName = (name: string): string => {
       return name.split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
     };
+
+    const renderMachineControls = () => (
+      <div className="machine-controls" onClick={e => e.stopPropagation()}>
+        <button 
+          className="machine-adjust" 
+          onClick={() => {
+            handleMachineCountChange(node.itemId, actualMachineCount - 1);
+          }}
+          disabled={actualMachineCount <= 1}
+        >
+          -
+        </button>
+        <input
+          type="number"
+          value={actualMachineCount}
+          onChange={(e) => {
+            const count = Math.max(1, parseInt(e.target.value) || 1);
+            handleMachineCountChange(node.itemId, count);
+          }}
+          onClick={(e) => {
+            e.currentTarget.select(); // Select all text when clicking
+          }}
+          min="1"
+          className="machine-count-input"
+        />
+        <button 
+          className="machine-adjust" 
+          onClick={() => {
+            handleMachineCountChange(node.itemId, actualMachineCount + 1);
+          }}
+        >
+          +
+        </button>
+        <div 
+          className={`efficiency-value ${getEfficiencyClass(parseFloat(efficiency))}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            // Use the actual efficiency value (rate/capacity) directly
+            const actualEfficiency = (node.rate / actualCapacity).toFixed(6);
+            navigator.clipboard.writeText(actualEfficiency);
+          }}
+          title="Click to copy actual value"
+        >
+          ({efficiency}%)
+        </div>
+      </div>
+    );
 
     return (
       <div className={`production-node ${detailLevel}`}>
@@ -174,6 +284,7 @@ export const ProductionPlanner: React.FC = () => {
               <div className="building-info">
                 <span className="producer-name">{formatBuildingName(producer)}</span>
                 <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
+                {renderMachineControls()}
               </div>
             </div>
           )}
@@ -202,8 +313,16 @@ export const ProductionPlanner: React.FC = () => {
     const resources = calculator.calculateTotalResources(productionChain);
     
     return (
-      <div className="resource-summary">
-        <h2>Total Resources Required</h2>
+      <div className={`resource-summary ${summaryMode}`}>
+        <div className="summary-header">
+          <h2>Summary</h2>
+          <button
+            className="view-mode-button"
+            onClick={() => setSummaryMode(mode => mode === 'normal' ? 'compact' : 'normal')}
+          >
+            {summaryMode === 'normal' ? 'Compact' : 'Normal'}
+          </button>
+        </div>
         <table>
           <thead>
             <tr>
@@ -246,20 +365,6 @@ export const ProductionPlanner: React.FC = () => {
       <div className="controls-container">
         <div className="view-mode-controls">
           {renderDetailControls()}
-          <div className="view-controls">
-            <button
-              className={viewMode === 'tree' ? 'active' : ''}
-              onClick={() => setViewMode('tree')}
-            >
-              Tree View
-            </button>
-            <button
-              className={viewMode === 'summary' ? 'active' : ''}
-              onClick={() => setViewMode('summary')}
-            >
-              Resource Summary
-            </button>
-          </div>
         </div>
         <div className="targets-container">
           {targetItems.map((target, index) => (
@@ -306,12 +411,17 @@ export const ProductionPlanner: React.FC = () => {
       </div>
 
       {productionChain && (
-        <div className="production-result">
-          {viewMode === 'tree' ? (
-            renderProductionNode(productionChain)
-          ) : (
-            renderResourceSummary()
-          )}
+        <div className="production-result" ref={productionResultRef}>
+          <div className="production-chain">
+            {renderProductionNode(productionChain)}
+          </div>
+          <div 
+            className={`view-resizer ${isDragging ? 'dragging' : ''}`}
+            onMouseDown={handleResizeStart}
+          />
+          <div className="resource-summary-container">
+            {renderResourceSummary()}
+          </div>
         </div>
       )}
     </div>

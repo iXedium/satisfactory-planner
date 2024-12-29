@@ -1,108 +1,230 @@
 /* src/styles/ProductionPlanner.css */
 .planner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    color: var(--text-primary);
-  }
-  
-  .controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .production-chain {
-    margin-top: 20px;
-  }
-  
-  .production-node {
-    border: 1px solid var(--border-color);
-    padding: 16px;
-    margin: 8px 0;
-    border-radius: 8px;
-    background-color: var(--background-dark);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .node-content {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto auto;
-    grid-template-areas: "collapse icon name building rate";
-    gap: 16px;
-    align-items: center;
-    background: var(--background-light);
-    padding: 12px;
-    border-radius: 6px;
-  }
-  
-  .node-inputs {
-    margin-left: 16px;
-    border-left: 2px solid var(--border-color);
-    padding-left: 12px;
-    margin-top: 8px;
-  }
-  
-  .input-node {
-    margin: 10px 0;
-  }
-  
-  select, input, button {
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  select, input {
-    background-color: var(--background-darker);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-  }
+  max-width: none;  /* Remove max-width constraint */
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;  /* Use full viewport height */
+}
 
-  select:focus, input:focus {
-    border-color: var(--primary-color);
-    outline: none;
-  }
-  
-  button {
-    background: var(--primary-color);
-    color: var(--text-primary);
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  button:hover {
-    background: var(--primary-hover);
-  }
-
-.view-controls {
+.controls {
   display: flex;
   gap: 10px;
-  margin-left: 20px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.production-result {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  margin: 20px;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.production-chain {
+  overflow-y: auto;
+  padding-right: 20px;
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.resource-summary-container {
+  padding-left: 20px;
+  flex-grow: 1;
+  min-width: 200px;
+  width: 350px;
+  flex: 0 0 auto; /* Don't grow or shrink */
+}
+
+.view-resizer {
+  position: relative;
+  width: 8px; /* Slightly wider for easier grabbing */
+  margin: 0;
+  cursor: col-resize;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+  flex-shrink: 0;
+  flex: 0 0 8px;
+}
+
+.view-resizer:hover,
+.view-resizer.dragging {
+  opacity: 0.2;
+}
+
+.view-resizer::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  width: 4px;
+  top: 0;
+  bottom: 0;
+  background: var(--border-color);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.view-resizer:hover::after,
+.view-resizer.dragging::after {
+  opacity: 0.3;
+}
+
+/* ...existing styles... */
+
+.production-chain {
+  flex: 1;  /* Take most of the space */
+  overflow-y: auto;  /* Enable scrolling */
+  padding-right: 20px;
+  margin-top: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;  /* Reduced gap between nodes */
+  width: 100%;
+  min-width: 200px; /* Minimum width when resizing */
+}
+
+.production-node {
+  margin: 4px 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;  /* Remove padding that might cause misalignment */
+}
+
+.node-content {
+  border: 1px solid var(--border-color);
+  background-color: var(--background-dark);
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-areas: "collapse icon name building rate";
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  margin-right: 0; /* Ensure no right margin */
+  width: 100%;
+  grid-template-columns: 24px 64px minmax(200px, 1fr) auto 120px;
+}
+
+.node-inputs {
+  position: relative;
+  padding-left: 36px;
+  margin: 4px 0 0 0;
+  border-left: 2px solid var(--border-color);
+  opacity: 1; /* Remove opacity from container */
+  padding-left: 24px;  /* Single consistent left indent */
+}
+
+.node-inputs::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--border-color);
+  opacity: 0.3;
+}
+
+.input-node {
+  position: relative;
+  margin: 4px 0;
+  padding: 0;
+  width: 100%; /* Ensure full width */
+}
+
+.input-node::before {
+  content: '';
+  position: absolute;
+  left: -36px;
+  top: 50%;
+  width: 36px;
+  height: 2px;
+  background-color: var(--border-color);
+  opacity: 0.3;
+}
+
+select, input, button {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+select, input {
+  background-color: var(--background-darker);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+select:focus, input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+button {
+  background: var(--primary-color);
+  color: var(--text-primary);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+.view-controls {
+  display: none;
 }
 
 .view-controls button {
+  background: transparent;
+  color: var(--text-secondary);
   padding: 8px 16px;
-  opacity: 0.7;
+  font-size: 14px;
+  flex: 1;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.view-controls button:hover {
   background: var(--background-light);
+  color: var(--text-primary);
 }
 
 .view-controls button.active {
-  opacity: 1;
-  background: var(--primary-color);
-  border-bottom: none;
+  background: var(--accent-color, #2c5282);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .resource-summary {
+  width: 100% !important; /* Take full width of container */
+  flex-shrink: 0;  /* Prevent shrinking */
+  overflow-y: auto;  /* Enable independent scrolling */
+  background: var(--background-dark);
+  border-radius: 8px;
+  padding: 16px 24px; /* Increased right padding */
+  border: 1px solid var(--border-color);
+  align-self: flex-start;  /* Stick to top */
+  max-height: calc(100vh - 240px);  /* Account for header and controls */
+  position: sticky;
+  top: 20px;
   margin: 20px 0;
+  min-width: 200px; /* Minimum width when resizing */
 }
 
 .resource-summary table {
@@ -113,11 +235,12 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 14px;  /* Slightly smaller text */
 }
 
 .resource-summary th,
 .resource-summary td {
-  padding: 8px 16px;
+  padding: 8px 12px;  /* Reduced padding */
   text-align: left;
   border-bottom: 1px solid var(--border-color);
   font-size: 16px;
@@ -134,6 +257,23 @@
 
 :root {
   --icon-size: 64px;
+  --primary-color: #3498db;
+  --primary-hover: #2980b9;
+  --accent-color: #2c5282;
+  --accent-hover: #2a4365;
+  --success-color: #38a169;
+  --success-hover: #2f855a;
+  --danger-color: #e53e3e;
+  --danger-hover: #c53030;
+  --background-darker: #1a1a1a;
+  --background-dark: #2d2d2d;
+  --background-light: #3d3d3d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0aec0;
+  --border-color: #4a4a4a;
+  --efficiency-optimal: #4ade80; /* Green that fits the theme */
+  --efficiency-under: #fbbf24;   /* Amber/yellow that fits the theme */
+  --efficiency-over: #f87171;    /* Red that fits the theme */
 }
 
 .node-content h3 {
@@ -188,7 +328,7 @@
 }
 
 /* Optional: Add some subtle hover effects */
-.production-node:hover {
+.node-content:hover {
   border-color: var(--primary-color);
 }
 
@@ -213,6 +353,10 @@ select:hover, input:hover {
 
 .planner h1 {
   color: var(--primary-color);
+  font-size: 32px;
+  margin: 0 0 32px 0;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .targets-container {
@@ -244,24 +388,32 @@ select:hover, input:hover {
 
 .target-controls {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-top: 20px;
 }
 
 .add-button {
-  background: var(--background-dark);
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
+  background: var(--success-color, #38a169);
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
 }
 
 .add-button:hover {
-  background: var(--primary-color);
-  color: var(--text-primary);
+  background: var(--success-hover, #2f855a);
+  transform: translateY(-1px);
 }
 
 .calculate-button {
   background: var(--primary-color);
+  color: white;
   flex: 1;
+  transition: all 0.2s ease;
+}
+
+.calculate-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
 .remove-button {
@@ -359,12 +511,13 @@ select:hover, input:hover {
   padding: 24px;
   border-radius: 8px;
   margin-bottom: 24px;
+  flex-shrink: 0;  /* Prevent controls from shrinking */
 }
 
 .view-mode-controls {
   display: flex;
-  gap: 24px;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
@@ -372,19 +525,32 @@ select:hover, input:hover {
 
 .detail-controls {
   display: flex;
-  gap: 8px;
+  gap: 2px;
+  background: var(--background-darker);
+  padding: 4px;
+  border-radius: 6px;
 }
 
 .detail-button {
-  background: var(--background-light);
+  background: transparent;
   color: var(--text-secondary);
   padding: 8px 16px;
   font-size: 14px;
+  border-radius: 4px;
+  flex: 1;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.detail-button:hover {
+  background: var(--background-light);
+  color: var(--text-primary);
 }
 
 .detail-button.active {
   background: var(--primary-color);
-  color: var(--text-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Adjust node spacing based on detail level */
@@ -404,9 +570,33 @@ select:hover, input:hover {
   padding: var(--node-padding);
 }
 
+.production-node.compact {
+  padding: 8px 0px 8px 12px;  /* Reduced right padding */
+}
+
+.production-node.normal {
+  padding: 12px 0px 12px 12px;
+}
+
+.production-node.detailed {
+  padding: 16px 0px 16px 12px;
+}
+
 .node-inputs {
   margin-left: 16px;
   padding-left: 12px;
+}
+
+.node-inputs {
+  margin-left: 12px;  /* Reduced from 16px */
+  padding-left: 0;    /* Removed padding */
+  margin-top: 4px;    /* Reduced from 8px */
+  border-left: 2px solid var(--border-color);
+}
+
+.input-node {
+  margin: 4px 0;      /* Reduced from 10px */
+  padding-left: 12px; /* Added padding to offset from border */
 }
 
 /* Adjust sizes based on detail level */
@@ -420,16 +610,29 @@ select:hover, input:hover {
   gap: 20px;
 }
 
-/* Remove the detailed view scaling */
 .detailed .item-icon {
-  /* Remove width and height overrides */
+  display: block; /* Instead of empty ruleset */
 }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
   .node-inputs {
-    margin-left: 16px;
-    padding-left: 12px;
+    margin-left: 8px;    /* Even tighter on smaller screens */
+    padding-left: 0;
+  }
+  
+  .input-node {
+    padding-left: 8px;
+  }
+
+  .production-result {
+    flex-direction: column;  /* Stack on smaller screens */
+  }
+
+  .resource-summary {
+    width: 100%;
+    max-height: 300px;  /* Limit height when stacked */
+    position: static;  /* Remove sticky positioning */
   }
 }
 
@@ -476,6 +679,9 @@ select:hover, input:hover {
   display: flex;
   gap: 16px;
   align-items: center;
+  justify-self: end;  /* Right-align the building info */
+  white-space: nowrap;
+  margin-right: 32px; /* Increased from 24px for more spacing */
 }
 
 .building-info {
@@ -485,6 +691,46 @@ select:hover, input:hover {
   min-width: 150px;
 }
 
+.machine-efficiency {
+  font-size: 14px; /* Slightly larger than before */
+  font-weight: 600; /* Make it more prominent */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.machine-count {
+  color: var(--text-primary); /* Make the machine count white/neutral */
+}
+
+.efficiency-value {
+  font-variant-numeric: tabular-nums; /* Keep numbers aligned */
+  user-select: none; /* Prevent percentage from being selected */
+  cursor: pointer;
+}
+
+.efficiency-optimal {
+  color: var(--efficiency-optimal);
+}
+
+.efficiency-under {
+  color: var(--efficiency-under);
+}
+
+.efficiency-over {
+  color: var(--efficiency-over);
+}
+
+.machine-efficiency {
+  font-size: 13px;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.compact .machine-efficiency {
+  display: none;
+}
+
 .production-rate {
   grid-area: rate;
   display: flex;
@@ -492,6 +738,10 @@ select:hover, input:hover {
   gap: 8px;
   color: var(--text-primary);
   font-size: 16px;
+  justify-self: end;  /* Right-align the rate */
+  min-width: 100px;  /* Fixed width for consistent alignment */
+  text-align: right;
+  min-width: 120px;
 }
 
 .collapse-icon {
@@ -513,5 +763,144 @@ select:hover, input:hover {
 .normal .building-container .item-icon {
   display: none;
 }
+
+/* Remove any right side padding/margin that could cause misalignment */
+.production-node,
+.node-content,
+.node-inputs,
+.input-node,
+.building-container,
+.production-rate {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+/* ...existing code... */
+
+.machine-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  background: var(--background-darker);
+  padding: 4px;
+  border-radius: 6px;
+  position: relative; /* Add this */
+  z-index: 1; /* Add this to ensure controls stay above other elements */
+  cursor: default; /* Add this to override parent's cursor */
+}
+
+.machine-controls * {
+  pointer-events: auto; /* Override the parent's pointer-events: none */
+}
+
+.machine-count-input {
+  width: 60px;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--background-dark);
+  color: var(--text-primary);
+  border-radius: 4px;
+  -moz-appearance: textfield; /* Remove arrows in Firefox */
+  appearance: textfield; /* Add standard property */
+}
+
+.machine-count-input::-webkit-outer-spin-button,
+.machine-count-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.machine-adjust {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: var(--background-light);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.machine-adjust:hover:not(:disabled) {
+  background: var(--accent-color);
+}
+
+.machine-adjust:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.efficiency-value {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--background-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none; /* Prevent selection */
+}
+
+.efficiency-value:hover {
+  filter: brightness(1.1);
+}
+
+/* Add resizer between views */
+.view-resizer {
+  position: relative;
+  width: 8px;
+  margin: 0 -4px;
+  cursor: col-resize;
+  background: var(--border-color);
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.view-resizer:hover,
+.view-resizer.dragging {
+  opacity: 0.2;
+}
+
+.view-resizer::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  cursor: col-resize;
+}
+
+.resource-summary h2 {
+  color: var(--primary-color);
+  font-size: 24px;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Summary view modes */
+.resource-summary.compact .item-icon {
+  width: 32px;
+  height: 32px;
+  background-size: 1400%;
+}
+
+.resource-summary.compact td {
+  padding: 4px 12px;
+  font-size: 14px;
+}
+
+/* ...rest of existing code... */
 
 /* ...rest of existing styles... */
