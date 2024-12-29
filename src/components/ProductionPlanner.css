@@ -1,0 +1,261 @@
+/* src/styles/ProductionPlanner.css */
+.planner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: var(--text-primary);
+  }
+  
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .production-chain {
+    margin-top: 20px;
+  }
+  
+  .production-node {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 8px;
+    background-color: var(--background-dark);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .node-content {
+    background: var(--background-light);
+    padding: 16px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-primary);
+    flex-wrap: wrap; /* Added to handle large icons */
+  }
+  
+  .node-inputs {
+    margin-left: 40px;
+    border-left: 2px solid var(--border-color);
+    padding-left: 24px;
+    margin-top: 16px;
+  }
+  
+  .input-node {
+    margin: 10px 0;
+  }
+  
+  select, input, button {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  select, input {
+    background-color: var(--background-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  select:focus, input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
+  
+  button {
+    background: var(--primary-color);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  button:hover {
+    background: var(--primary-hover);
+  }
+
+.view-controls {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.view-controls button {
+  padding: 8px 16px;
+  opacity: 0.7;
+  background: var(--background-light);
+}
+
+.view-controls button.active {
+  opacity: 1;
+  background: var(--primary-color);
+  border-bottom: none;
+}
+
+.resource-summary {
+  margin: 20px 0;
+}
+
+.resource-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: var(--background-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.resource-summary th,
+.resource-summary td {
+  padding: 8px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 16px;
+}
+
+.resource-summary th {
+  background-color: var(--background-darker);
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:root {
+  --icon-size: 64px;
+}
+
+.node-content h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  flex: 1;
+  min-width: 300px; /* Added minimum width */
+  gap: 12px;
+}
+
+.resource-summary td:first-child {
+  display: flex;
+  align-items: center;
+}
+
+.item-icon {
+  flex-shrink: 0;
+  position: relative;
+  background-color: var(--background-darker);
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  image-rendering: auto; /* Changed from pixelated to auto */
+  -ms-interpolation-mode: bicubic; /* Added for IE support */
+}
+
+.node-content h3 .item-icon,
+.resource-summary td .item-icon {
+  margin-right: 12px;
+}
+
+/* Optional: Add some subtle hover effects */
+.production-node:hover {
+  border-color: var(--primary-color);
+}
+
+select:hover, input:hover {
+  border-color: var(--primary-color);
+}
+
+/* Optional: Add scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--background-light);
+}
+
+.planner h1 {
+  color: var(--primary-color);
+}
+
+.targets-container {
+  background: var(--background-dark);
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.target-item {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+  background: var(--background-light);
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.target-item select {
+  flex: 2;
+}
+
+.target-item input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.target-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.add-button {
+  background: var(--background-dark);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.add-button:hover {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.calculate-button {
+  background: var(--primary-color);
+  flex: 1;
+}
+
+.remove-button {
+  background: var(--background-dark);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+  padding: 8px 12px;
+}
+
+.remove-button:hover {
+  background: var(--danger-color);
+  color: var(--text-primary);
+}
+
+.remove-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
