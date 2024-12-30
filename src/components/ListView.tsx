@@ -28,8 +28,11 @@ export function ListView({ nodes, onMachineCountChange, onManualRateChange, onRe
               )}
             </div>
             <div className="total-rate">
-              {node.totalRate.toFixed(2)}/min
+              Production Rate: {node.totalRate.toFixed(2)}/min
               ({node.nodeIds.length} nodes)
+            </div>
+            <div className="machine-count">
+              Machines: {node.machineCount}
             </div>
             <div className="controls">
               <button onClick={() => onMachineCountChange(node.nodeIds[0], node.machineCount + 1)}>+</button>
