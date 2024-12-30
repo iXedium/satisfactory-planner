@@ -111,7 +111,7 @@
   border-radius: 8px;
   margin-right: 0; /* Ensure no right margin */
   width: 100%;
-  grid-template-columns: 24px 64px minmax(200px, 1fr) auto 120px;
+  grid-template-columns: 24px 64px minmax(200px, 1fr) auto auto;
 }
 
 .node-inputs {
@@ -742,6 +742,8 @@ select:hover, input:hover {
   min-width: 100px;  /* Fixed width for consistent alignment */
   text-align: right;
   min-width: 120px;
+  margin-right: 20px;
+  justify-content: flex-end;
 }
 
 .collapse-icon {
@@ -769,8 +771,7 @@ select:hover, input:hover {
 .node-content,
 .node-inputs,
 .input-node,
-.building-container,
-.production-rate {
+.building-container {
   padding-right: 0;
   margin-right: 0;
 }
