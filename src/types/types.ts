@@ -55,3 +55,19 @@ export interface Item {
     id: string;
     rate: number;
   }
+
+  export interface MergedNode {
+    itemId: string;
+    recipeId: string | null;
+    totalRate: number;
+    manualRate: number;
+    nodeIds: string[];  // Keep track of original node IDs
+    item: Item;
+    recipe: Recipe | null;
+    machineCount: number;
+    efficiency: number;
+  }
+
+  export interface ViewMode {
+    type: 'tree' | 'list';
+  }

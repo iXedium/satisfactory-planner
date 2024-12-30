@@ -1063,3 +1063,44 @@ select:hover, input:hover {
 }
 
 /* ...rest of existing styles... */
+
+/* ...existing styles... */
+
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.list-item {
+  background: var(--background-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.list-item-content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.view-toggle-button {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+/* ...rest of existing styles... */

@@ -2,9 +2,11 @@
 import React, { useState, useEffect, JSX, useRef } from 'react';
 import { db } from '../services/database';
 import { ProductionCalculator } from '../services/calculator';
-import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem, ResourceSummary } from '../types/types';
+import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem, ResourceSummary, MergedNode } from '../types/types';
 import { ItemIcon } from './ItemIcon';
 import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
+import { ViewToggle } from './ViewToggle';
+import { ListView } from './ListView';
 
 export function ProductionPlanner() {
   const [items, setItems] = useState<Item[]>([]);
@@ -21,6 +23,8 @@ export function ProductionPlanner() {
   const [treePanelWidth, setTreePanelWidth] = useState<number>(70); // percentage
   const [resourceSummary, setResourceSummary] = useState<ResourceSummary>({});
   const [manualRates, setManualRates] = useState<Map<string, number>>(new Map());
+  const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
+  const [mergedNodes, setMergedNodes] = useState<MergedNode[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -301,11 +305,66 @@ export function ProductionPlanner() {
     ).sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
   };
 
+  const createMergedNodes = (chain: ProductionNode | null): MergedNode[] => {
+    if (!chain) return [];
+    
+    const nodeMap = new Map<string, MergedNode>();
+    
+    const processNode = (node: ProductionNode) => {
+      const recipeKey = `${node.itemId}-${node.recipeId}`;
+      const item = items.find(i => i.id === node.itemId);
+      if (!item) {
+        console.warn(`Item ${node.itemId} not found`);
+        return;
+      }
+      const recipe = node.recipeId ? recipes.find(r => r.id === node.recipeId) || null : null;
+      
+      if (!nodeMap.has(recipeKey)) {
+        nodeMap.set(recipeKey, {
+          itemId: node.itemId,
+          recipeId: node.recipeId,
+          totalRate: 0,
+          manualRate: 0,
+          nodeIds: [],
+          item: item,
+          recipe: recipe,
+          machineCount: 0,
+          efficiency: 0
+        });
+      }
+      
+      const mergedNode = nodeMap.get(recipeKey)!;
+      mergedNode.totalRate += node.rate;
+      mergedNode.manualRate += node.manualRate || 0;
+      mergedNode.nodeIds.push(node.nodeId!);
+      
+      // Process children recursively
+      node.children.forEach(processNode);
+    };
+    
+    processNode(chain);
+    return Array.from(nodeMap.values());
+  };
+
+  const handleViewModeToggle = () => {
+    if (viewMode === 'tree') {
+      const merged = createMergedNodes(productionChain);
+      setMergedNodes(merged);
+      setViewMode('list');
+    } else {
+      setViewMode('tree');
+    }
+  };
+
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
       <div className="controls-container">
         <div className="view-mode-controls">
+          <ViewToggle 
+            mode={viewMode} 
+            onToggle={handleViewModeToggle} 
+          />
           {renderDetailControls()}
         </div>
         <div className="targets-container">
@@ -355,7 +414,17 @@ export function ProductionPlanner() {
       {productionChain && (
         <div className="production-result" ref={productionResultRef}>
           <div className="production-chain">
-            {renderProductionNode(productionChain)}
+            {viewMode === 'tree' ? (
+              renderProductionNode(productionChain)
+            ) : (
+              <ListView
+                nodes={mergedNodes}
+                onMachineCountChange={handleMachineCountChange}
+                onManualRateChange={handleManualRateChange}
+                onRecipeChange={handleRecipeChange}
+                detailLevel={detailLevel}
+              />
+            )}
           </div>
           <div 
             className={`view-resizer ${isDragging ? 'dragging' : ''}`}
