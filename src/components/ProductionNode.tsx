@@ -171,6 +171,8 @@ export function ProductionNode({
                 className="manual-rate-input"
                 value={node.manualRate || 0}
                 onChange={(e) => node.nodeId && onManualRateChange(node.nodeId, parseFloat(e.target.value) || 0)}
+                onWheel={(e) => e.currentTarget.blur()} // Prevent scroll from changing value
+                onClick={(e) => e.currentTarget.select()} // Select all text when clicked
                 placeholder="Add rate..."
                 min="0"
                 step="0.1"
