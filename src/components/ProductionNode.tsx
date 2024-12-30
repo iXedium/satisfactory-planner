@@ -60,6 +60,18 @@ export function ProductionNode({
     }
   };
 
+  const calculateOptimalManualRate = () => {
+    if (!currentRecipe || !node.nodeId) return;
+    const actualCapacity = actualMachineCount * nominalRate;
+    const optimalManualRate = actualCapacity - node.rate;
+    onManualRateChange(node.nodeId, Math.max(0, optimalManualRate));
+  };
+
+  const clearManualRate = () => {
+    if (!node.nodeId) return;
+    onManualRateChange(node.nodeId, 0);
+  };
+
   return (
     <div className={`production-node ${detailLevel}`}>
       <div 
@@ -146,7 +158,14 @@ export function ProductionNode({
             {totalRate.toFixed(2)}/min
           </div>
           {detailLevel !== 'compact' && (
-            <div className="machine-controls">
+            <div className="machine-controls manual-rate-controls">
+              <button
+                className="machine-adjust"
+                onClick={clearManualRate}
+                title="Clear manual rate"
+              >
+                ×
+              </button>
               <input
                 type="number"
                 className="manual-rate-input"
@@ -156,6 +175,13 @@ export function ProductionNode({
                 min="0"
                 step="0.1"
               />
+              <button
+                className="machine-adjust"
+                onClick={calculateOptimalManualRate}
+                title="Set manual rate to achieve 100% efficiency"
+              >
+                ↑
+              </button>
             </div>
           )}
         </div>

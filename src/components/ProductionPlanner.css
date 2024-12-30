@@ -968,7 +968,7 @@ select:hover, input:hover {
   text-align: right;
   font-size: 14px;
   background: var(--background-darker);
-  color: var(--text-primary);
+  color: var (--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-top: 4px;
@@ -1028,6 +1028,32 @@ select:hover, input:hover {
 .machine-controls select:focus,
 .machine-controls input:focus {
   border-color: var(--primary-color);
+}
+
+/* ...existing styles... */
+
+.manual-rate-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;  /* Tighter gap for these controls */
+  min-width: 120px;  /* Ensure minimum width */
+}
+
+.manual-rate-controls .machine-adjust {
+  width: 20px;  /* Slightly smaller buttons */
+  height: 20px;
+  font-size: 14px;
+}
+
+.manual-rate-controls .manual-rate-input {
+  width: 70px;  /* Slightly narrower input */
+  padding: 2px 6px;  /* Smaller padding */
+  margin: 0;  /* Remove margin */
+}
+
+.manual-rate-controls .machine-adjust:first-child {
+  font-size: 16px;  /* Larger X symbol */
+  font-weight: bold;
 }
 
 /* ...rest of existing styles... */
