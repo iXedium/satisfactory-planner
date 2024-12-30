@@ -311,6 +311,12 @@ export function ProductionPlanner() {
     const nodeMap = new Map<string, MergedNode>();
     
     const processNode = (node: ProductionNode) => {
+      if (node.itemId === 'root') {
+        // Skip the root node and process its children
+        node.children.forEach(processNode);
+        return;
+      }
+
       const recipeKey = `${node.itemId}-${node.recipeId}`;
       const item = items.find(i => i.id === node.itemId);
       if (!item) {
@@ -349,6 +355,7 @@ export function ProductionPlanner() {
   const handleViewModeToggle = () => {
     if (viewMode === 'tree') {
       const merged = createMergedNodes(productionChain);
+      console.log('Merged Nodes:', merged); // Debugging step
       setMergedNodes(merged);
       setViewMode('list');
     } else {

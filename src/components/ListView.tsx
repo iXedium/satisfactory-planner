@@ -11,6 +11,10 @@ interface ListViewProps {
 }
 
 export function ListView({ nodes, onMachineCountChange, onManualRateChange, onRecipeChange, detailLevel }: ListViewProps) {
+  if (nodes.length === 0) {
+    return <div>No data available</div>; // Debugging step
+  }
+
   return (
     <div className="list-view">
       {nodes.map(node => (
