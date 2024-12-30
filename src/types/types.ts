@@ -18,6 +18,11 @@ export interface Item {
     time: number;
     in: Record<string, number>;
     out: Record<string, number>;
+    cost?: number;
+    row?: number;
+    category?: string;
+    flags?: string[];
+    usage?: number;
   }
 
   export interface ProductionChainNode {

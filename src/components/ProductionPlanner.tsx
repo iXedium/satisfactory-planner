@@ -21,14 +21,27 @@ export const ProductionPlanner: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const loadedItems = await db.items.toArray();
-      const loadedRecipes = await db.recipes.toArray();
-      console.log('Loaded items:', loadedItems);
-      console.log('Loaded recipes:', loadedRecipes);
-      setItems(loadedItems);
-      setRecipes(loadedRecipes);
-      setCalculator(new ProductionCalculator(loadedItems, loadedRecipes));
+      try {
+        // Make sure database is initialized first
+        await db.initialize();
+        
+        const loadedItems = await db.items.toArray();
+        const loadedRecipes = await db.recipes.toArray();
+        
+        if (loadedItems.length === 0) {
+          console.error('No items loaded from database');
+          return;
+        }
+
+        console.log(`Loaded ${loadedItems.length} items and ${loadedRecipes.length} recipes`);
+        setItems(loadedItems);
+        setRecipes(loadedRecipes);
+        setCalculator(new ProductionCalculator(loadedItems, loadedRecipes));
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
     };
+    
     loadData();
   }, []);
 
