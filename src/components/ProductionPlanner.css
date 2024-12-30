@@ -995,3 +995,39 @@ select:hover, input:hover {
 }
 
 /* ...existing code... */
+
+/* ...existing styles... */
+
+.machine-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  background: var(--background-darker);
+  padding: 4px;
+  border-radius: 6px;
+  position: relative;
+  z-index: 1;
+  cursor: default;
+}
+
+.machine-controls * {
+  pointer-events: auto;
+}
+
+.machine-controls select,
+.machine-controls input {
+  background: var(--background-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.machine-controls select:hover,
+.machine-controls input:hover,
+.machine-controls select:focus,
+.machine-controls input:focus {
+  border-color: var(--primary-color);
+}
+
+/* ...rest of existing styles... */

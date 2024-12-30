@@ -20,6 +20,7 @@ export function ProductionPlanner() {
   const productionResultRef = useRef<HTMLDivElement>(null);
   const [treePanelWidth, setTreePanelWidth] = useState<number>(70); // percentage
   const [resourceSummary, setResourceSummary] = useState<ResourceSummary>({});
+  const [manualRates, setManualRates] = useState<Map<string, number>>(new Map());
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,30 +67,28 @@ export function ProductionPlanner() {
     setProductionChain(rootNode);
   };
 
-  const handleRecipeChange = (itemId: string, newRecipeId: string) => {
+  const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
     if (calculator && productionChain) {
-      const newChain = calculator.updateRecipe(productionChain, itemId, newRecipeId);
+      const newChain = calculator.updateRecipe(productionChain, nodeId, newRecipeId);
       setProductionChain(newChain);
+      
+      // Update resource summary when recipe changes
+      const resources = calculator.calculateTotalResources(newChain);
+      setResourceSummary(resources);
     }
   };
 
-  const handleManualRateChange = (itemId: string, manualRate: number) => {
-    if (!calculator || !productionChain) return;
+  const handleManualRateChange = (nodeId: string, manualRate: number) => {
+    if (!calculator || !productionChain || !nodeId) return;
     
-    const newChain = calculator.updateManualRate(productionChain, itemId, manualRate);
+    setManualRates(prev => {
+      const newRates = new Map(prev);
+      newRates.set(nodeId, manualRate);
+      return newRates;
+    });
+    
+    const newChain = calculator.updateManualRate(productionChain, nodeId, manualRate);
     setProductionChain(newChain);
-    
-    // Update the machine count if needed based on new total rate
-    const node = findNode(newChain, itemId);
-    if (node && node.recipeId) {
-      const recipe = recipes.find(r => r.id === node.recipeId);
-      if (recipe) {
-        const totalRate = (node.rate || 0) + manualRate;
-        const nominalRate = (recipe.out[itemId] * 60) / recipe.time;
-        const defaultCount = Math.ceil(totalRate / nominalRate);
-        handleMachineCountChange(itemId, defaultCount);
-      }
-    }
     
     // Update resource summary
     const resources = calculator.calculateTotalResources(newChain);
@@ -244,6 +243,7 @@ export function ProductionPlanner() {
         onManualRateChange={handleManualRateChange}
         onMachineCountChange={handleMachineCountChange}
         machineOverrides={machineOverrides}
+        manualRates={manualRates}
         detailLevel={detailLevel}
       />
     );

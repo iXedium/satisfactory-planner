@@ -12,6 +12,9 @@ export class ProductionCalculator {
   }
 
   calculateProduction(itemId: string, rate: number, recipeId?: string | null, manualRate: number = 0): ProductionNode {
+    // Generate a unique ID for this node
+    const nodeId = `${itemId}-${Math.random().toString(36).substr(2, 9)}`;
+
     // Check for circular dependencies
     if (this.processingStack.has(itemId)) {
       console.warn(`Circular dependency detected for item: ${itemId}`);
@@ -20,6 +23,7 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: null,
+        nodeId,  // Add the unique ID
         children: []
       };
     }
@@ -35,6 +39,7 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: null,
+        nodeId,  // Add the unique ID
         children: []
       };
     }
@@ -50,6 +55,7 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: null,
+        nodeId,  // Add the unique ID
         children: []
       };
     }
@@ -60,6 +66,7 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: recipe?.id || null,
+        nodeId,  // Add the unique ID
         children: []
       };
 
@@ -85,33 +92,53 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: null,
+        nodeId,  // Add the unique ID
         children: []
       };
     }
   }
 
-  updateRecipe(node: ProductionNode, itemId: string, newRecipeId: string): ProductionNode {
-    if (node.itemId === itemId) {
-      return this.calculateProduction(itemId, node.rate, newRecipeId, node.manualRate || 0);
+  updateRecipe(node: ProductionNode, nodeId: string, newRecipeId: string): ProductionNode {
+    if (node.nodeId === nodeId) {
+      return this.calculateProduction(node.itemId, node.rate, newRecipeId, node.manualRate || 0);
     }
 
     return {
       ...node,
-      children: node.children.map((child: ProductionNode) => 
-        this.updateRecipe(child, itemId, newRecipeId)
-      )
+      nodeId: node.nodeId, // Preserve nodeId
+      children: node.children.map(child => this.updateRecipe(child, nodeId, newRecipeId))
     };
   }
 
-  updateManualRate(node: ProductionNode, itemId: string, manualRate: number): ProductionNode {
-    if (node.itemId === itemId) {
-      // Convert null to undefined when passing to calculateProduction
-      return this.calculateProduction(itemId, node.rate, node.recipeId || undefined, manualRate);
+  updateManualRate(node: ProductionNode, nodeId: string, manualRate: number): ProductionNode {
+    if (node.nodeId === nodeId) {
+      // Create new node with updated manual rate
+      const updatedNode = {
+        ...node,
+        manualRate: manualRate,
+        // Recalculate children with new total rate
+        children: node.children.map(child => {
+          const totalRate = node.rate + manualRate;
+          const recipe = this.findBestRecipe(node.itemId, node.recipeId);
+          const baseRate = recipe?.out[node.itemId] || 1;
+          const multiplier = totalRate / baseRate;
+          const childBaseRate = recipe?.in[child.itemId] || 0;
+          
+          return this.calculateProduction(
+            child.itemId,
+            childBaseRate * multiplier,
+            child.recipeId,
+            child.manualRate
+          );
+        })
+      };
+      return updatedNode;
     }
 
     return {
       ...node,
-      children: node.children.map(child => this.updateManualRate(child, itemId, manualRate))
+      nodeId: node.nodeId,
+      children: node.children.map(child => this.updateManualRate(child, nodeId, manualRate))
     };
   }
 

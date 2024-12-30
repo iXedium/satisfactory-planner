@@ -38,6 +38,7 @@ export interface Item {
     recipeId: string | null;
     children: ProductionNode[];
     manualRate?: number;  // Add this new property
+    nodeId?: string;  // Add this new property
   }
 
   export interface ProductionNodeUI extends ProductionNode {
