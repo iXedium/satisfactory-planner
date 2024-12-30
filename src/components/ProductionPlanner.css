@@ -807,8 +807,9 @@ select:hover, input:hover {
   background: var(--background-dark);
   color: var(--text-primary);
   border-radius: 4px;
-  -moz-appearance: textfield; /* Remove arrows in Firefox */
-  appearance: textfield; /* Add standard property */
+  appearance: textfield; /* Standard property must come first */
+  -webkit-appearance: textfield; /* Then vendor prefixes */
+  -moz-appearance: textfield;
 }
 
 .machine-count-input::-webkit-outer-spin-button,
@@ -920,6 +921,9 @@ select:hover, input:hover {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-top: 4px;
+  appearance: textfield; /* Standard property must come first */
+  -webkit-appearance: textfield; /* Then vendor prefixes */
+  -moz-appearance: textfield;
 }
 
 .manual-rate-input:focus {
@@ -986,6 +990,8 @@ select:hover, input:hover {
 }
 
 .manual-rate-input[type=number] {
+  appearance: textfield; /* Standard property must come first */
+  -webkit-appearance: textfield; /* Then vendor prefixes */
   -moz-appearance: textfield;
 }
 
