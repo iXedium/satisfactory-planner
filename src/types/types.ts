@@ -37,11 +37,13 @@ export interface Item {
     rate: number;
     recipeId: string | null;
     children: ProductionNode[];
+    manualRate?: number;  // Add this new property
   }
 
   export interface ProductionNodeUI extends ProductionNode {
     availableRecipes: Recipe[];
     item: Item;
+    totalRate?: number;  // Add this to store calculated + manual rate
   }
 
   export interface ResourceSummary {

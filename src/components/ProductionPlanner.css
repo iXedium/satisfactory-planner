@@ -744,6 +744,8 @@ select:hover, input:hover {
   min-width: 120px;
   margin-right: 20px;
   justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .collapse-icon {
@@ -905,3 +907,91 @@ select:hover, input:hover {
 /* ...rest of existing code... */
 
 /* ...rest of existing styles... */
+
+/* ...existing code... */
+
+.manual-rate-input {
+  width: 80px;
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 14px;
+  background: var(--background-darker);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.manual-rate-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.rate-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.manual-rate-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.production-rate {
+  /* Modify existing style to support column layout */
+  grid-area: rate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  color: var(--text-primary);
+  font-size: 16px;
+  justify-self: end;
+  min-width: 120px;
+  margin-right: 20px;
+}
+
+.rate-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.manual-rate-input {
+  width: 80px;
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 14px;
+  background: var(--background-darker);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.manual-rate-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.manual-rate-input::-webkit-outer-spin-button,
+.manual-rate-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.manual-rate-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Hide manual rate input in compact view */
+.compact .manual-rate-input {
+  display: none;
+}
+
+/* ...existing code... */

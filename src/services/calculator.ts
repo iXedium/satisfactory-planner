@@ -11,13 +11,14 @@ export class ProductionCalculator {
     this.processingStack = new Set();
   }
 
-  calculateProduction(itemId: string, rate: number, recipeId?: string): ProductionNode {
+  calculateProduction(itemId: string, rate: number, recipeId?: string | null, manualRate: number = 0): ProductionNode {
     // Check for circular dependencies
     if (this.processingStack.has(itemId)) {
       console.warn(`Circular dependency detected for item: ${itemId}`);
       return {
         itemId,
         rate,
+        manualRate,
         recipeId: null,
         children: []
       };
@@ -32,6 +33,7 @@ export class ProductionCalculator {
       return {
         itemId,
         rate,
+        manualRate,
         recipeId: null,
         children: []
       };
@@ -46,6 +48,7 @@ export class ProductionCalculator {
       return {
         itemId,
         rate,
+        manualRate,
         recipeId: null,
         children: []
       };
@@ -55,18 +58,20 @@ export class ProductionCalculator {
       const node: ProductionNode = {
         itemId,
         rate,
-        recipeId: recipe.id,
+        manualRate,
+        recipeId: recipe?.id || null,
         children: []
       };
 
-      // Calculate input requirements
-      const baseRate = recipe.out[itemId] || 1;
-      const multiplier = rate / baseRate;
+      // Use total rate for calculations
+      const totalRate = rate + manualRate;
+      const baseRate = recipe?.out[itemId] || 1;
+      const multiplier = totalRate / baseRate;
 
       // Create child nodes for each input
-      for (const [inputId, inputRate] of Object.entries(recipe.in)) {
+      for (const [inputId, inputRate] of Object.entries(recipe?.in || {})) {
         node.children.push(
-          this.calculateProduction(inputId, inputRate * multiplier)
+          this.calculateProduction(inputId, inputRate * multiplier, undefined, 0) // Add missing arguments
         );
       }
 
@@ -78,6 +83,7 @@ export class ProductionCalculator {
       return {
         itemId,
         rate,
+        manualRate,
         recipeId: null,
         children: []
       };
@@ -86,7 +92,7 @@ export class ProductionCalculator {
 
   updateRecipe(node: ProductionNode, itemId: string, newRecipeId: string): ProductionNode {
     if (node.itemId === itemId) {
-      return this.calculateProduction(itemId, node.rate, newRecipeId);
+      return this.calculateProduction(itemId, node.rate, newRecipeId, node.manualRate || 0);
     }
 
     return {
@@ -94,6 +100,18 @@ export class ProductionCalculator {
       children: node.children.map((child: ProductionNode) => 
         this.updateRecipe(child, itemId, newRecipeId)
       )
+    };
+  }
+
+  updateManualRate(node: ProductionNode, itemId: string, manualRate: number): ProductionNode {
+    if (node.itemId === itemId) {
+      // Convert null to undefined when passing to calculateProduction
+      return this.calculateProduction(itemId, node.rate, node.recipeId || undefined, manualRate);
+    }
+
+    return {
+      ...node,
+      children: node.children.map(child => this.updateManualRate(child, itemId, manualRate))
     };
   }
 
@@ -120,7 +138,7 @@ export class ProductionCalculator {
     return resources;
   }
 
-  private findBestRecipe(itemId: string, recipeId?: string): Recipe | null {
+  private findBestRecipe(itemId: string, recipeId?: string | null): Recipe | null {
     // Get all valid recipes for this item
     const availableRecipes = Array.from(this.recipes.values())
       .filter(r => {

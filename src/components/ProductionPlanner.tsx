@@ -2,10 +2,11 @@
 import React, { useState, useEffect, JSX, useRef } from 'react';
 import { db } from '../services/database';
 import { ProductionCalculator } from '../services/calculator';
-import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem } from '../types/types';
+import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem, ResourceSummary } from '../types/types';
 import { ItemIcon } from './ItemIcon';
+import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
 
-export const ProductionPlanner: React.FC = () => {
+export function ProductionPlanner() {
   const [items, setItems] = useState<Item[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [calculator, setCalculator] = useState<ProductionCalculator | null>(null);
@@ -18,6 +19,7 @@ export const ProductionPlanner: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const productionResultRef = useRef<HTMLDivElement>(null);
   const [treePanelWidth, setTreePanelWidth] = useState<number>(70); // percentage
+  const [resourceSummary, setResourceSummary] = useState<ResourceSummary>({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -69,6 +71,39 @@ export const ProductionPlanner: React.FC = () => {
       const newChain = calculator.updateRecipe(productionChain, itemId, newRecipeId);
       setProductionChain(newChain);
     }
+  };
+
+  const handleManualRateChange = (itemId: string, manualRate: number) => {
+    if (!calculator || !productionChain) return;
+    
+    const newChain = calculator.updateManualRate(productionChain, itemId, manualRate);
+    setProductionChain(newChain);
+    
+    // Update the machine count if needed based on new total rate
+    const node = findNode(newChain, itemId);
+    if (node && node.recipeId) {
+      const recipe = recipes.find(r => r.id === node.recipeId);
+      if (recipe) {
+        const totalRate = (node.rate || 0) + manualRate;
+        const nominalRate = (recipe.out[itemId] * 60) / recipe.time;
+        const defaultCount = Math.ceil(totalRate / nominalRate);
+        handleMachineCountChange(itemId, defaultCount);
+      }
+    }
+    
+    // Update resource summary
+    const resources = calculator.calculateTotalResources(newChain);
+    setResourceSummary(resources);
+  };
+
+  // Add this helper function
+  const findNode = (chain: ProductionNode, itemId: string): ProductionNode | null => {
+    if (chain.itemId === itemId) return chain;
+    for (const child of chain.children) {
+      const found = findNode(child, itemId);
+      if (found) return found;
+    }
+    return null;
   };
 
   const addTargetItem = () => {
@@ -176,6 +211,20 @@ export const ProductionPlanner: React.FC = () => {
     document.addEventListener('mouseup', handleMouseUp);
   };
 
+  const enhanceProductionNode = (node: ProductionNode): ProductionNodeUI => {
+    const item = items.find(i => i.id === node.itemId);
+    const availableRecipes = recipes.filter(r => 
+      Object.keys(r.out).includes(node.itemId)
+    );
+
+    return {
+      ...node,
+      availableRecipes,
+      item: item!,
+      children: node.children.map(child => enhanceProductionNode(child))
+    };
+  };
+
   const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
     // Don't render the root node
     if (node.itemId === 'root') {
@@ -186,137 +235,17 @@ export const ProductionPlanner: React.FC = () => {
       );
     }
 
-    const item = items.find(i => i.id === node.itemId);
-    const availableRecipes = recipes.filter(r => 
-      Object.keys(r.out).includes(node.itemId)  // Changed from [0] === to includes()
-    );
-    const currentRecipe = node.recipeId ? recipes.find(r => r.id === node.recipeId) : null;
+    const enhancedNode = enhanceProductionNode(node);
     
-    if (!item) return null;
-
-    const isCollapsed = collapsedNodes.has(node.itemId);
-    const hasChildren = node.children.length > 0;
-
-    // Calculate nominal rate and get producer info
-    const nominalRate = currentRecipe ? (currentRecipe.out[node.itemId] * 60) / currentRecipe.time : 0;
-    const producer = currentRecipe ? currentRecipe.producers[0] : null;
-
-    // Calculate machine count and efficiency
-    const defaultMachineCount = currentRecipe ? Math.ceil(node.rate / nominalRate) : 0;
-    const actualMachineCount = machineOverrides.get(node.itemId) || defaultMachineCount;
-    const actualCapacity = actualMachineCount * nominalRate;
-    const efficiency = currentRecipe ? ((node.rate / actualCapacity) * 100).toFixed(2) : '0';
-
-    // Helper function to format building name
-    const formatBuildingName = (name: string): string => {
-      return name.split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    };
-
-    const renderMachineControls = () => (
-      <div className="machine-controls" onClick={e => e.stopPropagation()}>
-        <button 
-          className="machine-adjust" 
-          onClick={() => {
-            handleMachineCountChange(node.itemId, actualMachineCount - 1);
-          }}
-          disabled={actualMachineCount <= 1}
-        >
-          -
-        </button>
-        <input
-          type="number"
-          value={actualMachineCount}
-          onChange={(e) => {
-            const count = Math.max(1, parseInt(e.target.value) || 1);
-            handleMachineCountChange(node.itemId, count);
-          }}
-          onClick={(e) => {
-            e.currentTarget.select(); // Select all text when clicking
-          }}
-          min="1"
-          className="machine-count-input"
-        />
-        <button 
-          className="machine-adjust" 
-          onClick={() => {
-            handleMachineCountChange(node.itemId, actualMachineCount + 1);
-          }}
-        >
-          +
-        </button>
-        <div 
-          className={`efficiency-value ${getEfficiencyClass(parseFloat(efficiency))}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            // Use the actual efficiency value (rate/capacity) directly
-            const actualEfficiency = (node.rate / actualCapacity).toFixed(6);
-            navigator.clipboard.writeText(actualEfficiency);
-          }}
-          title="Click to copy actual value"
-        >
-          ({efficiency}%)
-        </div>
-      </div>
-    );
-
     return (
-      <div className={`production-node ${detailLevel}`}>
-        <div className={`node-content ${hasChildren ? 'collapsible' : ''}`}
-             onClick={() => hasChildren && toggleNode(node.itemId)}>
-          {hasChildren && (
-            <span className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}>▼</span>
-          )}
-          <div className="item-icon-container">
-            <ItemIcon iconId={item.id} />
-          </div>
-
-          <div className="name-recipe-container">
-            <h3>{item.name}</h3>
-            {availableRecipes.length > 0 && (
-              <select
-                value={node.recipeId || ''}
-                onChange={(e) => handleRecipeChange(node.itemId, e.target.value)}
-                onClick={e => e.stopPropagation()}
-              >
-                {availableRecipes.map(recipe => (
-                  <option key={recipe.id} value={recipe.id}>
-                    {recipe.name}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          {currentRecipe && producer && detailLevel !== 'compact' && (
-            <div className="building-container">
-              {detailLevel === 'detailed' && (
-                <ItemIcon iconId={producer.toLowerCase()} />
-              )}
-              <div className="building-info">
-                <span className="producer-name">{formatBuildingName(producer)}</span>
-                <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
-                {renderMachineControls()}
-              </div>
-            </div>
-          )}
-
-          <div className="production-rate">
-            {node.rate.toFixed(2)}/min
-          </div>
-        </div>
-
-        {hasChildren && !isCollapsed && (
-          <div className="node-inputs">
-            {node.children.map((child: ProductionNode, index: number) => (
-              <div key={index} className="input-node">
-                {renderProductionNode(child)}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <ProductionNodeComponent
+        node={enhancedNode}
+        onRecipeChange={handleRecipeChange}
+        onManualRateChange={handleManualRateChange}
+        onMachineCountChange={handleMachineCountChange}
+        machineOverrides={machineOverrides}
+        detailLevel={detailLevel}
+      />
     );
   };
 
