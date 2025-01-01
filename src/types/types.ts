@@ -47,6 +47,11 @@ export interface Item {
     totalRate?: number;  // Add this to store calculated + manual rate
   }
 
+  export interface AccumulatedNodeUI extends ProductionNodeUI {
+    sourceNodes: string[];  // Make this required
+    isAccumulated: true;   // Make this required and always true
+  }
+
   export interface ResourceSummary {
     [itemId: string]: number;
   }
@@ -56,18 +61,24 @@ export interface Item {
     rate: number;
   }
 
-  export interface MergedNode {
-    itemId: string;
-    recipeId: string | null;
+  export interface MergedNode extends ProductionNode {
     totalRate: number;
     manualRate: number;
-    nodeIds: string[];  // Keep track of original node IDs
+    nodeIds: string[];
     item: Item;
     recipe: Recipe | null;
     machineCount: number;
     efficiency: number;
+    rate: number;      // Required by ProductionNode
+    children: ProductionNode[];  // Required by ProductionNode
   }
 
   export interface ViewMode {
     type: 'tree' | 'list';
+  }
+
+  export interface AccumulatedNode extends ProductionNode {
+    sourceNodes: string[];  // Array of original nodeIds that make up this accumulated node
+    totalRate: number;      // Sum of all accumulated rates
+    totalManualRate: number; // Sum of all manual rates
   }

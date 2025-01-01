@@ -1,60 +1,53 @@
 import React from 'react';
-import { MergedNode } from '../types/types';
-import { ItemIcon } from './ItemIcon';
+import { ProductionNode, Item, Recipe, AccumulatedNodeUI } from '../types/types';
+import { accumulateNodes } from '../utils/nodeAccumulator';
+import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
 
 interface ListViewProps {
-  nodes: MergedNode[];
-  onMachineCountChange: (nodeId: string, count: number) => void;
-  onManualRateChange: (nodeId: string, rate: number) => void;
+  nodes: ProductionNode[];
+  items: Map<string, Item>;
+  recipes: Map<string, Recipe>;
   onRecipeChange: (nodeId: string, recipeId: string) => void;
+  onManualRateChange: (nodeId: string, rate: number) => void;
+  onMachineCountChange: (nodeId: string, count: number) => void;
+  machineOverrides: Map<string, number>;
+  manualRates: Map<string, number>;
   detailLevel: 'compact' | 'normal' | 'detailed';
 }
 
-export function ListView({ nodes, onMachineCountChange, onManualRateChange, onRecipeChange, detailLevel }: ListViewProps) {
-  if (nodes.length === 0) {
-    return <div>No data available</div>; // Debugging step
+export function ListView(props: ListViewProps) {
+  const accumulatedNodes = accumulateNodes(props.nodes, props.items, props.recipes);
+
+  const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
+    // Apply change to all source nodes immediately
+    const node = accumulatedNodes.find(n => n.sourceNodes.includes(nodeId));
+    if (node) {
+      node.sourceNodes.forEach(sourceId => {
+        props.onRecipeChange(sourceId, newRecipeId);
+      });
+    }
+  };
+
+  // Add error boundary
+  if (accumulatedNodes.length === 0) {
+    return <div>No production nodes to display</div>;
   }
 
   return (
     <div className="list-view">
-      {nodes.map(node => (
-        <div key={`${node.itemId}-${node.recipeId}`} className="list-item">
-          <div className="list-item-content">
-            <ItemIcon iconId={node.item.id} />
-            <div className="item-info">
-              <h3>{node.item.name}</h3>
-              {node.recipe && (
-                <div className="recipe-name">{node.recipe.name}</div>
-              )}
-            </div>
-            <div className="total-rate">
-              Production Rate: {node.totalRate.toFixed(2)}/min
-              ({node.nodeIds.length} nodes)
-            </div>
-            <div className="machine-count">
-              Machines: {node.machineCount}
-            </div>
-            <div className="controls">
-              <button onClick={() => onMachineCountChange(node.nodeIds[0], node.machineCount + 1)}>+</button>
-              <button onClick={() => onMachineCountChange(node.nodeIds[0], node.machineCount - 1)}>-</button>
-              <input
-                type="number"
-                value={node.manualRate}
-                onChange={(e) => onManualRateChange(node.nodeIds[0], parseFloat(e.target.value) || 0)}
-                onClick={(e) => e.currentTarget.select()}
-                onWheel={(e) => e.currentTarget.blur()}
-              />
-              <select
-                value={node.recipeId || ''}
-                onChange={(e) => onRecipeChange(node.nodeIds[0], e.target.value)}
-              >
-                {node.recipe && (
-                  <option value={node.recipe.id}>{node.recipe.name}</option>
-                )}
-              </select>
-            </div>
-          </div>
-        </div>
+      {accumulatedNodes.map(node => (
+        <ProductionNodeComponent
+          key={`${node.itemId}-${node.recipeId}`}
+          node={node}
+          onRecipeChange={handleRecipeChange}
+          onManualRateChange={props.onManualRateChange}
+          onMachineCountChange={props.onMachineCountChange}
+          machineOverrides={props.machineOverrides}
+          manualRates={props.manualRates}
+          detailLevel={props.detailLevel}
+          isAccumulated={true}
+          sourceCount={node.sourceNodes.length}
+        />
       ))}
     </div>
   );

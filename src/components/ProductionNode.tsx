@@ -10,6 +10,8 @@ interface ProductionNodeProps {
   machineOverrides: Map<string, number>;
   manualRates: Map<string, number>;
   detailLevel?: 'compact' | 'normal' | 'detailed';
+  isAccumulated?: boolean;
+  sourceCount?: number;
 }
 
 export function ProductionNode({ 

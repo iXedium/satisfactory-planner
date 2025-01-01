@@ -1077,13 +1077,13 @@ select:hover, input:hover {
   background: var(--background-dark);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 4px 8px; /* Reduced padding for compactness */
-  margin: 2px 0;    /* Reduced margin between items */
+  padding: 12px; /* Match padding with detailed tree view */
+  margin: 2px 0; /* Reduced margin between items */
 }
 
 .list-item-content {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto auto;
   gap: 16px;
   align-items: center;
 }
@@ -1102,7 +1102,7 @@ select:hover, input:hover {
 
 .production-rate {
   font-size: 0.9em;
-  color: #333;
+  color: #fff;
 }
 
 .view-toggle-button {
@@ -1119,6 +1119,44 @@ select:hover, input:hover {
 .view-toggle-button:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
+}
+
+/* Shared styles for controls */
+.controls button,
+.controls input,
+.controls select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-darker);
+  color: var(--text-primary);
+}
+
+.controls button:hover,
+.controls input:hover,
+.controls select:hover {
+  border-color: var(--primary-color);
+}
+
+.controls button {
+  background: var(--primary-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.controls button:hover {
+  background: var(--primary-hover);
+}
+
+.controls input {
+  text-align: center;
+}
+
+.controls select {
+  min-width: 100px;
 }
 
 /* ...rest of existing styles... */
