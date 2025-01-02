@@ -12,14 +12,27 @@ export class ProductionCalculator {
   }
 
   calculateProduction(itemId: string, rate: number, recipeId?: string | null, manualRate: number = 0, producedFor?: ProductionPurpose): ProductionNode {
-    // Generate a unique ID for this node
     const nodeId = `${itemId}-${Math.random().toString(36).substr(2, 9)}`;
-
-    // Create relationships data
     const relationships: ProductionRelationship = {
       producedFor: producedFor ? [producedFor] : [],
       totalProduction: rate + manualRate
     };
+
+    // Handle byproducts - if rate is negative, we don't need a recipe
+    if (rate < 0) {
+      return {
+        itemId,
+        rate,
+        manualRate,
+        recipeId: null, // No recipe needed for byproducts
+        nodeId,
+        children: [],
+        relationships: {
+          producedFor: producedFor ? [producedFor] : [],
+          totalProduction: rate + manualRate
+        }
+      };
+    }
 
     // Check for circular dependencies
     if (this.processingStack.has(itemId)) {
@@ -75,28 +88,48 @@ export class ProductionCalculator {
         rate,
         manualRate,
         recipeId: recipe?.id || null,
-        nodeId,  // Add the unique ID
+        nodeId,
         children: [],
         relationships
       };
 
-      // Use total rate for calculations
-      const totalRate = rate + manualRate;
-      const baseRate = recipe?.out[itemId] || 1;
-      const multiplier = totalRate / baseRate;
+      if (recipe) {
+        const totalRate = rate + manualRate;
+        const baseRate = recipe.out[itemId] || 1;
+        const multiplier = totalRate / baseRate;
 
-      // Create child nodes with relationship data
-      for (const [inputId, inputRate] of Object.entries(recipe?.in || {})) {
-        const childRate = inputRate * multiplier;
-        const purpose: ProductionPurpose = {
-          itemId: node.itemId,
-          amount: childRate,
-          nodeId: nodeId  // Using the parent's nodeId
-        };
-        
-        node.children.push(
-          this.calculateProduction(inputId, childRate, undefined, 0, purpose)
-        );
+        // Handle byproducts - create nodes for additional outputs
+        Object.entries(recipe.out).forEach(([outputId, outputRate]) => {
+          if (outputId !== itemId) {
+            // Calculate byproduct rate (negative because it's excess production)
+            const byproductRate = -(outputRate * multiplier);
+            node.children.push({
+              itemId: outputId,
+              rate: byproductRate,
+              recipeId: null, // No recipe for byproducts
+              nodeId: `${outputId}-byproduct-${nodeId}`,
+              children: [],
+              relationships: {
+                producedFor: [],
+                totalProduction: byproductRate
+              }
+            });
+          }
+        });
+
+        // Handle inputs (existing code)
+        for (const [inputId, inputRate] of Object.entries(recipe.in)) {
+          const childRate = inputRate * multiplier;
+          const purpose: ProductionPurpose = {
+            itemId: node.itemId,
+            amount: childRate,
+            nodeId: nodeId  // Using the parent's nodeId
+          };
+          
+          node.children.push(
+            this.calculateProduction(inputId, childRate, undefined, 0, purpose)
+          );
+        }
       }
 
       this.processingStack.delete(itemId);
@@ -202,6 +235,9 @@ export class ProductionCalculator {
   }
 
   private findBestRecipe(itemId: string, recipeId?: string | null): Recipe | null {
+    // Special case: if recipe is 'none', return null
+    if (recipeId === 'none') return null;
+
     // Get all valid recipes for this item
     const availableRecipes = Array.from(this.recipes.values())
       .filter(r => {

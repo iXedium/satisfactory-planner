@@ -270,6 +270,7 @@ button:hover {
   --background-darker: #1a1a1a;
   --background-dark: #2d2d2d;
   --background-light: #3d3d3d;
+  --background-negative: #4a2727;  /* Add this line */
   --text-primary: #ffffff;
   --text-secondary: #a0aec0;
   --border-color: #4a4a4a;
@@ -279,6 +280,7 @@ button:hover {
 }
 
 .node-content h3 {
+  grid-area: name;
   grid-area: name;
   margin: 0;
   display: flex;
@@ -1750,4 +1752,18 @@ select:hover, input:hover {
   width: 32px;
 }
 
-/* ...rest of existing styles... */
+
+.node-content {
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add style for negative rates */
+.production-node[data-rate-type="negative"] .node-content {
+  background-color: var(--background-negative);
+}
+

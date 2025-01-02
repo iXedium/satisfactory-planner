@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ProductionNodeUI, Recipe, Item } from '../types/types';  // Add Item import
 import { ItemIcon } from './ItemIcon';
 import { Tooltip } from './Tooltip';
@@ -188,14 +188,43 @@ export function ProductionNode({
     );
   };
 
+  // Replace the direct console.log with useEffect
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Node ${node.itemId}:`, {
+        totalRate,
+        dataRateType: totalRate < 0 ? 'negative' : 'positive',
+        rate: node.rate,
+        manualRate: node.manualRate,
+        renderCount: 'first mount only' // Add this to verify it only logs once
+      });
+    }
+  }, []); // Empty dependency array means this only runs once on mount
+
+  const handleDebugClick = (e: React.MouseEvent) => {
+    const element = e.currentTarget;
+    const nodeContent = element.querySelector('.node-content');
+    console.log('Debug node:', {
+      itemId: node.itemId,
+      rateType: element.getAttribute('data-rate-type'),
+      hasAttribute: element.hasAttribute('data-rate-type'),
+      nodeContent: nodeContent,
+      computedStyle: nodeContent ? window.getComputedStyle(nodeContent) : null,
+      className: element.className,
+      parentClass: element.parentElement?.className
+    });
+  };
+
   return (
     <div 
       className={`production-node ${detailLevel}`}
       data-item-id={node.itemId} // Add this attribute for scrolling target
+      data-rate-type={totalRate < 0 ? 'negative' : 'positive'} // Move back to parent
     >
       <div 
         className={`node-content ${hasChildren ? 'collapsible' : ''}`}
         onClick={handleNodeClick}
+        // Remove data-rate-type from here
       >
         {hasChildren && (
           <span className={`collapse-icon ${collapsed ? 'collapsed' : ''}`}>▼</span>

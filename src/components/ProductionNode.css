@@ -18,6 +18,36 @@
   background: none;
 }
 
+/* Add styles for negative rate nodes */
+.production-node .node-content {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure node-content has base styles */
+.node-content {
+  position: relative;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-dark);
+}
+
+/* Remove general debug outlines */
+.production-node {
+  position: relative; /* Ensure positioning context */
+  margin: 2px 0;
+}
+
+/* Override the background variable for negative rate nodes */
+.production-node[data-rate-type="negative"] {
+  --background-dark: var(--background-negative);
+}
+
+/* Remove previous negative rate styling attempts */
+/* Debug - uncomment these to verify selector matching */
+/*.production-node[data-rate-type="negative"] {
+  border: 2px solid blue;
+}*/
+
 .compact .item-icon-container {
   height: 32px;
   width: 32px;

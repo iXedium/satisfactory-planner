@@ -17,12 +17,13 @@ export interface Item {
     producers: string[];
     time: number;
     in: Record<string, number>;
-    out: Record<string, number>;
+    out: Record<string, number>;  // This already supports multiple outputs
     cost?: number;
     row?: number;
     category?: string;
     flags?: string[];
     usage?: number;
+    main_output?: string; // Add this to identify the primary product
   }
 
   export interface ProductionChainNode {
