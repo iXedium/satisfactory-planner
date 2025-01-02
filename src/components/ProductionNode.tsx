@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { ProductionNodeUI, Recipe, Item } from '../types/types';  // Add Item import
 import { ItemIcon } from './ItemIcon';
 import { Tooltip } from './Tooltip';
+import { RecipeSelect } from './RecipeSelect';
+import { CustomRecipeDropdown } from './CustomRecipeDropdown';
 
 interface ProductionNodeProps {
   node: ProductionNodeUI;
@@ -29,8 +31,6 @@ export function ProductionNode({
 }: ProductionNodeProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [showConsumption, setShowConsumption] = useState(false);
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const nameRecipeRef = useRef<HTMLDivElement>(null);
   const hasChildren = node.children.length > 0;
   const totalRate = node.rate + (node.manualRate || 0);
@@ -188,23 +188,6 @@ export function ProductionNode({
     );
   };
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    if (!currentRecipe) return;
-    
-    const rect = nameRecipeRef.current?.getBoundingClientRect();
-    if (rect) {
-      setTooltipPosition({
-        x: rect.right + 10,
-        y: rect.top
-      });
-      setTooltipVisible(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setTooltipVisible(false);
-  };
-
   return (
     <div 
       className={`production-node ${detailLevel}`}
@@ -225,38 +208,19 @@ export function ProductionNode({
         <div 
           className="name-recipe-container"
           ref={nameRecipeRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           <h3>{node.item.name}</h3>
           {node.availableRecipes.length > 0 && detailLevel !== 'compact' && (
             <div className="machine-controls" onClick={e => e.stopPropagation()}>
-              <select
+              <CustomRecipeDropdown
+                recipes={node.availableRecipes}
                 value={node.recipeId || ''}
-                onChange={(e) => node.nodeId && onRecipeChange(node.nodeId, e.target.value)}
-              >
-                {node.availableRecipes.map(recipe => (
-                  <option key={recipe.id} value={recipe.id}>
-                    {recipe.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => node.nodeId && onRecipeChange(node.nodeId, value)}
+                itemsMap={itemsMap}
+              />
             </div>
           )}
         </div>
-
-        {currentRecipe && (
-          <Tooltip
-            recipe={currentRecipe}
-            items={itemsMap}
-            show={tooltipVisible}
-            style={{
-              position: 'fixed',
-              left: `${tooltipPosition.x}px`,
-              top: `${tooltipPosition.y}px`
-            }}
-          />
-        )}
 
         {detailLevel !== 'compact' && renderRelationships()}
 

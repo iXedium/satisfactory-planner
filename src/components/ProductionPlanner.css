@@ -412,7 +412,7 @@ select:hover, input:hover {
 }
 
 .add-button {
-  background: var(--success-color, #38a169);
+  background: var (--success-color, #38a169);
   color: white;
   border: none;
   transition: all 0.2s ease;
@@ -880,7 +880,7 @@ select:hover, input:hover {
   padding: 4px;
   border-radius: 6px;
   position: relative; /* Add this */
-  z-index: 1; /* Add this to ensure controls stay above other elements */
+  z-index: 2; /* Add this to ensure controls stay above other elements */
   cursor: default; /* Add this to override parent's cursor */
 }
 
@@ -1066,7 +1066,7 @@ select:hover, input:hover {
   font-size: 14px;
   background: var (--background-darker);
   color: var (--text-primary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var (--border-color);
   border-radius: 4px;
   margin-top: 4px;
 }
@@ -1106,7 +1106,7 @@ select:hover, input:hover {
   padding: 4px;
   border-radius: 6px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   cursor: default;
 }
 
@@ -1569,7 +1569,7 @@ select:hover, input:hover {
   min-width: 280px;
   max-width: 320px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 9999; /* Increased to be above all other elements */
   pointer-events: none;
 }
 
@@ -1579,7 +1579,7 @@ select:hover, input:hover {
   align-items: center;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var (--border-color);
 }
 
 .recipe-tooltip .tooltip-header h3 {
@@ -1628,3 +1628,98 @@ select:hover, input:hover {
   height: 16px;
   margin: 0;
 }
+
+/* ...existing styles... */
+
+.recipe-select-container {
+  position: relative;
+  width: 100%;
+}
+
+.recipe-select-container select {
+  width: 100%;
+  min-width: 200px;
+  max-width: 300px;
+  cursor: pointer;
+}
+
+.recipe-select-container option {
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* Ensure the tooltip appears above other elements */
+.recipe-tooltip {
+  z-index: 9999;
+}
+
+/* ...rest of existing styles... */
+
+/* ...existing styles... */
+
+.custom-recipe-dropdown {
+  position: relative;
+  width: 100%;
+  min-width: 200px;
+  max-width: 300px;
+  user-select: none;
+}
+
+.dropdown-selected {
+  background: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.dropdown-selected:hover {
+  border-color: var(--primary-color);
+}
+
+.dropdown-arrow {
+  color: var(--text-secondary);
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1100; /* Increased z-index to be above other dropdowns */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-option:hover {
+  background: var(--background-light);
+}
+
+.dropdown-option.selected {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Ensure tooltips appear above everything */
+.recipe-tooltip {
+  z-index: 9999;
+}
+
+/* ...rest of existing styles... */
