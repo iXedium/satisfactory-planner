@@ -84,7 +84,8 @@ export function ProductionNode({
   };
 
   const renderRelationships = () => {
-    if (!node.relationships) return null;
+    // Only show relationships in list view
+    if (!node.relationships || !isAccumulated) return null;
 
     const relationships = node.relationships;  // Store reference to avoid multiple optional chaining
     
