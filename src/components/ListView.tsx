@@ -1,6 +1,7 @@
 import React from 'react';
 import { ProductionNode, Item, Recipe, AccumulatedNodeUI } from '../types/types';
 import { accumulateNodes } from '../utils/nodeAccumulator';
+import { calculateConsumption } from '../utils/consumptionTracker';
 import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
 
 interface ListViewProps {
@@ -16,7 +17,49 @@ interface ListViewProps {
 }
 
 export function ListView(props: ListViewProps) {
+  // Get all nodes including their children for consumption calculation
+  const getAllNodesWithRelationships = (nodes: ProductionNode[]): ProductionNode[] => {
+    const allNodes: ProductionNode[] = [];
+    
+    // Helper function to maintain parent-child relationships
+    const processNode = (node: ProductionNode, parent: ProductionNode | null) => {
+      if (node.itemId !== 'root') {
+        // Create a copy of the node with its parent reference
+        const nodeWithParent = {
+          ...node,
+          parent: parent // Track the parent node
+        };
+        allNodes.push(nodeWithParent);
+        node.children.forEach(child => processNode(child, node));
+      } else {
+        // Process root node's children without adding root itself
+        node.children.forEach(child => processNode(child, null));
+      }
+    };
+
+    // Start processing from root nodes
+    nodes.forEach(node => processNode(node, null));
+    return allNodes;
+  };
+
+  // Get all nodes with their relationships
+  const allNodes = getAllNodesWithRelationships(props.nodes);
+  console.log('All nodes with relationships:', allNodes);
+
+  // Calculate consumption data
+  const consumptionData = calculateConsumption(allNodes);
+  console.log('Consumption data with relationships:', consumptionData);
+
+  // Accumulate nodes and preserve consumption data
   const accumulatedNodes = accumulateNodes(props.nodes, props.items, props.recipes);
+  
+  // Map consumption data to accumulated nodes
+  const enhancedNodes = accumulatedNodes.map(node => ({
+    ...node,
+    consumption: consumptionData.get(node.itemId)
+  }));
+
+  console.log('Enhanced nodes with consumption:', enhancedNodes);
 
   const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
     // Apply change to all source nodes immediately
@@ -35,7 +78,7 @@ export function ListView(props: ListViewProps) {
 
   return (
     <div className="list-view">
-      {accumulatedNodes.map(node => (
+      {enhancedNodes.map(node => (
         <ProductionNodeComponent
           key={`${node.itemId}-${node.recipeId}`}
           node={node}

@@ -21,9 +21,11 @@ export function ProductionNode({
   onMachineCountChange,
   machineOverrides,
   manualRates,
-  detailLevel = 'normal' 
+  detailLevel = 'normal',
+  isAccumulated = false
 }: ProductionNodeProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [showConsumption, setShowConsumption] = useState(false);
   const hasChildren = node.children.length > 0;
   const totalRate = node.rate + (node.manualRate || 0);
 
@@ -51,15 +53,22 @@ export function ProductionNode({
   };
 
   const handleNodeClick = (e: React.MouseEvent) => {
-    // Only collapse if clicking directly on the node-content
-    // and not on any of its interactive children
-    if (
-      hasChildren && 
-      e.target instanceof Element && 
-      e.target.className === 'node-content'
-    ) {
+    if (!hasChildren) return;
+    
+    // Get the clicked element
+    const target = e.target as HTMLElement;
+    
+    // Check if we clicked on an interactive element or consumption list
+    const isInteractive = target.closest('.machine-controls, .consumption-list, select, input, button');
+    
+    if (!isInteractive) {
       setCollapsed(!collapsed);
     }
+  };
+
+  const handleConsumptionToggle = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent node collapse when clicking consumption
+    setShowConsumption(!showConsumption);
   };
 
   const calculateOptimalManualRate = () => {
@@ -74,11 +83,46 @@ export function ProductionNode({
     onManualRateChange(node.nodeId, 0);
   };
 
+  const renderRelationships = () => {
+    if (!node.relationships) return null;
+
+    // Calculate percentages on demand
+    const withPercentages = node.relationships.producedFor.map(rel => ({
+      ...rel,
+      percentage: (rel.amount / node.relationships!.totalProduction) * 100
+    }));
+
+    return (
+      <div className="consumption-list" onClick={e => e.stopPropagation()}>
+        <div className="consumption-header" onClick={handleConsumptionToggle}>
+          <span className={`collapse-icon ${!showConsumption ? 'collapsed' : ''}`}>▼</span>
+          <span>Used In</span>
+        </div>
+        {showConsumption && (
+          <div className="consumption-items">
+            {withPercentages.map(rel => (
+              <div key={rel.nodeId} className="consumption-item">
+                <span className="consumer-name">
+                  <ItemIcon iconId={rel.itemId} />
+                  {rel.itemId}
+                </span>
+                <span className="consumer-amount">{rel.amount.toFixed(2)}/min</span>
+                <span className="consumer-percentage">
+                  <span className="percentage-primary">{rel.percentage.toFixed(1)}%</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={`production-node ${detailLevel}`}>
       <div 
         className={`node-content ${hasChildren ? 'collapsible' : ''}`}
-        onClick={() => hasChildren && setCollapsed(!collapsed)}
+        onClick={handleNodeClick}
       >
         {hasChildren && (
           <span className={`collapse-icon ${collapsed ? 'collapsed' : ''}`}>▼</span>
@@ -105,6 +149,8 @@ export function ProductionNode({
             </div>
           )}
         </div>
+
+        {detailLevel !== 'compact' && renderRelationships()}
 
         {currentRecipe && producer && detailLevel !== 'compact' && (
           <div className="building-container" onClick={e => e.stopPropagation()}>

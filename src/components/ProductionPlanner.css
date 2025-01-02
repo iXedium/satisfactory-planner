@@ -1162,3 +1162,126 @@ select:hover, input:hover {
 /* ...rest of existing styles... */
 
 /* ...rest of existing styles... */
+
+/* ...existing styles... */
+
+.consumption-list {
+  grid-column: name / building;
+  background: var(--background-darker);
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.consumption-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.consumption-items {
+  padding: 8px 12px;
+}
+
+.consumption-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.consumption-item.storage {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.consumer-percentage {
+  color: var(--text-secondary);
+}
+
+/* ...existing styles... */
+
+
+.percentage-primary {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.percentage-secondary {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+/* ...rest of existing styles... */
+/* Override the blanket pointer-events: none on node-content * */
+.node-content .consumption-list,
+.node-content .consumption-header,
+.node-content .consumption-items {
+  pointer-events: auto;
+}
+
+.consumption-list {
+  grid-column: name / building;
+  background: var(--background-darker);
+  border-radius: 6px;
+  margin-top: 8px;
+  cursor: default; /* Prevent cursor inheritance */
+}
+
+.consumption-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  user-select: none; /* Prevent text selection when clicking */
+}
+
+.consumption-header:hover {
+  background: var(--background-light);
+}
+
+/* ...existing styles... */
+
+/* ...existing styles... */
+
+/* Update list view specific styles */
+.list-view .consumption-list {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  max-width: 800px; /* Limit width in list view */
+}
+
+.list-view .consumer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-view .consumer-name .item-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.list-view .consumption-item {
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.list-view .consumption-item:hover {
+  background: var(--background-light);
+}
+
+/* ...rest of existing styles... */

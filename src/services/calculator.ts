@@ -1,4 +1,4 @@
-import { Item, Recipe, ProductionNode, ResourceSummary } from '../types/types';
+import { Item, Recipe, ProductionNode, ResourceSummary, ProductionRelationship, ProductionPurpose } from '../types/types';
 
 export class ProductionCalculator {
   private items: Map<string, Item>;
@@ -11,9 +11,15 @@ export class ProductionCalculator {
     this.processingStack = new Set();
   }
 
-  calculateProduction(itemId: string, rate: number, recipeId?: string | null, manualRate: number = 0): ProductionNode {
+  calculateProduction(itemId: string, rate: number, recipeId?: string | null, manualRate: number = 0, producedFor?: ProductionPurpose): ProductionNode {
     // Generate a unique ID for this node
     const nodeId = `${itemId}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create relationships data
+    const relationships: ProductionRelationship = {
+      producedFor: producedFor ? [producedFor] : [],
+      totalProduction: rate + manualRate
+    };
 
     // Check for circular dependencies
     if (this.processingStack.has(itemId)) {
@@ -24,7 +30,8 @@ export class ProductionCalculator {
         manualRate,
         recipeId: null,
         nodeId,  // Add the unique ID
-        children: []
+        children: [],
+        relationships
       };
     }
 
@@ -40,7 +47,8 @@ export class ProductionCalculator {
         manualRate,
         recipeId: null,
         nodeId,  // Add the unique ID
-        children: []
+        children: [],
+        relationships
       };
     }
 
@@ -56,7 +64,8 @@ export class ProductionCalculator {
         manualRate,
         recipeId: null,
         nodeId,  // Add the unique ID
-        children: []
+        children: [],
+        relationships
       };
     }
 
@@ -67,7 +76,8 @@ export class ProductionCalculator {
         manualRate,
         recipeId: recipe?.id || null,
         nodeId,  // Add the unique ID
-        children: []
+        children: [],
+        relationships
       };
 
       // Use total rate for calculations
@@ -75,10 +85,17 @@ export class ProductionCalculator {
       const baseRate = recipe?.out[itemId] || 1;
       const multiplier = totalRate / baseRate;
 
-      // Create child nodes for each input
+      // Create child nodes with relationship data
       for (const [inputId, inputRate] of Object.entries(recipe?.in || {})) {
+        const childRate = inputRate * multiplier;
+        const purpose: ProductionPurpose = {
+          itemId: node.itemId,
+          amount: childRate,
+          nodeId: nodeId  // Using the parent's nodeId
+        };
+        
         node.children.push(
-          this.calculateProduction(inputId, inputRate * multiplier, undefined, 0) // Add missing arguments
+          this.calculateProduction(inputId, childRate, undefined, 0, purpose)
         );
       }
 
@@ -93,7 +110,8 @@ export class ProductionCalculator {
         manualRate,
         recipeId: null,
         nodeId,  // Add the unique ID
-        children: []
+        children: [],
+        relationships
       };
     }
   }

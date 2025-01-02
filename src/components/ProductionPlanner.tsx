@@ -8,6 +8,8 @@ import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
 import { ViewToggle } from './ViewToggle';
 import { ListView } from './ListView';
 import { createMergedNodesMap, collectAllNodes } from '../utils/nodeUtils';
+import { calculateConsumption } from '../utils/consumptionTracker';
+import { accumulateNodes } from '../utils/nodeAccumulator';
 
 export function ProductionPlanner() {
   const [items, setItems] = useState<Item[]>([]);
@@ -64,8 +66,15 @@ export function ProductionPlanner() {
   const updateMergedNodes = () => {
     if (!productionChain) return;
     const allNodes = collectAllNodes(productionChain);
+    const consumptionData = calculateConsumption(allNodes);
     const mergedMap = createMergedNodesMap(allNodes, items, recipes);
-    setMergedNodes(Array.from(mergedMap.values()));
+    
+    const mergedNodes = Array.from(mergedMap.values()).map(node => ({
+      ...node,
+      consumption: consumptionData.get(node.itemId)
+    }));
+    
+    setMergedNodes(mergedNodes);
   };
 
   const handleCalculate = () => {
@@ -86,16 +95,49 @@ export function ProductionPlanner() {
     // First update the production chain
     setProductionChain(rootNode);
     
-    // Then immediately update merged nodes regardless of view mode
+    // Calculate consumption data first
     const allNodes = collectAllNodes(rootNode);
-    const mergedMap = createMergedNodesMap(allNodes, items, recipes);
-    setMergedNodes(Array.from(mergedMap.values()));
+    const consumptionData = calculateConsumption(allNodes);
+    console.log('Initial consumption calculation:', consumptionData);
+
+    // Update merged nodes for list view
+    if (viewMode === 'list') {
+      const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
+      // Store consumption data when converting to MergedNode
+      const mergedNodes = accumulated.map(node => ({
+        ...node,
+        nodeIds: node.sourceNodes,
+        recipe: node.recipeId ? recipesMap.get(node.recipeId) || null : null,
+        machineCount: 1,
+        efficiency: 100,
+        itemId: node.itemId,
+        rate: node.rate,
+        children: node.children,
+        totalRate: node.rate + (node.manualRate || 0),
+        manualRate: node.manualRate || 0,
+        consumption: consumptionData.get(node.itemId) // Use the original consumption data
+      }));
+      setMergedNodes(mergedNodes);
+    }
+
+    // Enhance nodes with consumption data
+    const enhanceNodesWithConsumption = (node: ProductionNode): ProductionNodeUI => {
+      const enhanced = node as ProductionNodeUI;
+      enhanced.consumption = consumptionData.get(node.itemId);
+      enhanced.children = node.children.map(enhanceNodesWithConsumption);
+      return enhanced;
+    };
+
+    const enhancedRoot = enhanceNodesWithConsumption(rootNode);
+    setProductionChain(enhancedRoot);
   };
 
   const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
     if (calculator && productionChain) {
       const newChain = calculator.updateRecipe(productionChain, nodeId, newRecipeId);
       const resources = calculator.calculateTotalResources(newChain);
+      const allNodes = collectAllNodes(newChain);
+      const consumptionData = calculateConsumption(allNodes);
       
       // Update all states in one go
       Promise.resolve().then(() => {
@@ -103,9 +145,22 @@ export function ProductionPlanner() {
         setResourceSummary(resources);
         // Always update merged nodes when in list view
         if (viewMode === 'list') {
-          const allNodes = collectAllNodes(newChain);
-          const mergedMap = createMergedNodesMap(allNodes, items, recipes);
-          setMergedNodes(Array.from(mergedMap.values()));
+          const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
+          const mergedNodes = accumulated.map(node => ({
+            ...node,
+            nodeIds: node.sourceNodes,
+            recipe: node.recipeId ? recipesMap.get(node.recipeId) || null : null,
+            machineCount: 1,
+            efficiency: 100,
+            // Required by MergedNode
+            itemId: node.itemId,
+            rate: node.rate,
+            children: node.children,
+            totalRate: node.rate + (node.manualRate || 0),
+            manualRate: node.manualRate || 0,
+            consumption: consumptionData.get(node.itemId)
+          }));
+          setMergedNodes(mergedNodes);
         }
       });
     }
@@ -121,16 +176,29 @@ export function ProductionPlanner() {
     const newChain = calculator.updateManualRate(productionChain, nodeId, manualRate);
     const resources = calculator.calculateTotalResources(newChain);
 
-    // Update all states in one go
+    // Apply the same pattern as handleRecipeChange
     Promise.resolve().then(() => {
       setManualRates(newRates);
       setProductionChain(newChain);
       setResourceSummary(resources);
-      // Always update merged nodes when in list view
       if (viewMode === 'list') {
         const allNodes = collectAllNodes(newChain);
-        const mergedMap = createMergedNodesMap(allNodes, items, recipes);
-        setMergedNodes(Array.from(mergedMap.values()));
+        const consumptionData = calculateConsumption(allNodes);
+        const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
+        const mergedNodes = accumulated.map(node => ({
+          ...node,
+          nodeIds: node.sourceNodes,
+          recipe: node.recipeId ? recipesMap.get(node.recipeId) || null : null,
+          machineCount: 1,
+          efficiency: 100,
+          itemId: node.itemId,
+          rate: node.rate,
+          children: node.children,
+          totalRate: node.rate + (node.manualRate || 0),
+          manualRate: node.manualRate || 0,
+          consumption: consumptionData.get(node.itemId)
+        }));
+        setMergedNodes(mergedNodes);
       }
     });
   };
@@ -350,7 +418,27 @@ export function ProductionPlanner() {
 
   const handleViewModeToggle = () => {
     if (viewMode === 'tree') {
-      updateMergedNodes();
+      if (productionChain) {
+        const allNodes = collectAllNodes(productionChain);
+        const consumptionData = calculateConsumption(allNodes);
+        const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
+        
+        // Ensure consumption data is preserved
+        const mergedNodes = accumulated.map(node => ({
+          ...node,
+          nodeIds: node.sourceNodes,
+          recipe: node.recipeId ? recipesMap.get(node.recipeId) || null : null,
+          machineCount: 1,
+          efficiency: 100,
+          itemId: node.itemId,
+          rate: node.rate,
+          children: node.children,
+          totalRate: node.rate + (node.manualRate || 0),
+          manualRate: node.manualRate || 0,
+          consumption: consumptionData.get(node.itemId)
+        }));
+        setMergedNodes(mergedNodes);
+      }
       setViewMode('list');
     } else {
       setViewMode('tree');
