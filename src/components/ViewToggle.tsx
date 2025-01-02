@@ -8,10 +8,12 @@ interface ViewToggleProps {
 export function ViewToggle({ mode, onToggle }: ViewToggleProps) {
   return (
     <button 
-      className="view-toggle-button" 
+      className="view-toggle-button"
       onClick={onToggle}
+      data-mode={mode}
+      title={`Switch to ${mode === 'tree' ? 'list' : 'tree'} view`}
     >
-      Switch to {mode === 'tree' ? 'List' : 'Tree'} View
+      {mode === 'tree' ? 'Tree View' : 'List View'}
     </button>
   );
 }

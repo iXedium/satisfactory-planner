@@ -26,7 +26,7 @@ export function ProductionPlanner() {
   const [treePanelWidth, setTreePanelWidth] = useState<number>(70); // percentage
   const [resourceSummary, setResourceSummary] = useState<ResourceSummary>({});
   const [manualRates, setManualRates] = useState<Map<string, number>>(new Map());
-  const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
+  const [viewMode, setViewMode] = useState<'tree' | 'list'>('list'); // Change default to 'list'
   const [mergedNodes, setMergedNodes] = useState<MergedNode[]>([]);
   const [itemsMap, setItemsMap] = useState<Map<string, Item>>(new Map());
   const [recipesMap, setRecipesMap] = useState<Map<string, Recipe>>(new Map());
@@ -360,6 +360,7 @@ export function ProductionPlanner() {
         machineOverrides={machineOverrides}
         manualRates={manualRates}
         detailLevel={detailLevel}
+        itemsMap={itemsMap}  // Add this prop
       />
     );
   };
@@ -449,13 +450,13 @@ export function ProductionPlanner() {
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
       <div className="controls-container">
-        <div className="view-mode-controls">
+        <aside className="view-mode-controls">
           <ViewToggle 
             mode={viewMode} 
             onToggle={handleViewModeToggle} 
           />
           {renderDetailControls()}
-        </div>
+        </aside>
         <div className="targets-container">
           {targetItems.map((target, index) => (
             <div key={index} className="target-item">
@@ -463,7 +464,7 @@ export function ProductionPlanner() {
                 value={target.id}
                 onChange={e => updateTargetItem(index, 'id', e.target.value)}
               >
-                <option value="">Select an item...</option>
+                <option value="">Select item...</option>
                 {getProductionItems(items).map(item => (
                   <option key={item.id} value={item.id}>
                     {item.name}
@@ -483,8 +484,9 @@ export function ProductionPlanner() {
                 className="remove-button"
                 onClick={() => removeTargetItem(index)}
                 disabled={targetItems.length === 1}
+                title="Remove item"
               >
-                ✕
+                ×
               </button>
             </div>
           ))}

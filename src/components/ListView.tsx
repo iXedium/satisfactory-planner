@@ -89,6 +89,7 @@ export function ListView(props: ListViewProps) {
           detailLevel={props.detailLevel}
           isAccumulated={true}
           sourceCount={node.sourceNodes.length}
+          itemsMap={props.items}  // Pass the itemsMap from props
         />
       ))}
     </div>

@@ -21,7 +21,7 @@
   gap: 0;
   flex: 1;
   min-height: 0;
-  margin: 20px;
+  margin: 0;  /* Remove margin */
   padding: 0;
   position: relative;
   overflow: hidden;
@@ -249,7 +249,7 @@ button:hover {
 .resource-summary th {
   background-color: var(--background-darker);
   font-weight: bold;
-  color: var(--primary-color);
+  color: var (--primary-color);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -352,16 +352,30 @@ select:hover, input:hover {
 }
 
 .planner h1 {
-  color: var(--primary-color);
-  font-size: 32px;
-  margin: 0 0 32px 0;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--border-color);
+  font-size: 24px;  /* Reduced from 32px */
+  margin: 0 0 16px 0;  /* Reduced from 32px */
+  padding: 12px 0;  /* Reduced padding */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.planner h1::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'%3E%3Cpath d='M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm-1 19.93v-3.72L5.5 13.1v-2.2l5.5 3.11V10.3L6 7.19v-.99l6 3.4V6.2L7.5 4.09 12 1.47l4.5 2.62L12 6.71l3-1.73v1l-3 1.73v3.4l6-3.4v1l-5 2.8v3.72l5.5-3.11v2.2l-5.5 3.11v3.72L12 19l-1 .93z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .targets-container {
   background: var(--background-dark);
-  padding: 24px;
+  padding: 12px;  /* Reduced from 24px */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;  /* Reduced gap */
   border-radius: 8px;
   margin-bottom: 24px;
   border: 1px solid var(--border-color);
@@ -370,26 +384,31 @@ select:hover, input:hover {
 .target-item {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;  /* Reduced from 16px */
   align-items: center;
   background: var(--background-light);
-  padding: 16px;
+  padding: 8px;  /* Reduced from 16px */
   border-radius: 4px;
 }
 
 .target-item select {
   flex: 2;
+  padding: 6px;  /* Reduced padding */
+  height: 32px;  /* Fixed height */
 }
 
 .target-item input {
   flex: 1;
   min-width: 100px;
+  padding: 6px;  /* Reduced padding */
+  width: 100px;  /* Fixed width */
+  height: 32px;  /* Fixed height */
 }
 
 .target-controls {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 12px;  /* Reduced from 20px */
 }
 
 .add-button {
@@ -397,6 +416,12 @@ select:hover, input:hover {
   color: white;
   border: none;
   transition: all 0.2s ease;
+  padding: 6px 12px;  /* Reduced padding */
+  font-size: 13px;  /* Smaller font */
+  height: 32px;  /* Fixed height */
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .add-button:hover {
@@ -404,11 +429,28 @@ select:hover, input:hover {
   transform: translateY(-1px);
 }
 
+.add-button::before {
+  content: '+';
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  background-image: none;
+  margin-right: 4px;
+}
+
 .calculate-button {
   background: var(--primary-color);
   color: white;
   flex: 1;
   transition: all 0.2s ease;
+  padding: 6px 12px;  /* Reduced padding */
+  font-size: 13px;  /* Smaller font */
+  height: 32px;  /* Fixed height */
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .calculate-button:hover {
@@ -416,11 +458,26 @@ select:hover, input:hover {
   transform: translateY(-1px);
 }
 
+.calculate-button::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M12 1H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zM5 13H4v-1h1v1zm0-2H4v-1h1v1zm0-2H4V8h1v1zm3 4H7v-1h1v1zm0-2H7v-1h1v1zm0-2H7V8h1v1zm3 4h-1v-1h1v1zm0-2h-1v-1h1v1zm0-2h-1V8h1v1zm0-3H4V4h7v2z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
 .remove-button {
   background: var(--background-dark);
   color: var(--danger-color);
   border: 1px solid var(--danger-color);
   padding: 8px 12px;
+  width: 32px;  /* Fixed width */
+  height: 32px;  /* Fixed height */
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .remove-button:hover {
@@ -508,38 +565,46 @@ select:hover, input:hover {
 
 .controls-container {
   background: var(--background-dark);
-  padding: 24px;
+  padding: 12px;  /* Reduced from 24px */
+  margin-bottom: 16px;  /* Reduced from 24px */
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
   border-radius: 8px;
-  margin-bottom: 24px;
   flex-shrink: 0;  /* Prevent controls from shrinking */
 }
 
 .view-mode-controls {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0;  /* Remove margin */
+  padding-bottom: 0;  /* Remove padding */
+  border-bottom: none;  /* Remove border */
 }
 
 .detail-controls {
   display: flex;
   gap: 2px;
   background: var(--background-darker);
-  padding: 4px;
+  padding: 2px;  /* Reduced padding */
   border-radius: 6px;
 }
 
 .detail-button {
   background: transparent;
   color: var(--text-secondary);
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 6px 12px;  /* Reduced padding */
+  font-size: 12px;  /* Smaller font */
   border-radius: 4px;
   flex: 1;
   transition: all 0.2s ease;
   border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .detail-button:hover {
@@ -551,6 +616,26 @@ select:hover, input:hover {
   background: var(--primary-color);
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.detail-button::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.detail-button[title="Show minimal information"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M1 2h14v2H1zm0 5h14v2H1zm0 5h14v2H1z'/%3E%3C/svg%3E");
+}
+
+.detail-button[title="Show standard information"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M1 2h14v3H1zm0 5h14v3H1zm0 5h14v3H1z'/%3E%3C/svg%3E");
+}
+
+.detail-button[title="Show all information"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M1 1h14v4H1zm0 5h14v4H1zm0 5h14v4H1z'/%3E%3C/svg%3E");
 }
 
 /* Adjust node spacing based on detail level */
@@ -911,6 +996,8 @@ select:hover, input:hover {
 
 /* ...existing code... */
 
+/* ...existing styles... */
+
 .manual-rate-input {
   width: 80px;
   padding: 4px 8px;
@@ -971,7 +1058,7 @@ select:hover, input:hover {
   padding: 4px 8px;
   text-align: right;
   font-size: 14px;
-  background: var(--background-darker);
+  background: var (--background-darker);
   color: var (--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -979,7 +1066,7 @@ select:hover, input:hover {
 }
 
 .manual-rate-input:focus {
-  border-color: var(--primary-color);
+  border-color: var (--primary-color);
   outline: none;
 }
 
@@ -1121,6 +1208,29 @@ select:hover, input:hover {
   transform: translateY(-1px);
 }
 
+.view-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.view-toggle-button::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.view-toggle-button[data-mode="list"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M2 4h2V2H2v2zm4-2v2h8V2H6zM2 9h2V7H2v2zm4-2v2h8V7H6zm-4 7h2v-2H2v2zm4-2v2h8v-2H6z'/%3E%3C/svg%3E");
+}
+
+.view-toggle-button[data-mode="tree"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M1 13h4v-4H1v4zm2-3h2v2H3v-2zM1 3v4h4V3H1zm2 1h2v2H3V4zm4-1v4h8V3H7zm6 3H9V4h4v2zM7 13h8V9H7v4zm2-3h4v2H9v-2z'/%3E%3C/svg%3E");
+}
+
 /* Shared styles for controls */
 .controls button,
 .controls input,
@@ -1169,46 +1279,65 @@ select:hover, input:hover {
   grid-column: name / building;
   background: var(--background-darker);
   border-radius: 6px;
-  margin-top: 8px;
+  margin: 8px 0 4px 0; /* Reduced margins */
+  font-size: 13px; /* Smaller font */
 }
 
 .consumption-header {
   display: flex;
   align-items: center;
-  gap: 8px;
   padding: 8px 12px;
-  cursor: pointer;
   color: var(--text-secondary);
   font-size: 14px;
+  font-weight: 500;
   border-bottom: 1px solid var(--border-color);
 }
 
 .consumption-items {
-  padding: 8px 12px;
+  padding: 4px 0; /* Reduced padding */
 }
 
 .consumption-item {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 16px;
-  padding: 4px 0;
-  font-size: 14px;
-  color: var(--text-primary);
+  padding: 3px 12px; /* Reduced vertical padding */
+  transition: background-color 0.2s;
+  min-height: 32px; /* Match icon height */
 }
 
-.consumption-item.storage {
-  margin-top: 4px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-color);
-  color: var(--text-secondary);
+.consumption-item:hover {
+  background: var(--background-light);
+}
+
+.consumer-name {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reduced gap */
+}
+
+.consumer-amount {
+  font-size: 12px; /* Even smaller font for numbers */
+  opacity: 0.9;
 }
 
 .consumer-percentage {
-  color: var(--text-secondary);
+  font-size: 12px; /* Even smaller font for numbers */
 }
 
-/* ...existing styles... */
+.percentage-primary {
+  font-weight: 500; /* Slightly less bold */
+}
 
+.percentage-secondary {
+  opacity: 0.7; /* Slightly more transparent */
+}
+
+.consumption-item.storage {
+  margin-top: 2px; /* Reduced margin */
+  padding-top: 4px; /* Reduced padding */
+  font-size: 12px; /* Smaller font for storage */
+  opacity: 0.8;
+}
+
+/* ...rest of existing styles... */
 
 .percentage-primary {
   font-weight: 600;
@@ -1322,3 +1451,34 @@ select:hover, input:hover {
 }
 
 /* ...rest of existing styles... */
+
+/* ...existing code... */
+
+/* Update icon container to be flexible */
+.item-icon-container {
+  grid-area: icon;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Update relationship list icons */
+.consumption-item .item-icon {
+  min-width: 16px;  /* Add minimum width */
+  min-height: 16px; /* Add minimum height */
+}
+
+.consumption-item .consumer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Summary table icons */
+.resource-summary td .item-icon {
+  /* Keep the summary icons at a medium size */
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* ...rest of existing code... */

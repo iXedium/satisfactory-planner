@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ProductionNodeUI, Recipe } from '../types/types';
+import { ProductionNodeUI, Recipe, Item } from '../types/types';  // Add Item import
 import { ItemIcon } from './ItemIcon';
 
 interface ProductionNodeProps {
@@ -12,6 +12,7 @@ interface ProductionNodeProps {
   detailLevel?: 'compact' | 'normal' | 'detailed';
   isAccumulated?: boolean;
   sourceCount?: number;
+  itemsMap: Map<string, Item>; // Add this new prop
 }
 
 export function ProductionNode({ 
@@ -22,7 +23,8 @@ export function ProductionNode({
   machineOverrides,
   manualRates,
   detailLevel = 'normal',
-  isAccumulated = false
+  isAccumulated = false,
+  itemsMap // Add this new prop
 }: ProductionNodeProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [showConsumption, setShowConsumption] = useState(false);
@@ -117,17 +119,14 @@ export function ProductionNode({
 
     return (
       <div className="consumption-list" onClick={e => e.stopPropagation()}>
-        <div className="consumption-header" onClick={handleConsumptionToggle}>
-          <span className={`collapse-icon ${!showConsumption ? 'collapsed' : ''}`}>▼</span>
-          <span>Used In</span>
-        </div>
-        {showConsumption && (
-          <div className="consumption-items">
-            {withPercentages.map(rel => (
+        <div className="consumption-items">
+          {withPercentages.map(rel => {
+            const consumerItem = itemsMap.get(rel.itemId);
+            return (
               <div key={rel.itemId} className="consumption-item">
                 <span className="consumer-name">
-                  <ItemIcon iconId={rel.itemId} />
-                  {rel.itemId}
+                  <ItemIcon iconId={rel.itemId} size={32} />
+                  {consumerItem?.name || rel.itemId}
                 </span>
                 <span className="consumer-amount">{rel.amount.toFixed(2)}/min</span>
                 <span className="consumer-percentage">
@@ -135,18 +134,18 @@ export function ProductionNode({
                   <span className="percentage-secondary"> / {rel.percentage.toFixed(1)}%</span>
                 </span>
               </div>
-            ))}
-            {storageAmount > 0.01 && (
-              <div className="consumption-item storage">
-                <span className="consumer-name">Storage</span>
-                <span className="consumer-amount">{storageAmount.toFixed(2)}/min</span>
-                <span className="consumer-percentage">
-                  ({storagePercentage.toFixed(1)}%)
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+            );
+          })}
+          {storageAmount > 0.01 && (
+            <div className="consumption-item storage">
+              <span className="consumer-name">Storage</span>
+              <span className="consumer-amount">{storageAmount.toFixed(2)}/min</span>
+              <span className="consumer-percentage">
+                ({storagePercentage.toFixed(1)}%)
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -162,7 +161,7 @@ export function ProductionNode({
         )}
         
         <div className="item-icon-container">
-          <ItemIcon iconId={node.item.id} />
+          <ItemIcon iconId={node.item.id} size={64} />
         </div>
 
         <div className="name-recipe-container">
@@ -188,7 +187,7 @@ export function ProductionNode({
         {currentRecipe && producer && detailLevel !== 'compact' && (
           <div className="building-container" onClick={e => e.stopPropagation()}>
             {detailLevel === 'detailed' && (
-              <ItemIcon iconId={producer.toLowerCase()} />
+              <ItemIcon iconId={producer.toLowerCase()} size={32} />
             )}
             <div className="building-info">
               <span className="producer-name">{formatBuildingName(producer)}</span>
@@ -282,6 +281,7 @@ export function ProductionNode({
                 machineOverrides={machineOverrides}
                 manualRates={manualRates}
                 detailLevel={detailLevel}
+                itemsMap={itemsMap} // Add this new prop
               />
             </div>
           ))}
@@ -290,3 +290,4 @@ export function ProductionNode({
     </div>
   );
 }
+
