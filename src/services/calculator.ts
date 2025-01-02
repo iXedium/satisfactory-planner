@@ -130,10 +130,17 @@ export class ProductionCalculator {
 
   updateManualRate(node: ProductionNode, nodeId: string, manualRate: number): ProductionNode {
     if (node.nodeId === nodeId) {
-      // Create new node with updated manual rate
+      // First, update this node's relationships to reflect new total production
+      const newRelationships = {
+        ...node.relationships!,
+        totalProduction: node.rate + manualRate
+      };
+
+      // Create new node with updated manual rate and relationships
       const updatedNode = {
         ...node,
-        manualRate: manualRate,
+        manualRate,
+        relationships: newRelationships,
         // Recalculate children with new total rate
         children: node.children.map(child => {
           const totalRate = node.rate + manualRate;
@@ -141,18 +148,29 @@ export class ProductionCalculator {
           const baseRate = recipe?.out[node.itemId] || 1;
           const multiplier = totalRate / baseRate;
           const childBaseRate = recipe?.in[child.itemId] || 0;
+          const childRate = childBaseRate * multiplier;
+          
+          // Create new purpose for child with updated amount
+          const purpose = {
+            itemId: node.itemId,
+            amount: childRate,
+            nodeId: node.nodeId!
+          };
           
           return this.calculateProduction(
             child.itemId,
-            childBaseRate * multiplier,
+            childRate,
             child.recipeId,
-            child.manualRate
+            child.manualRate,
+            purpose
           );
         })
       };
+
       return updatedNode;
     }
 
+    // If this isn't the target node, recursively update children
     return {
       ...node,
       nodeId: node.nodeId,

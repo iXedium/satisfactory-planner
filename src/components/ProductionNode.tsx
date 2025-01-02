@@ -86,11 +86,22 @@ export function ProductionNode({
   const renderRelationships = () => {
     if (!node.relationships) return null;
 
-    // Calculate percentages on demand
-    const withPercentages = node.relationships.producedFor.map(rel => ({
+    const relationships = node.relationships;  // Store reference to avoid multiple optional chaining
+    
+    // Calculate total consumed amount (excluding storage)
+    const totalConsumed = relationships.producedFor.reduce((sum, rel) => sum + rel.amount, 0);
+
+    // Calculate both sets of percentages
+    const withPercentages = relationships.producedFor.map(rel => ({
       ...rel,
-      percentage: (rel.amount / node.relationships!.totalProduction) * 100
+      // Percentage without storage (only against consumed amount)
+      percentageNoStorage: (rel.amount / totalConsumed) * 100,
+      // Percentage with storage (against total production)
+      percentage: (rel.amount / relationships.totalProduction) * 100
     }));
+
+    const storageAmount = relationships.totalProduction - totalConsumed;
+    const storagePercentage = (storageAmount / relationships.totalProduction) * 100;
 
     return (
       <div className="consumption-list" onClick={e => e.stopPropagation()}>
@@ -108,10 +119,20 @@ export function ProductionNode({
                 </span>
                 <span className="consumer-amount">{rel.amount.toFixed(2)}/min</span>
                 <span className="consumer-percentage">
-                  <span className="percentage-primary">{rel.percentage.toFixed(1)}%</span>
+                  <span className="percentage-primary">{rel.percentageNoStorage.toFixed(1)}%</span>
+                  <span className="percentage-secondary"> / {rel.percentage.toFixed(1)}%</span>
                 </span>
               </div>
             ))}
+            {storageAmount > 0.01 && (
+              <div className="consumption-item storage">
+                <span className="consumer-name">Storage</span>
+                <span className="consumer-amount">{storageAmount.toFixed(2)}/min</span>
+                <span className="consumer-percentage">
+                  ({storagePercentage.toFixed(1)}%)
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>

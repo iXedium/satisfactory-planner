@@ -1213,14 +1213,51 @@ select:hover, input:hover {
 .percentage-primary {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 1em;
 }
 
 .percentage-secondary {
   color: var(--text-secondary);
   font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.consumption-list {
+  grid-column: name / building;
+  background: var(--background-darker);
+  border-radius: 6px;
+  margin: 8px 0;
+  width: 100%;
+  max-width: 800px;
+}
+
+.consumption-item {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto auto;
+  gap: 16px;
+  padding: 4px 12px;
+  align-items: center;
+}
+
+.consumer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.consumer-amount {
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.consumer-percentage {
+  text-align: right;
+  min-width: 120px;
 }
 
 /* ...rest of existing styles... */
+
 /* Override the blanket pointer-events: none on node-content * */
 .node-content .consumption-list,
 .node-content .consumption-header,

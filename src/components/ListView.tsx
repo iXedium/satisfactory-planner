@@ -44,22 +44,21 @@ export function ListView(props: ListViewProps) {
 
   // Get all nodes with their relationships
   const allNodes = getAllNodesWithRelationships(props.nodes);
-  console.log('All nodes with relationships:', allNodes);
 
-  // Calculate consumption data
+  // Calculate consumption data for entire production chain
   const consumptionData = calculateConsumption(allNodes);
-  console.log('Consumption data with relationships:', consumptionData);
-
-  // Accumulate nodes and preserve consumption data
+  
+  // Accumulate nodes with consumption data
   const accumulatedNodes = accumulateNodes(props.nodes, props.items, props.recipes);
   
-  // Map consumption data to accumulated nodes
+  // Create enhanced nodes with preserved relationships
   const enhancedNodes = accumulatedNodes.map(node => ({
     ...node,
-    consumption: consumptionData.get(node.itemId)
+    relationships: {
+      producedFor: node.relationships?.producedFor || [],
+      totalProduction: node.rate + (node.manualRate || 0)
+    }
   }));
-
-  console.log('Enhanced nodes with consumption:', enhancedNodes);
 
   const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
     // Apply change to all source nodes immediately
