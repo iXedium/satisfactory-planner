@@ -1,0 +1,23 @@
+/* ...existing code... */
+
+.consumption-item {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.consumption-item:hover {
+  background: var(--background-light);
+  transform: translateX(2px);
+}
+
+.consumption-item.storage {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.consumption-item.storage:hover {
+  transform: none;
+  background: none;
+}
+
+/* ...rest of existing code... */

@@ -85,6 +85,32 @@ export function ProductionNode({
     onManualRateChange(node.nodeId, 0);
   };
 
+  const handleConsumerClick = (e: React.MouseEvent, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Find the list view container first
+    const listView = document.querySelector('.list-view');
+    const targetElement = document.querySelector(`.production-node[data-item-id="${itemId}"]`);
+    
+    if (listView instanceof HTMLElement && targetElement instanceof HTMLElement) {
+      // Get the relative position of the target element
+      const listViewRect = listView.getBoundingClientRect();
+      const targetRect = targetElement.getBoundingClientRect();
+      const relativeTop = targetRect.top - listViewRect.top;
+      
+      // Scroll to the element with offset
+      listView.scrollBy({
+        top: relativeTop - 100, // 100px padding from top
+        behavior: 'smooth'
+      });
+
+      // Add highlight effect
+      targetElement.classList.add('highlight');
+      setTimeout(() => targetElement.classList.remove('highlight'), 2000);
+    }
+  };
+
   const renderRelationships = () => {
     if (!node.relationships || !isAccumulated) return null;
 
@@ -118,12 +144,20 @@ export function ProductionNode({
     const storagePercentage = (storageAmount / relationships.totalProduction) * 100;
 
     return (
-      <div className="consumption-list" onClick={e => e.stopPropagation()}>
+      <div className="consumption-list">
         <div className="consumption-items">
           {withPercentages.map(rel => {
             const consumerItem = itemsMap.get(rel.itemId);
             return (
-              <div key={rel.itemId} className="consumption-item">
+              <div 
+                key={rel.itemId} 
+                className="consumption-item"
+                onClick={(e) => handleConsumerClick(e, rel.itemId)}
+                role="button"
+                tabIndex={0}
+                title={`Jump to ${consumerItem?.name || rel.itemId}`}
+                onKeyPress={(e) => e.key === 'Enter' && handleConsumerClick(e as any, rel.itemId)}
+              >
                 <span className="consumer-name">
                   <ItemIcon iconId={rel.itemId} size={32} />
                   {consumerItem?.name || rel.itemId}
@@ -151,7 +185,10 @@ export function ProductionNode({
   };
 
   return (
-    <div className={`production-node ${detailLevel}`}>
+    <div 
+      className={`production-node ${detailLevel}`}
+      data-item-id={node.itemId} // Add this attribute for scrolling target
+    >
       <div 
         className={`node-content ${hasChildren ? 'collapsible' : ''}`}
         onClick={handleNodeClick}

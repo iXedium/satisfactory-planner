@@ -525,6 +525,12 @@ select:hover, input:hover {
   pointer-events: none;
 }
 
+.node-content select,
+.node-content .consumption-list,
+.node-content .consumption-item {
+  pointer-events: auto;
+}
+
 .node-content select {
   pointer-events: all;
 }
@@ -1158,6 +1164,10 @@ select:hover, input:hover {
   flex-direction: column;
   gap: 8px;
   padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+  scroll-behavior: smooth;
+  position: relative;
 }
 
 .list-item {
@@ -1334,7 +1344,12 @@ select:hover, input:hover {
   margin-top: 2px; /* Reduced margin */
   padding-top: 4px; /* Reduced padding */
   font-size: 12px; /* Smaller font for storage */
-  opacity: 0.8;
+  cursor: default;
+}
+
+.consumption-item.storage:hover {
+  background: transparent;
+  transform: none;
 }
 
 /* ...rest of existing styles... */
@@ -1366,6 +1381,15 @@ select:hover, input:hover {
   gap: 16px;
   padding: 4px 12px;
   align-items: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.consumption-item:hover {
+  background: var(--background-light);
+  transform: translateX(4px);
 }
 
 .consumer-name {
@@ -1383,6 +1407,16 @@ select:hover, input:hover {
 .consumer-percentage {
   text-align: right;
   min-width: 120px;
+}
+
+@keyframes highlight-pulse {
+  0% { background-color: var(--background-dark); }
+  50% { background-color: var(--primary-color); }
+  100% { background-color: var(--background-dark); }
+}
+
+.production-node.highlight {
+  animation: highlight-pulse 2s ease;
 }
 
 /* ...rest of existing styles... */
@@ -1479,6 +1513,49 @@ select:hover, input:hover {
   /* Keep the summary icons at a medium size */
   width: 32px !important;
   height: 32px !important;
+}
+
+/* ...rest of existing code... */
+
+/* ...existing code... */
+
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.consumption-item {
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.consumption-item:not(.storage):hover {
+  background: var(--background-light);
+  transform: translateX(4px);
+}
+
+.consumption-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+@keyframes highlight {
+  0% { background-color: var(--background-dark); }
+  25% { background-color: var(--accent-color); }
+  100% { background-color: var(--background-dark); }
+}
+
+.node-content.highlight {
+  animation: highlight 2s ease;
 }
 
 /* ...rest of existing code... */
