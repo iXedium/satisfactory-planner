@@ -1559,3 +1559,72 @@ select:hover, input:hover {
 }
 
 /* ...rest of existing code... */
+
+.recipe-tooltip {
+  position: fixed;
+  background: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 280px;
+  max-width: 320px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.recipe-tooltip .tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recipe-tooltip .tooltip-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--primary-color);
+}
+
+.recipe-tooltip .tooltip-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.recipe-tooltip .tooltip-section {
+  margin-bottom: 12px;
+}
+
+.recipe-tooltip .tooltip-section h4 {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.recipe-tooltip .tooltip-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.recipe-tooltip .tooltip-item-name {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.recipe-tooltip .tooltip-item-rate {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recipe-tooltip .tooltip-item .item-icon {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
