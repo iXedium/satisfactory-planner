@@ -92,7 +92,7 @@
 }
 
 .production-node {
-  margin: 4px 0;
+  margin: 2px 0;  
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -105,19 +105,20 @@
   display: grid;
   grid-template-columns: auto auto 1fr auto auto;
   grid-template-areas: "collapse icon name building rate";
-  gap: 12px;
+  gap: 8px;  /* Reduced from 12px */
   align-items: center;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 8px;  /* Reduced from 12px */
+  border-radius: 4px;  /* Reduced from 8px */
   margin-right: 0; /* Ensure no right margin */
   width: 100%;
-  grid-template-columns: 24px 64px minmax(200px, 1fr) auto auto;
+  grid-template-columns: 6px 64px minmax(200px, 1fr) auto auto;
+
 }
 
 .node-inputs {
   position: relative;
   padding-left: 36px;
-  margin: 4px 0 0 0;
+  margin: 2px 0 0 0;  /* Reduced from 4px */
   border-left: 2px solid var(--border-color);
   opacity: 1; /* Remove opacity from container */
   padding-left: 24px;  /* Single consistent left indent */
@@ -136,7 +137,7 @@
 
 .input-node {
   position: relative;
-  margin: 4px 0;
+  margin: 2px 0;  /* Reduced from 4px */
   padding: 0;
   width: 100%; /* Ensure full width */
 }
@@ -178,7 +179,7 @@ button {
   text-transform: uppercase;
   padding: 10px 20px;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
 }
 
 button:hover {
@@ -208,7 +209,7 @@ button:hover {
 .view-controls button.active {
   background: var(--accent-color, #2c5282);
   color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
 }
 
 .resource-summary {
@@ -225,6 +226,7 @@ button:hover {
   top: 20px;
   margin: 20px 0;
   min-width: 200px; /* Minimum width when resizing */
+    /* Remove shadow */
 }
 
 .resource-summary table {
@@ -234,7 +236,7 @@ button:hover {
   background: var(--background-dark);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Remove shadow */
   font-size: 14px;  /* Slightly smaller text */
 }
 
@@ -286,7 +288,7 @@ button:hover {
 }
 
 .node-content .collapse-icon {
-  margin-right: 4px;
+  margin-left: -12px;
 }
 
 .node-content select {
@@ -317,7 +319,7 @@ button:hover {
   position: relative;
   background-color: var(--background-darker);
   border-radius: 4px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    /* Remove shadow */
   image-rendering: auto; /* Changed from pixelated to auto */
   -ms-interpolation-mode: bicubic; /* Added for IE support */
 }
@@ -621,7 +623,7 @@ select:hover, input:hover {
 .detail-button.active {
   background: var(--primary-color);
   color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
 }
 
 .detail-button::before {
@@ -662,15 +664,15 @@ select:hover, input:hover {
 }
 
 .production-node.compact {
-  padding: 8px 0px 8px 12px;  /* Reduced right padding */
+  padding: 0px;  /* Reduced right padding */
 }
 
 .production-node.normal {
-  padding: 12px 0px 12px 12px;
+  padding: 2px 0px;
 }
 
 .production-node.detailed {
-  padding: 16px 0px 16px 12px;
+  padding: 4px 0px;
 }
 
 .node-inputs {
@@ -686,7 +688,7 @@ select:hover, input:hover {
 }
 
 .input-node {
-  margin: 4px 0;      /* Reduced from 10px */
+  margin: 2px 0;      /* Reduced from 10px */
   padding-left: 12px; /* Added padding to offset from border */
 }
 
@@ -1162,7 +1164,7 @@ select:hover, input:hover {
 .list-view {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;  /* Reduced from 8px */
   padding: 16px;
   overflow-y: auto;
   height: 100%;
@@ -1174,8 +1176,9 @@ select:hover, input:hover {
   background: var(--background-dark);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 12px; /* Match padding with detailed tree view */
-  margin: 2px 0; /* Reduced margin between items */
+  padding: 8px; /* Reduced from 12px */
+  margin: 1px 0; /* Reduced from 2px */
+    /* Remove shadow */
 }
 
 .list-item-content {
@@ -1522,7 +1525,7 @@ select:hover, input:hover {
 .list-view {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;  /* Reduced from 8px */
   padding: 16px;
   overflow-y: auto;
   height: 100%;
@@ -1545,7 +1548,7 @@ select:hover, input:hover {
 
 .consumption-item:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-color);
+  
 }
 
 @keyframes highlight {
@@ -1568,7 +1571,7 @@ select:hover, input:hover {
   padding: 12px;
   min-width: 280px;
   max-width: 320px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* Remove shadow */
   z-index: 9999; /* Increased to be above all other elements */
   pointer-events: none;
 }
@@ -1699,7 +1702,7 @@ select:hover, input:hover {
   max-height: 300px;
   overflow-y: auto;
   z-index: 1100; /* Increased z-index to be above other dropdowns */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  
 }
 
 .dropdown-option {
@@ -1720,6 +1723,31 @@ select:hover, input:hover {
 /* Ensure tooltips appear above everything */
 .recipe-tooltip {
   z-index: 9999;
+}
+
+/* ...rest of existing styles... */
+
+/* ...existing styles... */
+
+.production-node.compact .item-icon-container {
+  height: 32px;
+  width: 32px;
+}
+
+.production-node.normal .item-icon-container,
+.production-node.detailed .item-icon-container {
+  height: 64px;
+  width: 64px;
+}
+
+.list-view .item-icon-container {
+  height: 32px;
+  width: 32px;
+}
+
+.resource-summary .item-icon {
+  height: 32px;
+  width: 32px;
 }
 
 /* ...rest of existing styles... */

@@ -202,7 +202,7 @@ export function ProductionNode({
         )}
         
         <div className="item-icon-container">
-          <ItemIcon iconId={node.item.id} size={64} />
+          <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
         </div>
 
         <div 

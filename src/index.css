@@ -45,11 +45,6 @@ button.calculate-button,
   box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
 }
 
-/* Add more contrast to borders */
-.production-node {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
 /* Force dark scrollbars */
 ::-webkit-scrollbar {
   width: 10px;

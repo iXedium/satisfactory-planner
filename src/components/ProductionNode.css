@@ -1,5 +1,3 @@
-/* ...existing code... */
-
 .consumption-item {
   cursor: pointer;
   transition: all 0.2s ease;
@@ -20,4 +18,13 @@
   background: none;
 }
 
-/* ...rest of existing code... */
+.compact .item-icon-container {
+  height: 32px;
+  width: 32px;
+}
+
+.normal .item-icon-container,
+.detailed .item-icon-container {
+  height: 64px;
+  width: 64px;
+}
