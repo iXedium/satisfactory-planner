@@ -84,20 +84,31 @@ export function ProductionNode({
   };
 
   const renderRelationships = () => {
-    // Only show relationships in list view
     if (!node.relationships || !isAccumulated) return null;
 
-    const relationships = node.relationships;  // Store reference to avoid multiple optional chaining
-    
-    // Calculate total consumed amount (excluding storage)
-    const totalConsumed = relationships.producedFor.reduce((sum, rel) => sum + rel.amount, 0);
+    const relationships = node.relationships;
 
-    // Calculate both sets of percentages
-    const withPercentages = relationships.producedFor.map(rel => ({
+    // Aggregate relationships by itemId
+    const aggregatedRelationships = relationships.producedFor.reduce((acc, rel) => {
+      if (!acc[rel.itemId]) {
+        acc[rel.itemId] = {
+          itemId: rel.itemId,
+          amount: 0,
+          nodeIds: new Set()
+        };
+      }
+      acc[rel.itemId].amount += rel.amount;
+      acc[rel.itemId].nodeIds.add(rel.nodeId);
+      return acc;
+    }, {} as Record<string, { itemId: string; amount: number; nodeIds: Set<string> }>);
+
+    // Calculate totals and percentages
+    const totalConsumed = Object.values(aggregatedRelationships)
+      .reduce((sum, rel) => sum + rel.amount, 0);
+
+    const withPercentages = Object.values(aggregatedRelationships).map(rel => ({
       ...rel,
-      // Percentage without storage (only against consumed amount)
       percentageNoStorage: (rel.amount / totalConsumed) * 100,
-      // Percentage with storage (against total production)
       percentage: (rel.amount / relationships.totalProduction) * 100
     }));
 
@@ -113,7 +124,7 @@ export function ProductionNode({
         {showConsumption && (
           <div className="consumption-items">
             {withPercentages.map(rel => (
-              <div key={rel.nodeId} className="consumption-item">
+              <div key={rel.itemId} className="consumption-item">
                 <span className="consumer-name">
                   <ItemIcon iconId={rel.itemId} />
                   {rel.itemId}
