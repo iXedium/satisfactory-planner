@@ -188,33 +188,6 @@ export function ProductionNode({
     );
   };
 
-  // Replace the direct console.log with useEffect
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Node ${node.itemId}:`, {
-        totalRate,
-        dataRateType: totalRate < 0 ? 'negative' : 'positive',
-        rate: node.rate,
-        manualRate: node.manualRate,
-        renderCount: 'first mount only' // Add this to verify it only logs once
-      });
-    }
-  }, []); // Empty dependency array means this only runs once on mount
-
-  const handleDebugClick = (e: React.MouseEvent) => {
-    const element = e.currentTarget;
-    const nodeContent = element.querySelector('.node-content');
-    console.log('Debug node:', {
-      itemId: node.itemId,
-      rateType: element.getAttribute('data-rate-type'),
-      hasAttribute: element.hasAttribute('data-rate-type'),
-      nodeContent: nodeContent,
-      computedStyle: nodeContent ? window.getComputedStyle(nodeContent) : null,
-      className: element.className,
-      parentClass: element.parentElement?.className
-    });
-  };
-
   return (
     <div 
       className={`production-node ${detailLevel}`}
@@ -239,7 +212,7 @@ export function ProductionNode({
           ref={nameRecipeRef}
         >
           <h3>{node.item.name}</h3>
-          {node.availableRecipes.length > 0 && detailLevel !== 'compact' && (
+          {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
             <div className="machine-controls" onClick={e => e.stopPropagation()}>
               <CustomRecipeDropdown
                 recipes={node.availableRecipes}
