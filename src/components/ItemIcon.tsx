@@ -1,4 +1,6 @@
 import React from 'react';
+import './ItemIcon.css';
+import '../styles/components/_item-icon.scss';
 
 interface ItemIconProps {
   iconId: string;

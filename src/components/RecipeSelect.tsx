@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Recipe, Item } from '../types/types';
 import { Tooltip } from './Tooltip';
+import '../styles/components/_recipe-select.scss';
 
 interface RecipeSelectProps {
   recipes: Recipe[];

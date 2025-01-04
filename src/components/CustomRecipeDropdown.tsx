@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Recipe, Item } from '../types/types';
 import { Tooltip } from './Tooltip';
 import { Portal } from './Portal';
+import '../styles/components/_custom-recipe-dropdown.scss';
 
 interface CustomRecipeDropdownProps {
   recipes: Recipe[];

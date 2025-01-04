@@ -10,6 +10,8 @@ import { ListView } from './ListView';
 import { createMergedNodesMap, collectAllNodes } from '../utils/nodeUtils';
 import { calculateConsumption } from '../utils/consumptionTracker';
 import { accumulateNodes } from '../utils/nodeAccumulator';
+import './ProductionPlanner.css';
+import '../styles/components/_production-planner.scss';
 
 export function ProductionPlanner() {
   const [items, setItems] = useState<Item[]>([]);

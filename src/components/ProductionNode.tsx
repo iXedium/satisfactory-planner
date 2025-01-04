@@ -4,6 +4,8 @@ import { ItemIcon } from './ItemIcon';
 import { Tooltip } from './Tooltip';
 import { RecipeSelect } from './RecipeSelect';
 import { CustomRecipeDropdown } from './CustomRecipeDropdown';
+import './ProductionNode.css'; // Keep for now
+import '../styles/components/_production-node.scss';
 
 interface ProductionNodeProps {
   node: ProductionNodeUI;

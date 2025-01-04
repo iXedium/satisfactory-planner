@@ -3,6 +3,8 @@ import { ProductionNode, Item, Recipe, AccumulatedNodeUI } from '../types/types'
 import { accumulateNodes } from '../utils/nodeAccumulator';
 import { calculateConsumption } from '../utils/consumptionTracker';
 import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
+import './ListView.css';
+import '../styles/components/_list-view.scss';
 
 interface ListViewProps {
   nodes: ProductionNode[];

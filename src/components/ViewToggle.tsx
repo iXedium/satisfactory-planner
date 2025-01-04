@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/components/_view-toggle.scss';
 
 interface ViewToggleProps {
   mode: 'tree' | 'list';
