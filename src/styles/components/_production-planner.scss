@@ -16,4 +16,24 @@
   &__footer {
     // Footer styles will be migrated here
   }
+
+  &__controls {
+    z-index: $zindex-sticky; // For controls that need to stay above content
+  }
+
+  &__dropdown {
+    z-index: $zindex-dropdown; // For dropdown menus
+  }
+
+  &__tooltip {
+    z-index: $zindex-tooltip; // For tooltips
+  }
+
+  &__overlay {
+    z-index: $zindex-overlay; // For full-screen overlays
+  }
+
+  &__drag-indicator {
+    z-index: $zindex-dragover; // For drag and drop indicators
+  }
 }

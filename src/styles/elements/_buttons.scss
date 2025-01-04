@@ -29,12 +29,12 @@ button {
 
 // Primary action buttons
 .calculate-button {
-  background-color: var(--primary-color);
-  color: var(--text-primary);
-  box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
+  background-color: $color-primary;
+  color: $color-text-primary;
+  box-shadow: 0 0 10px rgba($color-primary, 0.3);
 
   &:hover {
-    background-color: var(--primary-hover);
+    background-color: darken($color-primary, 10%);
   }
 }
 
@@ -42,13 +42,13 @@ button {
 .view-controls {
   button {
     &.active {
-      background-color: var(--primary-color);
-      color: var(--text-primary);
-      box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
+      background-color: $color-primary;
+      color: $color-text-primary;
+      box-shadow: 0 0 10px rgba($color-primary, 0.3);
     }
 
     &:hover:not(.active) {
-      background-color: var(--background-light);
+      background-color: $color-background-light;
     }
   }
 } 

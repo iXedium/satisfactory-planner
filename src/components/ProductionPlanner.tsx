@@ -451,7 +451,7 @@ export function ProductionPlanner() {
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
-      <div className="controls-container">
+      <div className="controls-container c-production-planner__controls">
         <aside className="view-mode-controls">
           <ViewToggle 
             mode={viewMode} 
@@ -524,7 +524,7 @@ export function ProductionPlanner() {
             )}
           </div>
           <div 
-            className={`view-resizer ${isDragging ? 'dragging' : ''}`}
+            className="view-resizer c-production-planner__drag-indicator"
             onMouseDown={handleResizeStart}
           />
           <div className="resource-summary-container">

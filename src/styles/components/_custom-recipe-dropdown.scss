@@ -1,6 +1,7 @@
 // Import existing CSS content and convert to BEM
 .c-custom-recipe-dropdown {
-  // Core styles will be migrated here
+  position: relative;
+
   &__container {
     // Container styles will be migrated here
   }
@@ -10,10 +11,16 @@
   }
 
   &__content {
-    // Content styles will be migrated here
+    position: absolute;
+    z-index: $zindex-dropdown;
   }
 
   &__item {
     // Item styles will be migrated here
+  }
+
+  &__tooltip {
+    position: fixed;
+    z-index: $zindex-tooltip;
   }
 }

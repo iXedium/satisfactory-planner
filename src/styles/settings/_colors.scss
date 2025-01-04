@@ -1,27 +1,38 @@
 // Brand Colors
-$color-primary: #007acc;
-$color-secondary: #6c757d;
-$color-success: #28a745;
-$color-danger: #dc3545;
-$color-warning: #ffc107;
-$color-info: #17a2b8;
+$color-primary: #007acc;           // Primary brand color (unchanged)
+$color-secondary: #6c757d;         // Secondary brand color (grayscale anchor)
+$color-success: #28a745;           // Success state
+$color-danger: #dc3545;            // Error state
+$color-warning: #ffc107;           // Warning state
+$color-info: #17a2b8;              // Information state
 
-// Grayscale
-$color-white: #ffffff;
-$color-gray-100: #f8f9fa;
-$color-gray-200: #e9ecef;
-$color-gray-300: #dee2e6;
-$color-gray-400: #ced4da;
-$color-gray-500: #adb5bd;
-$color-gray-600: #6c757d;
-$color-gray-700: #495057;
-$color-gray-800: #343a40;
-$color-gray-900: #212529;
-$color-black: #000000;
+// Grayscale Colors
+$color-white: #ffffff;            // Pure white
+$color-gray-100: #f9fafb;         // Lightest gray (backgrounds)
+$color-gray-200: #f0f1f3;         // Very light gray
+$color-gray-300: #e1e5ea;         // Light gray (default border)
+$color-gray-400: #c8ccd4;         // Medium light gray
+$color-gray-500: #a6adb7;         // Mid gray
+$color-gray-600: #6c757d;         // Dark gray (secondary text)
+$color-gray-700: #4e5661;         // Medium-dark gray
+$color-gray-800: #343a40;         // Dark gray (UI containers)
+$color-gray-900: #212529;         // Very dark gray (text)
+$color-black: #0f0f0f;            // Almost black (darker than background)
 
 // UI Colors
-$color-background: $color-white;
-$color-text: $color-gray-900;
-$color-border: $color-gray-300;
-$color-link: $color-primary;
-$color-link-hover: darken($color-primary, 10%); 
+$color-background: $color-gray-100;     // General background
+$color-text-primary: $color-gray-900;   // Default text color
+$color-border: $color-gray-300;         // Default border color
+$color-link: $color-primary;            // Links
+$color-link-hover: darken($color-primary, 10%);  // Links on hover
+
+
+// Background Variants
+$color-background-darker: #0a0a0a;     // Darkest background
+$color-background-dark: #141414;       // Dark containers
+$color-background-light: #1e1e1e;      // Slightly lighter elements
+
+// Additional Colors
+$color-text-secondary: $color-gray-600;  // Secondary text
+$color-danger-hover: lighten($color-danger, 10%);  // Lighter danger hover
+

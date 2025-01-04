@@ -122,8 +122,8 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
               position: 'fixed',
               left: `${tooltipPosition.x}px`,
               top: `${tooltipPosition.y}px`,
-              zIndex: 9999, // Use a very high z-index since it's at root level
             }}
+            className="c-custom-recipe-dropdown__tooltip"
           />
         </Portal>
       )}

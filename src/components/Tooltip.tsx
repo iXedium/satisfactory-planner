@@ -7,9 +7,10 @@ interface TooltipProps {
   items: Map<string, Item>;
   show: boolean;
   style: React.CSSProperties;
+  className?: string;
 }
 
-export function Tooltip({ recipe, items, show, style }: TooltipProps) {
+export function Tooltip({ recipe, items, show, style, className = '' }: TooltipProps) {
   if (!show) return null;
 
   // Calculate rates per minute
@@ -26,7 +27,7 @@ export function Tooltip({ recipe, items, show, style }: TooltipProps) {
   }));
 
   return (
-    <div className="recipe-tooltip" style={style}>
+    <div className={`recipe-tooltip ${className}`} style={style}>
       <div className="tooltip-header">
         <h3>{recipe.name}</h3>
         <span className="tooltip-time">{recipe.time}s</span>

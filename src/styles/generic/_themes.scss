@@ -1,22 +1,22 @@
 // Force dark theme even in light mode
 @media (prefers-color-scheme: light) {
   html {
-    background-color: var(--background-darker) !important;
-    color: var(--text-primary) !important;
+    background-color: $color-background-darker !important;
+    color: $color-text-primary !important;
   }
 
   body,
   #root,
   .App {
-    background-color: var(--background-darker) !important;
-    color: var(--text-primary) !important;
+    background-color: $color-background-darker !important;
+    color: $color-text-primary !important;
   }
 
   // Ensure inputs stay dark
   select,
   input {
-    background-color: var(--background-darker) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--border-color) !important;
+    background-color: $color-background-darker !important;
+    color: $color-text-primary !important;
+    border-color: $color-border !important;
   }
 } 
