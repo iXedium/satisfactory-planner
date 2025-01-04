@@ -1,6 +1,7 @@
 import React from 'react';
 import { Recipe, Item } from '../types/types';
 import { ItemIcon } from './ItemIcon';
+import '../styles/components/_tooltip.scss';
 
 interface TooltipProps {
   recipe: Recipe;
@@ -27,29 +28,29 @@ export function Tooltip({ recipe, items, show, style, className = '' }: TooltipP
   }));
 
   return (
-    <div className={`recipe-tooltip ${className}`} style={style}>
-      <div className="tooltip-header">
-        <h3>{recipe.name}</h3>
-        <span className="tooltip-time">{recipe.time}s</span>
+    <div className={`c-tooltip ${className}`} style={style}>
+      <div className="c-tooltip__header">
+        <h3 className="c-tooltip__title">{recipe.name}</h3>
+        <span className="c-tooltip__time">{recipe.time}s</span>
       </div>
-      <div className="tooltip-content">
-        <div className="tooltip-section">
-          <h4>Inputs</h4>
+      <div className="c-tooltip__content">
+        <div className="c-tooltip__section">
+          <h4 className="c-tooltip__section-title">Inputs</h4>
           {inputRates.map(({ id, rate, item }) => (
-            <div key={id} className="tooltip-item">
+            <div key={id} className="c-tooltip__item">
               <ItemIcon iconId={id} size={16} />
-              <span className="tooltip-item-name">{item?.name || id}</span>
-              <span className="tooltip-item-rate">{rate.toFixed(1)}/min</span>
+              <span className="c-tooltip__item-name">{item?.name || id}</span>
+              <span className="c-tooltip__item-rate">{rate.toFixed(1)}/min</span>
             </div>
           ))}
         </div>
-        <div className="tooltip-section">
-          <h4>Outputs</h4>
+        <div className="c-tooltip__section">
+          <h4 className="c-tooltip__section-title">Outputs</h4>
           {outputRates.map(({ id, rate, item }) => (
-            <div key={id} className="tooltip-item">
+            <div key={id} className="c-tooltip__item">
               <ItemIcon iconId={id} size={16} />
-              <span className="tooltip-item-name">{item?.name || id}</span>
-              <span className="tooltip-item-rate">{rate.toFixed(1)}/min</span>
+              <span className="c-tooltip__item-name">{item?.name || id}</span>
+              <span className="c-tooltip__item-rate">{rate.toFixed(1)}/min</span>
             </div>
           ))}
         </div>

@@ -1,29 +1,70 @@
-// Margin utilities
-.u-m-0 { margin: 0; }
-.u-m-1 { margin: 0.25rem; }
-.u-m-2 { margin: 0.5rem; }
-.u-m-3 { margin: 0.75rem; }
-.u-m-4 { margin: 1rem; }
-.u-m-5 { margin: 1.25rem; }
-.u-m-6 { margin: 1.5rem; }
-.u-m-8 { margin: 2rem; }
+// Spacing values map
+$spacing-values: (
+  0: 0,
+  1: 0.25rem,
+  2: 0.5rem,
+  3: 0.75rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+  8: 2rem
+);
 
-// Padding utilities
-.u-p-0 { padding: 0; }
-.u-p-1 { padding: 0.25rem; }
-.u-p-2 { padding: 0.5rem; }
-.u-p-3 { padding: 0.75rem; }
-.u-p-4 { padding: 1rem; }
-.u-p-5 { padding: 1.25rem; }
-.u-p-6 { padding: 1.5rem; }
-.u-p-8 { padding: 2rem; }
+// Spacing mixin for component-specific use
+@mixin spacing($property, $direction: null, $value: null) {
+  @if map-has-key($spacing-values, $value) {
+    @if $direction != null {
+      #{$property}-#{$direction}: map-get($spacing-values, $value);
+    } @else {
+      #{$property}: map-get($spacing-values, $value);
+    }
+  } @else {
+    @error "Invalid spacing value '#{$value}'. Use one of: #{map-keys($spacing-values)}.";
+  }
+}
 
-// Gap utilities
-.u-gap-0 { gap: 0; }
-.u-gap-1 { gap: 0.25rem; }
-.u-gap-2 { gap: 0.5rem; }
-.u-gap-3 { gap: 0.75rem; }
-.u-gap-4 { gap: 1rem; }
-.u-gap-5 { gap: 1.25rem; }
-.u-gap-6 { gap: 1.5rem; }
-.u-gap-8 { gap: 2rem; } 
+// Function to get spacing value
+@function spacing($key) {
+  @if map-has-key($spacing-values, $key) {
+    @return map-get($spacing-values, $key);
+  }
+  @error "Invalid spacing value '#{$key}'. Use one of: #{map-keys($spacing-values)}.";
+}
+
+// Generate utility classes
+@each $key, $value in $spacing-values {
+  // Margin utilities
+  .u-m-#{$key} { margin: $value; }
+  .u-mt-#{$key} { margin-top: $value; }
+  .u-mr-#{$key} { margin-right: $value; }
+  .u-mb-#{$key} { margin-bottom: $value; }
+  .u-ml-#{$key} { margin-left: $value; }
+  .u-mx-#{$key} { 
+    margin-left: $value;
+    margin-right: $value;
+  }
+  .u-my-#{$key} {
+    margin-top: $value;
+    margin-bottom: $value;
+  }
+
+  // Padding utilities
+  .u-p-#{$key} { padding: $value; }
+  .u-pt-#{$key} { padding-top: $value; }
+  .u-pr-#{$key} { padding-right: $value; }
+  .u-pb-#{$key} { padding-bottom: $value; }
+  .u-pl-#{$key} { padding-left: $value; }
+  .u-px-#{$key} {
+    padding-left: $value;
+    padding-right: $value;
+  }
+  .u-py-#{$key} {
+    padding-top: $value;
+    padding-bottom: $value;
+  }
+
+  // Gap utilities
+  .u-gap-#{$key} { gap: $value; }
+  .u-gap-x-#{$key} { column-gap: $value; }
+  .u-gap-y-#{$key} { row-gap: $value; }
+} 
