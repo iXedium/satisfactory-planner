@@ -1,19 +1,77 @@
-// Import existing CSS content and convert to BEM
+@use '../settings/colors' as c;
+@use '../settings/zindex' as z;
+
 .c-production-node {
-  // Core styles will be migrated here
-  &__container {
-    // Container styles will be migrated here
-  }
+  position: relative;
+  margin: 2px 0;
 
-  &__header {
-    // Header styles will be migrated here
-  }
-
+  // Node content
   &__content {
-    // Content styles will be migrated here
+    position: relative;
+    border: 1px solid c.$color-border;
+    background-color: c.$color-background-dark;
+    overflow: hidden;
   }
 
-  &__footer {
-    // Footer styles will be migrated here
+  // Icon container
+  &__icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .compact & {
+      height: 32px;
+      width: 32px;
+    }
+
+    .normal &,
+    .detailed & {
+      height: 64px;
+      width: 64px;
+    }
+  }
+
+  // Consumption list
+  &__consumption-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: c.$color-background-light;
+      transform: translateX(2px);
+    }
+
+    &--storage {
+      cursor: default;
+      opacity: 0.8;
+
+      &:hover {
+        transform: none;
+        background: none;
+      }
+    }
+  }
+
+  // Rate type modifiers
+  &--negative {
+    .c-production-node__content {
+      background-color: c.$color-background-darker;
+    }
+  }
+
+  // Detail level modifiers
+  &--compact {
+    .c-production-node__icon-container {
+      height: 32px;
+      width: 32px;
+    }
+  }
+
+  &--normal,
+  &--detailed {
+    .c-production-node__icon-container {
+      height: 64px;
+      width: 64px;
+    }
   }
 }
