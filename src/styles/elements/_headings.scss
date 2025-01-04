@@ -1,41 +1,32 @@
+@use '../tools/typography' as type;
+@use '../settings/spacing' as s;
+
 h1, .h1 {
-  font-size: $font-size-4xl;
-  line-height: $line-height-tight;
-  font-weight: $font-weight-bold;
-  margin-bottom: 1rem;
+  @include type.typography('4xl');
+  margin-bottom: s.spacing(4);
 }
 
 h2, .h2 {
-  font-size: $font-size-3xl;
-  line-height: $line-height-tight;
-  font-weight: $font-weight-bold;
-  margin-bottom: 0.875rem;
+  @include type.typography('3xl');
+  margin-bottom: s.spacing(3.5);
 }
 
 h3, .h3 {
-  font-size: $font-size-2xl;
-  line-height: $line-height-tight;
-  font-weight: $font-weight-semibold;
-  margin-bottom: 0.75rem;
+  @include type.typography('2xl');
+  margin-bottom: s.spacing(3);
 }
 
 h4, .h4 {
-  font-size: $font-size-xl;
-  line-height: $line-height-base;
-  font-weight: $font-weight-semibold;
-  margin-bottom: 0.5rem;
+  @include type.typography('xl');
+  margin-bottom: s.spacing(2);
 }
 
 h5, .h5 {
-  font-size: $font-size-lg;
-  line-height: $line-height-base;
-  font-weight: $font-weight-medium;
-  margin-bottom: 0.5rem;
+  @include type.typography('lg');
+  margin-bottom: s.spacing(2);
 }
 
 h6, .h6 {
-  font-size: $font-size-md;
-  line-height: $line-height-base;
-  font-weight: $font-weight-medium;
-  margin-bottom: 0.5rem;
+  @include type.typography('base');
+  margin-bottom: s.spacing(2);
 } 
