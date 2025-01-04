@@ -1,4 +1,5 @@
-// Import existing CSS content and convert to BEM
+@use '../settings/zindex' as z;
+
 .c-production-planner {
   // Core styles will be migrated here
   &__container {
@@ -18,22 +19,22 @@
   }
 
   &__controls {
-    z-index: $zindex-sticky; // For controls that need to stay above content
+    z-index: z.$zindex-sticky; // For controls that need to stay above content
   }
 
   &__dropdown {
-    z-index: $zindex-dropdown; // For dropdown menus
+    z-index: z.$zindex-dropdown; // For dropdown menus
   }
 
   &__tooltip {
-    z-index: $zindex-tooltip; // For tooltips
+    z-index: z.$zindex-tooltip; // For tooltips
   }
 
   &__overlay {
-    z-index: $zindex-overlay; // For full-screen overlays
+    z-index: z.$zindex-overlay; // For full-screen overlays
   }
 
   &__drag-indicator {
-    z-index: $zindex-dragover; // For drag and drop indicators
+    z-index: z.$zindex-dragover; // For drag and drop indicators
   }
 }

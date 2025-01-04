@@ -1,4 +1,5 @@
-// Import existing CSS content and convert to BEM
+@use '../settings/zindex' as z;
+
 .c-custom-recipe-dropdown {
   position: relative;
 
@@ -12,7 +13,7 @@
 
   &__content {
     position: absolute;
-    z-index: $zindex-dropdown;
+    z-index: z.$zindex-dropdown;
   }
 
   &__item {
@@ -21,6 +22,6 @@
 
   &__tooltip {
     position: fixed;
-    z-index: $zindex-tooltip;
+    z-index: z.$zindex-tooltip;
   }
 }

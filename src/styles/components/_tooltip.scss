@@ -1,0 +1,22 @@
+@use '../settings/zindex' as z;
+
+.c-tooltip {
+  position: fixed;
+  z-index: z.$zindex-tooltip;
+  
+  &__content {
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 4px;
+    padding: 1rem;
+    min-width: 200px;
+    max-width: 400px;
+  }
+
+  &__header {
+    margin-bottom: 0.5rem;
+  }
+
+  &__body {
+    font-size: 0.875rem;
+  }
+} 
