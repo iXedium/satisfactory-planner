@@ -31,3 +31,13 @@ $container-max-md: 720px;
 $container-max-lg: 960px;
 $container-max-xl: 1140px;
 $container-max-2xl: 1320px; 
+
+// Breakpoints Map
+$breakpoints: (
+  xs: $breakpoint-xs,
+  sm: $breakpoint-sm,
+  md: $breakpoint-md,
+  lg: $breakpoint-lg,
+  xl: $breakpoint-xl,
+  2xl: $breakpoint-2xl
+);
