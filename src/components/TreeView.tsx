@@ -16,6 +16,7 @@ interface TreeViewProps {
   detailLevel?: 'compact' | 'normal' | 'detailed';
   isAccumulated?: boolean;
   itemsMap: Map<string, Item>;
+  sourceCount: number;
 }
 
 export function TreeView({
@@ -27,7 +28,8 @@ export function TreeView({
   manualRates,
   detailLevel = 'normal',
   isAccumulated = false,
-  itemsMap
+  itemsMap,
+  sourceCount
 }: TreeViewProps) {
   const [collapsed, setCollapsed] = useState(false);
   const hasChildren = node.children.length > 0;
@@ -139,6 +141,7 @@ export function TreeView({
                 manualRates={manualRates}
                 detailLevel={detailLevel}
                 itemsMap={itemsMap}
+                sourceCount={sourceCount}
               />
             </div>
           ))}

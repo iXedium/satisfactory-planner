@@ -363,6 +363,7 @@ export function ProductionPlanner() {
         manualRates={manualRates}
         detailLevel={detailLevel}
         itemsMap={itemsMap}  // Add this prop
+        sourceCount={node.children.length}
       />
     );
   };
