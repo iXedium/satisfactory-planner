@@ -42,7 +42,14 @@
   1. ✓ Fixed incorrect import paths for spacing utilities
   2. ✓ Added documentation for directory structure
   3. ✓ Migrated Tooltip component to BEM
-  4. Next: Migrate remaining components to BEM methodology
+  4. ✓ Extracted MachineAdjustmentControls component
+     - Created new component with BEM classes
+     - Added SCSS file with proper ITCSS structure
+     - Updated ProductionNode to use new component
+  5. Next: Continue extracting remaining components:
+     - ProductionRate
+     - TreeView
+     - BuildingInfo
 
 ## Upcoming Stages
 1. Component Style Migration (Remaining)
@@ -316,3 +323,38 @@ Pending:
 ## Next Actions
 1. Refactor and restyle ProductionNode component
 2. Begin ItemIcon component migration
+
+## Recent Changes and Fixes
+
+### Component Extraction Progress (Current)
+1. MachineAdjustmentControls Component
+   - Created standalone component for machine count and efficiency controls
+   - Implemented BEM methodology for class names
+   - Added proper SCSS structure with settings imports
+   - Maintained all existing functionality:
+     - Machine count adjustment
+     - Efficiency display
+     - Copy efficiency value
+   - Added proper TypeScript interfaces
+   - Improved accessibility with disabled states
+
+2. Lessons Learned:
+   - Keep component-specific styles in their own files
+   - Use BEM methodology consistently
+   - Maintain existing functionality while refactoring
+   - Consider accessibility in component design
+   - Use TypeScript interfaces for prop validation
+
+3. Best Practices Established:
+   - Component-specific SCSS files
+   - BEM class naming convention
+   - Proper SCSS imports and variables
+   - TypeScript interfaces for props
+   - Accessibility considerations
+
+4. Next Steps:
+   - Extract ProductionRate component
+   - Create TreeView component
+   - Refactor BuildingInfo section
+   - Update remaining styles to use BEM
+   - Add comprehensive testing

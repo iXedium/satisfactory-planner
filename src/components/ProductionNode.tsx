@@ -6,6 +6,7 @@ import { RecipeSelect } from './RecipeSelect';
 import { CustomRecipeDropdown } from './CustomRecipeDropdown';
 import './ProductionNode.css'; // Keep for now
 import '../styles/components/_production-node.scss';
+import { MachineAdjustmentControls } from './MachineAdjustmentControls';
 
 interface ProductionNodeProps {
   node: ProductionNodeUI;
@@ -236,43 +237,14 @@ export function ProductionNode({
             <div className="building-info">
               <span className="producer-name">{formatBuildingName(producer)}</span>
               <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>
-              <div className="machine-controls">
-                <button 
-                  className="machine-adjust" 
-                  onClick={() => node.nodeId && onMachineCountChange(node.nodeId, actualMachineCount - 1)}
-                  disabled={actualMachineCount <= 1}
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={actualMachineCount}
-                  onChange={(e) => {
-                    const count = Math.max(1, parseInt(e.target.value) || 1);
-                    node.nodeId && onMachineCountChange(node.nodeId, count);
-                  }}
-                  onClick={(e) => e.currentTarget.select()}
-                  min="1"
-                  className="machine-count-input"
-                />
-                <button 
-                  className="machine-adjust" 
-                  onClick={() => node.nodeId && onMachineCountChange(node.nodeId, actualMachineCount + 1)}
-                >
-                  +
-                </button>
-                <div 
-                  className={`efficiency-value ${getEfficiencyClass(parseFloat(efficiency))}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const actualEfficiency = (totalRate / actualCapacity).toFixed(6);
-                    navigator.clipboard.writeText(actualEfficiency);
-                  }}
-                  title="Click to copy actual value"
-                >
-                  ({efficiency}%)
-                </div>
-              </div>
+              <MachineAdjustmentControls
+                actualMachineCount={actualMachineCount}
+                efficiency={efficiency}
+                onMachineCountChange={(count) => node.nodeId && onMachineCountChange(node.nodeId, count)}
+                disabled={!node.nodeId}
+                actualCapacity={actualCapacity}
+                totalRate={totalRate}
+              />
             </div>
           </div>
         )}
