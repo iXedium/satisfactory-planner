@@ -42,11 +42,32 @@
   1. ✓ Fixed incorrect import paths for spacing utilities
   2. ✓ Added documentation for directory structure
   3. ✓ Migrated Tooltip component to BEM
-  4. ✓ Extracted MachineAdjustmentControls component
+  4. ✓ Extracted and fixed MachineAdjustmentControls component
      - Created new component with BEM classes
      - Added SCSS file with proper ITCSS structure
      - Updated ProductionNode to use new component
-  5. Next: Continue extracting remaining components:
+     - Fixed utility imports and usage:
+       - Replaced variables with proper utility functions
+       - Updated color variables to use standardized naming
+       - Fixed z-index usage to follow hierarchy
+       - Added typography utilities
+     - Maintained visual consistency with original design
+  5. ✓ Implemented Typography System Improvements
+     - Created typography mixins in tools/_typography.scss
+     - Updated utilities/_typography.scss to use mixins
+     - Added comprehensive typography utilities:
+       - Font size and weight
+       - Text alignment and transformation
+       - Line height and clamping
+       - Font families
+     - Updated MachineAdjustmentControls to use new system
+  6. ✓ Implemented Token-Based Typography System
+     - Created comprehensive typography tokens map
+     - Implemented typography mixins with token support
+     - Added responsive typography capabilities
+     - Updated utilities to use token system
+     - Refactored MachineAdjustmentControls to use new system
+  7. Next: Continue extracting remaining components:
      - ProductionRate
      - TreeView
      - BuildingInfo
@@ -331,6 +352,11 @@ Pending:
    - Created standalone component for machine count and efficiency controls
    - Implemented BEM methodology for class names
    - Added proper SCSS structure with settings imports
+   - Fixed utility usage:
+     - Replaced v.$spacing-* with s.spacing() function
+     - Updated color variables to use color-* prefix
+     - Fixed z-index to use proper hierarchy
+     - Added typography utilities for font sizes and weights
    - Maintained all existing functionality:
      - Machine count adjustment
      - Efficiency display
@@ -341,14 +367,17 @@ Pending:
 2. Lessons Learned:
    - Keep component-specific styles in their own files
    - Use BEM methodology consistently
-   - Maintain existing functionality while refactoring
+   - Use utility functions instead of direct variables
+   - Follow standardized color naming convention
    - Consider accessibility in component design
    - Use TypeScript interfaces for prop validation
+   - Maintain visual consistency while refactoring
 
 3. Best Practices Established:
    - Component-specific SCSS files
    - BEM class naming convention
-   - Proper SCSS imports and variables
+   - Proper utility function usage
+   - Standardized color naming
    - TypeScript interfaces for props
    - Accessibility considerations
 
@@ -358,3 +387,118 @@ Pending:
    - Refactor BuildingInfo section
    - Update remaining styles to use BEM
    - Add comprehensive testing
+
+### Typography System Implementation (Current)
+1. Typography Mixins Creation
+   - Created comprehensive set of typography mixins:
+     - font-size and font-weight
+     - text-align and text-transform
+     - line-clamp and truncate
+     - font-family and line-height
+     - letter-spacing
+   - Placed in tools/_typography.scss for global access
+   - Ensured consistent naming and usage patterns
+
+2. Typography Utilities Update
+   - Refactored utilities/_typography.scss
+   - Implemented utility classes using mixins
+   - Added new utilities for:
+     - Text transformation
+     - Font families
+     - Line heights
+     - Letter spacing
+   - Maintained existing class names for backward compatibility
+
+3. Component Updates
+   - Updated MachineAdjustmentControls to use new system
+   - Replaced direct property assignments with mixins
+   - Maintained visual consistency while improving code quality
+   - Added proper typography imports and usage
+
+4. Best Practices Established
+   - Use typography mixins for all text-related styles
+   - Maintain consistent import aliases (type for typography tools)
+   - Follow established naming conventions
+   - Use utility classes for one-off typography needs
+   - Use mixins for component-specific typography
+
+5. Documentation
+   - Added typography system documentation
+   - Updated component documentation with typography usage
+   - Created examples for future implementations
+
+### Next Steps
+1. Apply typography system to remaining components
+2. Audit existing typography usage
+3. Create visual regression tests
+4. Document typography patterns in style guide
+
+### Token-Based Typography System Implementation (Current)
+1. Typography Tokens Creation
+   - Created comprehensive token map in settings/_typography.scss
+   - Defined tokens for different text styles:
+     - Base text sizes (xs, sm, base, lg, xl)
+     - Headings (heading-1, heading-2, heading-3)
+     - Special styles (caption, code)
+   - Each token includes:
+     - font-size
+     - line-height
+     - font-weight
+     - letter-spacing
+     - Optional font-family
+
+2. Typography Mixins Enhancement
+   - Created main typography mixin for applying complete tokens
+   - Added responsive typography support
+   - Updated individual property mixins to use tokens
+   - Maintained backward compatibility
+   - Added error handling for invalid tokens
+
+3. Utility Classes Generation
+   - Implemented dynamic utility class generation
+   - Added responsive variants for each token
+   - Created individual property utilities
+   - Maintained existing utility class names
+   - Added new semantic naming options
+
+4. Component Updates
+   - Refactored MachineAdjustmentControls to use token system
+   - Replaced individual property assignments with token usage
+   - Added responsive typography where appropriate
+   - Maintained visual consistency
+
+5. Best Practices Established
+   - Use typography tokens for consistent text styles
+   - Apply complete tokens with @include typography($token)
+   - Use responsive typography for adaptive layouts
+   - Follow semantic naming conventions
+   - Maintain backward compatibility
+
+### Usage Examples
+```scss
+// Using complete typography token
+.element {
+  @include type.typography('base');
+}
+
+// Using responsive typography
+.element {
+  @include type.typography('heading-1', $responsive: true);
+}
+
+// Using individual properties
+.element {
+  @include type.font-size('lg');
+  @include type.line-height('base');
+}
+
+// Using utility classes
+<div class="u-text-base">Base text</div>
+<div class="u-text-heading-1-md">Responsive heading</div>
+```
+
+### Next Steps
+1. Apply token-based typography to remaining components
+2. Create visual regression tests for typography
+3. Document token usage patterns
+4. Update style guide with typography examples

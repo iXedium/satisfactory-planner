@@ -1,27 +1,99 @@
-// Font Families
-$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-$font-family-heading: $font-family-base;
-$font-family-monospace: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+// Font families
+$font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+$font-family-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', monospace;
 
-// Font Sizes
-$font-size-base: 16px;
-$font-size-xs: 0.75rem;    // 12px
-$font-size-sm: 0.875rem;   // 14px
-$font-size-md: 1rem;       // 16px
-$font-size-lg: 1.125rem;   // 18px
-$font-size-xl: 1.25rem;    // 20px
-$font-size-2xl: 1.5rem;    // 24px
-$font-size-3xl: 1.875rem;  // 30px
-$font-size-4xl: 2.25rem;   // 36px
-
-// Line Heights
-$line-height-tight: 1.25;
-$line-height-base: 1.5;
-$line-height-loose: 1.75;
-
-// Font Weights
+// Font weights
 $font-weight-light: 300;
 $font-weight-normal: 400;
 $font-weight-medium: 500;
 $font-weight-semibold: 600;
-$font-weight-bold: 700; 
+$font-weight-bold: 700;
+
+// Typography scale tokens
+$typography-tokens: (
+  'xs': (
+    font-size: 0.75rem,    // 12px
+    line-height: 1.25,     // 16px
+    font-weight: $font-weight-normal,
+    letter-spacing: 0.025em
+  ),
+  'sm': (
+    font-size: 0.875rem,   // 14px
+    line-height: 1.375,    // 20px
+    font-weight: $font-weight-normal,
+    letter-spacing: 0.0125em
+  ),
+  'base': (
+    font-size: 1rem,       // 16px
+    line-height: 1.5,      // 24px
+    font-weight: $font-weight-normal,
+    letter-spacing: 0
+  ),
+  'lg': (
+    font-size: 1.125rem,   // 18px
+    line-height: 1.5,      // 28px
+    font-weight: $font-weight-normal,
+    letter-spacing: -0.0125em
+  ),
+  'xl': (
+    font-size: 1.25rem,    // 20px
+    line-height: 1.5,      // 32px
+    font-weight: $font-weight-normal,
+    letter-spacing: -0.025em
+  ),
+  'heading-1': (
+    font-size: 2rem,       // 32px
+    line-height: 1.25,     // 40px
+    font-weight: $font-weight-bold,
+    letter-spacing: -0.05em
+  ),
+  'heading-2': (
+    font-size: 1.75rem,    // 28px
+    line-height: 1.3,      // 36px
+    font-weight: $font-weight-bold,
+    letter-spacing: -0.0375em
+  ),
+  'heading-3': (
+    font-size: 1.5rem,     // 24px
+    line-height: 1.375,    // 32px
+    font-weight: $font-weight-semibold,
+    letter-spacing: -0.025em
+  ),
+  'caption': (
+    font-size: 0.75rem,    // 12px
+    line-height: 1.25,     // 16px
+    font-weight: $font-weight-medium,
+    letter-spacing: 0.05em
+  ),
+  'code': (
+    font-size: 0.875rem,   // 14px
+    line-height: 1.5,      // 20px
+    font-weight: $font-weight-normal,
+    font-family: $font-family-mono,
+    letter-spacing: 0
+  )
+);
+
+// Function to get a specific token property
+@function get-typography-value($token, $property) {
+  @if not map-has-key($typography-tokens, $token) {
+    @error "Typography token '#{$token}' not found in $typography-tokens map.";
+  }
+  
+  $token-map: map-get($typography-tokens, $token);
+  
+  @if not map-has-key($token-map, $property) {
+    @error "Property '#{$property}' not found in typography token '#{$token}'.";
+  }
+  
+  @return map-get($token-map, $property);
+}
+
+// Function to get the complete token
+@function get-typography-token($token) {
+  @if not map-has-key($typography-tokens, $token) {
+    @error "Typography token '#{$token}' not found in $typography-tokens map.";
+  }
+  
+  @return map-get($typography-tokens, $token);
+} 
