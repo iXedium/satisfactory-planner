@@ -74,25 +74,29 @@ export function ListView(props: ListViewProps) {
 
   // Add error boundary
   if (accumulatedNodes.length === 0) {
-    return <div>No production nodes to display</div>;
+    return <div className="c-list-view c-list-view--empty">No production nodes to display</div>;
   }
 
   return (
-    <div className="list-view">
+    <div className="c-list-view">
       {enhancedNodes.map(node => (
-        <ProductionNodeComponent
+        <div 
           key={`${node.itemId}-${node.recipeId}`}
-          node={node}
-          onRecipeChange={handleRecipeChange}
-          onManualRateChange={props.onManualRateChange}
-          onMachineCountChange={props.onMachineCountChange}
-          machineOverrides={props.machineOverrides}
-          manualRates={props.manualRates}
-          detailLevel={props.detailLevel}
-          isAccumulated={true}
-          sourceCount={node.sourceNodes.length}
-          itemsMap={props.items}  // Pass the itemsMap from props
-        />
+          className="c-list-view__node"
+        >
+          <ProductionNodeComponent
+            node={node}
+            onRecipeChange={handleRecipeChange}
+            onManualRateChange={props.onManualRateChange}
+            onMachineCountChange={props.onMachineCountChange}
+            machineOverrides={props.machineOverrides}
+            manualRates={props.manualRates}
+            detailLevel={props.detailLevel}
+            isAccumulated={true}
+            sourceCount={node.sourceNodes.length}
+            itemsMap={props.items}
+          />
+        </div>
       ))}
     </div>
   );
