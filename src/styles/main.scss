@@ -1,4 +1,5 @@
 // Settings - Variables, config
+@import 'settings/variables';
 @import 'settings/colors';
 @import 'settings/typography';
 @import 'settings/breakpoints';
@@ -9,7 +10,7 @@
 
 // Generic - Reset, normalize
 @import 'generic/reset';
-@import 'generic/box-sizing';
+@import 'generic/themes';
 
 // Elements - Bare HTML elements
 @import 'elements/headings';
@@ -33,4 +34,5 @@
 // Utilities - Helper classes
 @import 'utilities/spacing';
 @import 'utilities/visibility';
-@import 'utilities/typography'; 
+@import 'utilities/typography';
+@import 'utilities/scrollbars'; 

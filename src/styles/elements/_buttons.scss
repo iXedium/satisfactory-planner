@@ -1,3 +1,4 @@
+// Base button styles
 button {
   display: inline-flex;
   align-items: center;
@@ -12,6 +13,8 @@ button {
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  background: none;
+  color: inherit;
 
   &:focus {
     @include focus-ring;
@@ -21,5 +24,31 @@ button {
   &:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+  }
+}
+
+// Primary action buttons
+.calculate-button {
+  background-color: var(--primary-color);
+  color: var(--text-primary);
+  box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
+
+  &:hover {
+    background-color: var(--primary-hover);
+  }
+}
+
+// View controls buttons
+.view-controls {
+  button {
+    &.active {
+      background-color: var(--primary-color);
+      color: var(--text-primary);
+      box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
+    }
+
+    &:hover:not(.active) {
+      background-color: var(--background-light);
+    }
   }
 } 
