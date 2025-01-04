@@ -121,81 +121,101 @@ export function ProductionNode({
     if (!node.relationships || !isAccumulated) return null;
 
     const relationships = node.relationships;
-    const totalConsumed = relationships.producedFor.reduce((sum, rel) => sum + rel.amount, 0);
+
+    // Aggregate relationships by itemId
+    const aggregatedRelationships = relationships.producedFor.reduce((acc, rel) => {
+      if (!acc[rel.itemId]) {
+        acc[rel.itemId] = {
+          itemId: rel.itemId,
+          amount: 0,
+          nodeIds: new Set()
+        };
+      }
+      acc[rel.itemId].amount += rel.amount;
+      acc[rel.itemId].nodeIds.add(rel.nodeId);
+      return acc;
+    }, {} as Record<string, { itemId: string; amount: number; nodeIds: Set<string> }>);
+
+    // Calculate totals and percentages
+    const totalConsumed = Object.values(aggregatedRelationships)
+      .reduce((sum, rel) => sum + rel.amount, 0);
+
+    const withPercentages = Object.values(aggregatedRelationships).map(rel => ({
+      ...rel,
+      percentageNoStorage: (rel.amount / totalConsumed) * 100,
+      percentage: (rel.amount / relationships.totalProduction) * 100
+    }));
+
     const storageAmount = relationships.totalProduction - totalConsumed;
     const storagePercentage = (storageAmount / relationships.totalProduction) * 100;
 
     return (
-      <div className="c-production-node__consumption">
-        {relationships.producedFor.map(rel => {
-          const consumerItem = itemsMap.get(rel.itemId);
-          const percentage = (rel.amount / totalConsumed) * 100;
-          const totalPercentage = (rel.amount / relationships.totalProduction) * 100;
-
-          return (
-            <div 
-              key={rel.itemId} 
-              className="c-production-node__consumption-item"
-              onClick={(e) => handleConsumerClick(e, rel.itemId)}
-              role="button"
-              tabIndex={0}
-              title={`Jump to ${consumerItem?.name || rel.itemId}`}
-            >
-              <span className="c-production-node__consumer-name">
-                <ItemIcon iconId={rel.itemId} size={32} />
-                {consumerItem?.name || rel.itemId}
-              </span>
-              <span className="c-production-node__consumer-amount">
-                {rel.amount.toFixed(2)}/min
-              </span>
-              <span className="c-production-node__consumer-percentage">
-                <span className="c-production-node__percentage-primary">
-                  {percentage.toFixed(1)}%
+      <div className="consumption-list">
+        <div className="consumption-items">
+          {withPercentages.map(rel => {
+            const consumerItem = itemsMap.get(rel.itemId);
+            return (
+              <div 
+                key={rel.itemId} 
+                className="consumption-item"
+                onClick={(e) => handleConsumerClick(e, rel.itemId)}
+                role="button"
+                tabIndex={0}
+                title={`Jump to ${consumerItem?.name || rel.itemId}`}
+                onKeyPress={(e) => e.key === 'Enter' && handleConsumerClick(e as any, rel.itemId)}
+              >
+                <span className="consumer-name">
+                  <ItemIcon iconId={rel.itemId} size={32} />
+                  {consumerItem?.name || rel.itemId}
                 </span>
-                <span className="c-production-node__percentage-secondary">
-                  / {totalPercentage.toFixed(1)}%
+                <span className="consumer-amount">{rel.amount.toFixed(2)}/min</span>
+                <span className="consumer-percentage">
+                  <span className="percentage-primary">{rel.percentageNoStorage.toFixed(1)}%</span>
+                  <span className="percentage-secondary"> / {rel.percentage.toFixed(1)}%</span>
                 </span>
+              </div>
+            );
+          })}
+          {storageAmount > 0.01 && (
+            <div className="consumption-item storage">
+              <span className="consumer-name">Storage</span>
+              <span className="consumer-amount">{storageAmount.toFixed(2)}/min</span>
+              <span className="consumer-percentage">
+                ({storagePercentage.toFixed(1)}%)
               </span>
             </div>
-          );
-        })}
-        {storageAmount > 0.01 && (
-          <div className="c-production-node__consumption-item c-production-node__consumption-item--storage">
-            <span className="c-production-node__consumer-name">Storage</span>
-            <span className="c-production-node__consumer-amount">
-              {storageAmount.toFixed(2)}/min
-            </span>
-            <span className="c-production-node__consumer-percentage">
-              ({storagePercentage.toFixed(1)}%)
-            </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   };
 
   return (
     <div 
-      className={`c-production-node c-production-node--${detailLevel} ${hasChildren ? 'has-children' : ''}`}
-      data-item-id={node.itemId}
-      data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
+      className={`production-node ${detailLevel}`}
+      data-item-id={node.itemId} // Add this attribute for scrolling target
+      data-rate-type={totalRate < 0 ? 'negative' : 'positive'} // Move back to parent
     >
       <div 
-        className={`c-production-node__content ${hasChildren ? 'collapsible' : ''}`}
+        className={`node-content ${hasChildren ? 'collapsible' : ''}`}
         onClick={handleNodeClick}
+        // Remove data-rate-type from here
       >
         {hasChildren && (
-          <span className={`c-production-node__collapse-icon ${collapsed ? 'collapsed' : ''}`}>▼</span>
+          <span className={`collapse-icon ${collapsed ? 'collapsed' : ''}`}>▼</span>
         )}
         
-        <div className="c-production-node__icon-container">
+        <div className="item-icon-container">
           <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
         </div>
 
-        <div className="c-production-node__info">
-          <h3 className="c-production-node__title">{node.item.name}</h3>
+        <div 
+          className="name-recipe-container"
+          ref={nameRecipeRef}
+        >
+          <h3>{node.item.name}</h3>
           {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
-            <div className="c-production-node__controls" onClick={e => e.stopPropagation()}>
+            <div className="machine-controls" onClick={e => e.stopPropagation()}>
               <CustomRecipeDropdown
                 recipes={node.availableRecipes}
                 value={node.recipeId || ''}
