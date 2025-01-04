@@ -1,0 +1,19 @@
+// Import existing CSS content and convert to BEM
+.c-production-node {
+  // Core styles will be migrated here
+  &__container {
+    // Container styles will be migrated here
+  }
+
+  &__header {
+    // Header styles will be migrated here
+  }
+
+  &__content {
+    // Content styles will be migrated here
+  }
+
+  &__footer {
+    // Footer styles will be migrated here
+  }
+}

@@ -1,0 +1,11 @@
+// Import existing CSS content and convert to BEM
+.c-item-icon {
+  // Core styles will be migrated here
+  &__image {
+    // Image styles will be migrated here
+  }
+
+  &__label {
+    // Label styles will be migrated here
+  }
+}

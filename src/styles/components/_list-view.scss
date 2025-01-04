@@ -1,0 +1,11 @@
+// Import existing CSS content and convert to BEM
+.c-list-view {
+  // Core styles will be migrated here
+  &__container {
+    // Container styles will be migrated here
+  }
+
+  &__item {
+    // Item styles will be migrated here
+  }
+}
