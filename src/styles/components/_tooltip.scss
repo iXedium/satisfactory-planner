@@ -7,7 +7,7 @@
   background-color: c.$color-background-darker;
   border: 1px solid c.$color-border;
   border-radius: 8px;
-  @include s.spacing(padding, null, 3);
+  padding: s.spacing(3);
   min-width: 280px;
   max-width: 320px;
   z-index: z.$zindex-tooltip;
@@ -17,8 +17,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    @include s.spacing(margin, bottom, 2);
-    @include s.spacing(padding, bottom, 2);
+    margin-bottom: s.spacing(2);
+    padding-bottom: s.spacing(2);
     border-bottom: 1px solid c.$color-border;
   }
 
@@ -34,11 +34,11 @@
   }
 
   &__section {
-    @include s.spacing(margin, bottom, 3);
+    margin-bottom: s.spacing(3);
 
     &-title {
       margin: 0;
-      @include s.spacing(margin, bottom, 1);
+      margin-bottom: s.spacing(1);
       font-size: 12px;
       color: c.$color-text-secondary;
       text-transform: uppercase;
@@ -48,10 +48,9 @@
   &__item {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    @include s.spacing(gap, null, 2);
+    gap: s.spacing(2);
     align-items: center;
-    @include s.spacing(padding, top, 1);
-    @include s.spacing(padding, bottom, 1);
+    padding: s.spacing(1) 0;
 
     &-name {
       color: c.$color-text-primary;

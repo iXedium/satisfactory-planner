@@ -6,8 +6,8 @@
   // Core container styles
   display: flex;
   flex-direction: column;
-  @include s.spacing(gap, null, 4);
-  @include s.spacing(padding, null, 4);
+  gap: s.spacing(4);
+  padding: s.spacing(4);
   overflow-y: auto;
   height: 100%;
   background-color: c.$color-background-darker;

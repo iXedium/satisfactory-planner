@@ -224,6 +224,54 @@ Pending:
 - Verify consistent spacing across components
 - Test responsive utilities across breakpoints
 
+## Recent Changes and Fixes
+
+### Spacing System Regression Fix (Current)
+1. Issue Identified:
+   - Unintended visual modifications caused by aggressive use of `!important` declarations
+   - Spacing mixins causing specificity conflicts
+   - Utility classes overriding component-specific styles
+
+2. Solutions Implemented:
+   - Removed `!important` declarations from utility classes
+   - Switched from mixin-based to function-based spacing in components
+   - Maintained existing visual hierarchy and specificity
+   - Preserved component-specific spacing requirements
+
+3. Lessons Learned:
+   - Avoid using `!important` in utility classes unless absolutely necessary
+   - Prefer direct value functions over mixins for component-specific spacing
+   - Test visual changes across all components when updating global systems
+   - Document spacing patterns used in each component
+
+4. Best Practices Established:
+   - Use `s.spacing()` function for component-specific values:
+     ```scss
+     padding: s.spacing(3);
+     margin-bottom: s.spacing(2);
+     ```
+   - Use utility classes for one-off spacing needs in templates:
+     ```html
+     <div class="u-p-3 u-mb-2">
+     ```
+   - Use responsive classes only when needed:
+     ```html
+     <div class="u-p-2 u-p-md-3 u-p-lg-4">
+     ```
+
+### Migration Status Update
+✓ Completed:
+- Fixed spacing system regression
+- Removed `!important` declarations
+- Updated Tooltip component spacing
+- Updated ListView component spacing
+- Documented spacing best practices
+
+Pending:
+- Test all components for visual regressions
+- Update remaining components with new spacing approach
+- Add visual regression testing to CI/CD pipeline
+
 ## Notes/Issues
 ### General Guidelines
 - Always use @use for importing SCSS modules
@@ -244,6 +292,10 @@ Pending:
 - ✓ Added responsive spacing utilities
 - Need to audit remaining components for hardcoded spacing values
 - Need to test responsive utilities across different viewports
+- ✓ Fixed: Spacing system regression and unintended visual changes
+- ✓ Updated: Component-specific spacing implementation
+- Need to implement visual regression testing
+- Consider adding spacing documentation per component
 
 ### Best Practices
 - Use variables for all themeable properties
