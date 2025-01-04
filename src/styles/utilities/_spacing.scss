@@ -1,3 +1,10 @@
+// Breakpoints map
+$grid-breakpoints: (
+  sm: 480px,
+  md: 768px,
+  lg: 1200px
+);
+
 // Spacing values map
 $spacing-values: (
   0: 0,
@@ -9,6 +16,17 @@ $spacing-values: (
   6: 1.5rem,
   8: 2rem
 );
+
+// Media query mixin
+@mixin media-breakpoint-up($breakpoint) {
+  @if map-has-key($grid-breakpoints, $breakpoint) {
+    @media (min-width: map-get($grid-breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @error "Invalid breakpoint: '#{$breakpoint}'.";
+  }
+}
 
 // Spacing mixin for component-specific use
 @mixin spacing($property, $direction: null, $value: null) {
@@ -31,40 +49,82 @@ $spacing-values: (
   @error "Invalid spacing value '#{$key}'. Use one of: #{map-keys($spacing-values)}.";
 }
 
-// Generate utility classes
+// Generate base utility classes
 @each $key, $value in $spacing-values {
   // Margin utilities
-  .u-m-#{$key} { margin: $value; }
-  .u-mt-#{$key} { margin-top: $value; }
-  .u-mr-#{$key} { margin-right: $value; }
-  .u-mb-#{$key} { margin-bottom: $value; }
-  .u-ml-#{$key} { margin-left: $value; }
+  .u-m-#{$key} { margin: $value !important; }
+  .u-mt-#{$key} { margin-top: $value !important; }
+  .u-mr-#{$key} { margin-right: $value !important; }
+  .u-mb-#{$key} { margin-bottom: $value !important; }
+  .u-ml-#{$key} { margin-left: $value !important; }
   .u-mx-#{$key} { 
-    margin-left: $value;
-    margin-right: $value;
+    margin-left: $value !important;
+    margin-right: $value !important;
   }
   .u-my-#{$key} {
-    margin-top: $value;
-    margin-bottom: $value;
+    margin-top: $value !important;
+    margin-bottom: $value !important;
   }
 
   // Padding utilities
-  .u-p-#{$key} { padding: $value; }
-  .u-pt-#{$key} { padding-top: $value; }
-  .u-pr-#{$key} { padding-right: $value; }
-  .u-pb-#{$key} { padding-bottom: $value; }
-  .u-pl-#{$key} { padding-left: $value; }
+  .u-p-#{$key} { padding: $value !important; }
+  .u-pt-#{$key} { padding-top: $value !important; }
+  .u-pr-#{$key} { padding-right: $value !important; }
+  .u-pb-#{$key} { padding-bottom: $value !important; }
+  .u-pl-#{$key} { padding-left: $value !important; }
   .u-px-#{$key} {
-    padding-left: $value;
-    padding-right: $value;
+    padding-left: $value !important;
+    padding-right: $value !important;
   }
   .u-py-#{$key} {
-    padding-top: $value;
-    padding-bottom: $value;
+    padding-top: $value !important;
+    padding-bottom: $value !important;
   }
 
   // Gap utilities
-  .u-gap-#{$key} { gap: $value; }
-  .u-gap-x-#{$key} { column-gap: $value; }
-  .u-gap-y-#{$key} { row-gap: $value; }
+  .u-gap-#{$key} { gap: $value !important; }
+  .u-gap-x-#{$key} { column-gap: $value !important; }
+  .u-gap-y-#{$key} { row-gap: $value !important; }
+}
+
+// Generate responsive utility classes
+@each $breakpoint, $min-width in $grid-breakpoints {
+  @include media-breakpoint-up($breakpoint) {
+    @each $key, $value in $spacing-values {
+      // Responsive margin utilities
+      .u-m-#{$breakpoint}-#{$key} { margin: $value !important; }
+      .u-mt-#{$breakpoint}-#{$key} { margin-top: $value !important; }
+      .u-mr-#{$breakpoint}-#{$key} { margin-right: $value !important; }
+      .u-mb-#{$breakpoint}-#{$key} { margin-bottom: $value !important; }
+      .u-ml-#{$breakpoint}-#{$key} { margin-left: $value !important; }
+      .u-mx-#{$breakpoint}-#{$key} { 
+        margin-left: $value !important;
+        margin-right: $value !important;
+      }
+      .u-my-#{$breakpoint}-#{$key} {
+        margin-top: $value !important;
+        margin-bottom: $value !important;
+      }
+
+      // Responsive padding utilities
+      .u-p-#{$breakpoint}-#{$key} { padding: $value !important; }
+      .u-pt-#{$breakpoint}-#{$key} { padding-top: $value !important; }
+      .u-pr-#{$breakpoint}-#{$key} { padding-right: $value !important; }
+      .u-pb-#{$breakpoint}-#{$key} { padding-bottom: $value !important; }
+      .u-pl-#{$breakpoint}-#{$key} { padding-left: $value !important; }
+      .u-px-#{$breakpoint}-#{$key} {
+        padding-left: $value !important;
+        padding-right: $value !important;
+      }
+      .u-py-#{$breakpoint}-#{$key} {
+        padding-top: $value !important;
+        padding-bottom: $value !important;
+      }
+
+      // Responsive gap utilities
+      .u-gap-#{$breakpoint}-#{$key} { gap: $value !important; }
+      .u-gap-x-#{$breakpoint}-#{$key} { column-gap: $value !important; }
+      .u-gap-y-#{$breakpoint}-#{$key} { row-gap: $value !important; }
+    }
+  }
 } 

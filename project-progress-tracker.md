@@ -120,7 +120,16 @@ Recommended aliases:
 - breakpoints → b
 
 ## Spacing System
-The project uses a hybrid approach for spacing:
+The project uses a hybrid approach for spacing with responsive utilities:
+
+### Breakpoints
+```scss
+$grid-breakpoints: (
+  sm: 480px,
+  md: 768px,
+  lg: 1200px
+);
+```
 
 ### Spacing Values
 All spacing values are defined in a central map:
@@ -137,7 +146,7 @@ $spacing-values: (
 );
 ```
 
-### Utility Classes
+### Base Utility Classes
 Located in `src/styles/utilities/_spacing.scss`:
 - Margin utilities:
   - `.u-m-{n}`: All margins
@@ -154,6 +163,21 @@ Located in `src/styles/utilities/_spacing.scss`:
 
 Where `{n}` corresponds to the spacing scale (0-8).
 
+### Responsive Utilities
+Each utility class has responsive variants for different breakpoints:
+```scss
+.u-m-sm-{n}  // Applies at small screens and up
+.u-p-md-{n}  // Applies at medium screens and up
+.u-gap-lg-{n} // Applies at large screens and up
+```
+
+Example usage:
+```html
+<div class="u-p-2 u-p-md-4 u-p-lg-6">
+  <!-- Padding increases at each breakpoint -->
+</div>
+```
+
 ### Spacing Mixin
 For component-specific styles:
 ```scss
@@ -166,11 +190,20 @@ Examples:
 @include spacing(gap, null, 2);      // gap: 0.5rem
 ```
 
+### Media Query Mixin
+For custom responsive styles:
+```scss
+@include media-breakpoint-up(breakpoint) {
+  // Styles here
+}
+```
+
 ### Best Practices
 - Use utility classes for global consistency and one-off spacing needs
 - Use the spacing mixin for component-specific styles and repeated patterns
 - Never use hardcoded rem/px values for spacing
 - Prefer the spacing scale over custom values
+- Use responsive utilities for adaptive layouts
 - Use the spacing function for custom calculations:
   ```scss
   calc(#{spacing(4)} + 2px)
@@ -181,13 +214,15 @@ Examples:
 - Created centralized spacing value map
 - Implemented dynamic utility class generation
 - Added flexible spacing mixin
+- Added responsive spacing utilities
 - Updated Tooltip component to use new system
 - Updated ListView component to use new system
 
 Pending:
 - Update remaining components
 - Remove any hardcoded spacing values
-- Verify consistent spacing across all components
+- Verify consistent spacing across components
+- Test responsive utilities across breakpoints
 
 ## Notes/Issues
 ### General Guidelines
@@ -206,8 +241,9 @@ Pending:
 - Consider adding transition mixins for consistent animations
 - Need to standardize spacing variables usage across components
 - ✓ Implemented hybrid spacing system with utilities and mixins
+- ✓ Added responsive spacing utilities
 - Need to audit remaining components for hardcoded spacing values
-- Consider adding responsive spacing utilities in the future
+- Need to test responsive utilities across different viewports
 
 ### Best Practices
 - Use variables for all themeable properties
