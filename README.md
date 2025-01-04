@@ -1,3 +1,31 @@
+# Satisfactory Planner
+
+A planning tool for the game Satisfactory.
+
+## Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Build the project:
+```bash
+npm run build
+```
+
+3. Run the application:
+```bash
+npm start
+```
+
+## Development
+
+To run in development mode:
+```bash
+npm run dev
+```
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
