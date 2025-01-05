@@ -1,0 +1,67 @@
+@use '../settings/colors' as c;
+@use '../settings/zindex' as z;
+@use '../tools/typography' as type;
+@use '../utilities/spacing' as s;
+
+.c-tooltip {
+  position: fixed;
+  background-color: c.$color-tooltip-background;
+  border: 1px solid c.$color-tooltip-border;
+  border-radius: s.spacing(2);
+  padding: s.spacing(3);
+  min-width: 280px;
+  max-width: 320px;
+  z-index: z.$zindex-tooltip;
+  pointer-events: none;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: s.spacing(2);
+    padding-bottom: s.spacing(2);
+    border-bottom: 1px solid c.$color-tooltip-border;
+  }
+
+  &__title {
+    margin: 0;
+    @include type.typography('base');
+    color: c.$color-tooltip-title;
+  }
+
+  &__time {
+    @include type.typography('sm');
+    color: c.$color-text-tooltip-secondary;
+  }
+
+  &__section {
+    margin-bottom: s.spacing(3);
+
+    &-title {
+      margin: 0;
+      margin-bottom: s.spacing(1);
+      @include type.typography('xs');
+      color: c.$color-tooltip-section;
+      text-transform: uppercase;
+    }
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: s.spacing(2);
+    align-items: center;
+    padding: s.spacing(1) 0;
+
+    &-name {
+      color: c.$color-text-tooltip;
+      @include type.typography('sm');
+    }
+
+    &-rate {
+      color: c.$color-text-tooltip-secondary;
+      @include type.typography('xs');
+      font-variant-numeric: tabular-nums;
+    }
+  }
+} 

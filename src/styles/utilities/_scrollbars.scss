@@ -1,0 +1,24 @@
+// Custom scrollbar styles
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: $color-background-darker;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $color-primary;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: darken($color-primary, 10%);
+  }
+}
+
+::-webkit-scrollbar-track {
+  background-color: $color-background-dark;
+}
+
+// Firefox scrollbar styles (if needed)
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $color-primary $color-background-dark;
+} 

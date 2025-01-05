@@ -1,0 +1,99 @@
+@use '../settings/colors' as c;
+@use '../settings/zindex' as z;
+@use '../utilities/spacing' as s;
+@use '../tools/typography' as type;
+
+.machine-controls {
+  display: flex;
+  align-items: center;
+  gap: s.spacing(2);
+  @include type.typography('base');
+  background: c.$color-background-darker;
+  padding: s.spacing(1);
+  border-radius: s.spacing(1);
+  position: relative;
+  z-index: z.$zindex-dropdown;
+  cursor: default;
+
+  * {
+    pointer-events: auto;
+  }
+
+  &__input {
+    width: 60px;
+    padding: s.spacing(1) s.spacing(2);
+    @include type.text-align(center);
+    @include type.typography('base', $responsive: false);
+    border: 1px solid c.$color-border;
+    background: c.$color-background-dark;
+    color: c.$color-text-primary;
+    border-radius: s.spacing(1);
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:hover,
+    &:focus {
+      border-color: c.$color-primary;
+      outline: none;
+    }
+  }
+
+  &__adjust {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include type.typography('base');
+    background: c.$color-background-light;
+    color: c.$color-text-primary;
+    border: none;
+    border-radius: s.spacing(1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: c.$color-primary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__efficiency {
+    @include type.typography('base');
+    padding: s.spacing(1) s.spacing(2);
+    border-radius: s.spacing(1);
+    background: c.$color-background-dark;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+
+    &--optimal {
+      color: c.$color-success;
+    }
+
+    &--under {
+      color: c.$color-warning;
+    }
+
+    &--over {
+      color: c.$color-danger;
+    }
+  }
+} 

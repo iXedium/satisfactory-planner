@@ -1,0 +1,32 @@
+@use '../tools/typography' as type;
+@use '../utilities/spacing' as s;
+
+h1, .h1 {
+  @include type.typography('4xl');
+  margin-bottom: s.spacing(4);
+}
+
+h2, .h2 {
+  @include type.typography('3xl');
+  margin-bottom: s.spacing(3);
+}
+
+h3, .h3 {
+  @include type.typography('2xl');
+  margin-bottom: s.spacing(3);
+}
+
+h4, .h4 {
+  @include type.typography('xl');
+  margin-bottom: s.spacing(2);
+}
+
+h5, .h5 {
+  @include type.typography('lg');
+  margin-bottom: s.spacing(2);
+}
+
+h6, .h6 {
+  @include type.typography('base');
+  margin-bottom: s.spacing(2);
+} 

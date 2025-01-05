@@ -1,0 +1,27 @@
+@use '../settings/zindex' as z;
+
+.c-custom-recipe-dropdown {
+  position: relative;
+
+  &__container {
+    // Container styles will be migrated here
+  }
+
+  &__trigger {
+    // Trigger styles will be migrated here
+  }
+
+  &__content {
+    position: absolute;
+    z-index: z.$zindex-dropdown;
+  }
+
+  &__item {
+    // Item styles will be migrated here
+  }
+
+  &__tooltip {
+    position: fixed;
+    z-index: z.$zindex-tooltip;
+  }
+}

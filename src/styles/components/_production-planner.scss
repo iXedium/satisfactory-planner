@@ -1,0 +1,40 @@
+@use '../settings/zindex' as z;
+
+.c-production-planner {
+  // Core styles will be migrated here
+  &__container {
+    // Container styles will be migrated here
+  }
+
+  &__header {
+    // Header styles will be migrated here
+  }
+
+  &__content {
+    // Content styles will be migrated here
+  }
+
+  &__footer {
+    // Footer styles will be migrated here
+  }
+
+  &__controls {
+    z-index: z.$zindex-sticky; // For controls that need to stay above content
+  }
+
+  &__dropdown {
+    z-index: z.$zindex-dropdown; // For dropdown menus
+  }
+
+  &__tooltip {
+    z-index: z.$zindex-tooltip; // For tooltips
+  }
+
+  &__overlay {
+    z-index: z.$zindex-overlay; // For full-screen overlays
+  }
+
+  &__drag-indicator {
+    z-index: z.$zindex-dragover; // For drag and drop indicators
+  }
+}
