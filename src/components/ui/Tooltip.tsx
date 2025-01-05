@@ -1,6 +1,7 @@
 import React from 'react';
-import { Recipe, Item } from '../types/types';
+import { Recipe, Item } from '../../types/types';
 import { ItemIcon } from './ItemIcon';
+import './Tooltip.css';
 
 interface TooltipProps {
   recipe: Recipe;
@@ -55,4 +56,4 @@ export function Tooltip({ recipe, items, show, style }: TooltipProps) {
       </div>
     </div>
   );
-}
+} 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Item, ProductionRelationship } from '../../../types/types';
-import { ItemIcon } from '../../ItemIcon';
+import { ItemIcon } from '../../ui/ItemIcon';
 import './ConsumptionItems.css';
 
 interface ConsumptionItemsProps {

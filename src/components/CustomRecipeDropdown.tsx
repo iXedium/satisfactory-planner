@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Recipe, Item } from '../types/types';
-import { Tooltip } from './Tooltip';
-import { Portal } from './Portal';
+import { Tooltip } from './ui/Tooltip';
+import { Portal } from './ui/Portal';
 
 interface CustomRecipeDropdownProps {
   recipes: Recipe[];
