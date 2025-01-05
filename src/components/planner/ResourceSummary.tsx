@@ -1,6 +1,6 @@
 import React from 'react';
 import { Item, ResourceSummary as ResourceSummaryType } from '../../types/types';
-import { ItemIcon } from '../ItemIcon';
+import { ItemIcon } from '../ui/ItemIcon';
 
 interface ResourceSummaryProps {
   resourceSummary: ResourceSummaryType;

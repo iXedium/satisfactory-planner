@@ -1,6 +1,6 @@
 import React from 'react';
 import { useProductionPlanner } from '../../hooks/useProductionPlanner';
-import { ViewToggle } from '../ViewToggle';
+import { ViewToggle } from '../ui/ViewToggle';
 import { ResourceSummary } from './ResourceSummary';
 import { TargetItemControls } from './TargetItemControls';
 import { ProductionChain } from './ProductionChain';

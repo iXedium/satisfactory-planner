@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Recipe, Item } from '../types/types';
-import { Tooltip } from './ui/Tooltip';
-import { Portal } from './ui/Portal';
+import { Recipe, Item } from '../../types/types';
+import { Tooltip, Portal } from '../ui';
 
 interface CustomRecipeDropdownProps {
   recipes: Recipe[];
@@ -17,7 +16,6 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tooltipTimeoutRef = useRef<number | undefined>(undefined);
   
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (tooltipTimeoutRef.current) {
@@ -26,12 +24,11 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
     };
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setHoveredRecipe(null); // Clear any hover state
+        setHoveredRecipe(null);
       }
     };
 
@@ -40,7 +37,6 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
   }, []);
 
   const handleRecipeHover = (recipe: Recipe, event: React.MouseEvent<HTMLDivElement>) => {
-    // Clear any existing timeout
     if (tooltipTimeoutRef.current) {
       window.clearTimeout(tooltipTimeoutRef.current);
     }
@@ -48,13 +44,12 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({
       x: rect.right + 10,
-      y: Math.min(rect.top, window.innerHeight - 400) // Prevent tooltip from going too low
+      y: Math.min(rect.top, window.innerHeight - 400)
     });
     setHoveredRecipe(recipe);
   };
 
   const handleRecipeLeave = () => {
-    // Add a small delay before hiding the tooltip
     tooltipTimeoutRef.current = window.setTimeout(() => {
       setHoveredRecipe(null);
     }, 100);
@@ -78,7 +73,7 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
   const handleOptionClick = (recipeId: string) => {
     onChange(recipeId);
     setIsOpen(false);
-    setHoveredRecipe(null); // Clear hover state when selecting
+    setHoveredRecipe(null);
   };
 
   const selectedRecipe = recipes.find(r => r.id === value);
@@ -121,11 +116,11 @@ export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: Cus
               position: 'fixed',
               left: `${tooltipPosition.x}px`,
               top: `${tooltipPosition.y}px`,
-              zIndex: 9999, // Use a very high z-index since it's at root level
+              zIndex: 9999,
             }}
           />
         </Portal>
       )}
     </div>
   );
-}
+} 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProductionNode as ProductionNodeComponent } from '../production/productionNode/ProductionNode';
-import { ListView } from '../ListView';
+import { ListView } from '../production/ListView';
 import { Item, ProductionNode, Recipe, ProductionNodeUI } from '../../types/types';
 
 interface ProductionChainProps {

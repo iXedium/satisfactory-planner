@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Item, ProductionNodeUI } from '../../types/types';
-import { ItemIcon } from '../ItemIcon';
-import { CustomRecipeDropdown } from '../CustomRecipeDropdown';
+import { ItemIcon } from '../ui/ItemIcon';
+import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls } from './MachineAdjustmentControls';
 import { ProductionRate } from './ProductionRate';
 import { ConsumptionItems } from './ConsumptionItems';

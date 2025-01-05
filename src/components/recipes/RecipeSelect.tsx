@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Recipe, Item } from '../types/types';
-import { Tooltip } from './ui/Tooltip';
+import { Recipe, Item } from '../../types/types';
+import { Tooltip } from '../ui';
 
 interface RecipeSelectProps {
   recipes: Recipe[];
@@ -66,4 +66,4 @@ export function RecipeSelect({ recipes, value, onChange, itemsMap }: RecipeSelec
       )}
     </div>
   );
-}
+} 

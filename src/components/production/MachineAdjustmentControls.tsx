@@ -1,6 +1,6 @@
 import React from 'react';
 import { Recipe } from '../../types/types';
-import { ItemIcon } from '../ItemIcon';
+import { ItemIcon } from '../ui/ItemIcon';
 
 interface MachineAdjustmentControlsProps {
   machineCount: number;

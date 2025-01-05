@@ -16,4 +16,4 @@ export function ViewToggle({ mode, onToggle }: ViewToggleProps) {
       {mode === 'tree' ? 'Tree View' : 'List View'}
     </button>
   );
-}
+} 
