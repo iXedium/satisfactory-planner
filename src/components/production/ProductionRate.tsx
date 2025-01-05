@@ -1,7 +1,31 @@
 import React from 'react';
-import { Box, TextField, IconButton, Typography, Tooltip } from '@mui/material';
+import { Box, TextField, IconButton, Typography, Tooltip, Paper, styled } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+
+const StyledRateContainer = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  backgroundColor: theme.palette.background.paper,
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  '&:hover': {
+    backgroundColor: theme.palette.background.default,
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputBase-root': {
+    backgroundColor: theme.palette.background.default,
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    '& input': {
+      textAlign: 'right',
+      paddingRight: theme.spacing(1),
+    },
+  },
+}));
 
 interface ProductionRateProps {
   totalRate: number;
@@ -21,42 +45,86 @@ export function ProductionRate({
   detailLevel
 }: ProductionRateProps) {
   return (
-    <Box 
-      className="production-rate" 
+    <StyledRateContainer 
+      elevation={0}
       onClick={e => e.stopPropagation()}
-      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
     >
-      <Typography variant="body1" color="text.primary">
-        {totalRate.toFixed(2)}/min
-      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <Typography 
+          variant="subtitle2" 
+          color="text.secondary"
+          sx={{ fontSize: '0.75rem' }}
+        >
+          Total Rate
+        </Typography>
+        <Typography 
+          variant="h6" 
+          color="text.primary"
+          sx={{ 
+            fontWeight: 'medium',
+            lineHeight: 1.2
+          }}
+        >
+          {totalRate.toFixed(2)}/min
+        </Typography>
+      </Box>
+
       {detailLevel !== 'compact' && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Tooltip title="Clear manual rate">
-            <IconButton size="small" onClick={onClearRate}>
-              <ClearIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton 
+                size="small" 
+                onClick={onClearRate}
+                disabled={!manualRate}
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    color: 'error.main',
+                  },
+                }}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
-          <TextField
+
+          <StyledTextField
             type="number"
             size="small"
-            value={manualRate || 0}
+            value={manualRate || ''}
             onChange={(e) => onManualRateChange(parseFloat(e.target.value) || 0)}
             onWheel={(e) => e.currentTarget.blur()}
             onClick={(e) => (e.target as HTMLInputElement).select()}
-            placeholder="Add rate..."
+            placeholder="Manual rate..."
             inputProps={{
               min: "0",
               step: "0.1",
-              style: { width: '80px' }
+              style: { 
+                width: '80px',
+                textAlign: 'right',
+              }
             }}
           />
+
           <Tooltip title="Set manual rate to achieve 100% efficiency">
-            <IconButton size="small" onClick={onOptimalRateClick}>
-              <ArrowUpwardIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton 
+                size="small" 
+                onClick={onOptimalRateClick}
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    color: 'success.main',
+                  },
+                }}
+              >
+                <ArrowUpwardIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       )}
-    </Box>
+    </StyledRateContainer>
   );
 } 
