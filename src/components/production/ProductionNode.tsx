@@ -13,6 +13,8 @@ const StyledNodeContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
+  transition: 'all 0.2s ease-in-out',
+  border: `1px solid ${theme.palette.divider}`,
   '&[data-rate-type="negative"]': {
     borderLeft: `4px solid ${theme.palette.error.main}`,
   },
@@ -21,23 +23,64 @@ const StyledNodeContainer = styled(Paper)(({ theme }) => ({
   },
   '&:hover': {
     backgroundColor: theme.palette.background.default,
+    boxShadow: theme.shadows[2],
   },
 }));
 
 const NodeContent = styled(Grid)(({ theme }) => ({
   cursor: 'pointer',
-  padding: theme.spacing(1),
+  padding: theme.spacing(1.5),
+  borderRadius: theme.shape.borderRadius,
+  transition: 'all 0.2s ease-in-out',
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
+  },
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    '& > .MuiGrid-item': {
+      width: '100%',
+      marginBottom: theme.spacing(1),
+    },
   },
 }));
 
 const ChildrenContainer = styled(Box)(({ theme }) => ({
   marginLeft: theme.spacing(4),
   marginTop: theme.spacing(2),
+  paddingLeft: theme.spacing(2),
+  borderLeft: `2px solid ${theme.palette.divider}`,
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    marginLeft: theme.spacing(2),
+  },
+}));
+
+const IconContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  minWidth: 'fit-content',
+}));
+
+const InfoContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(1),
+  flex: 1,
+  minWidth: 0, // Prevents flex item from overflowing
+}));
+
+const ControlsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(2),
+  alignItems: 'flex-start',
+  flexWrap: 'wrap',
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    justifyContent: 'space-between',
+  },
 }));
 
 interface ProductionNodeProps {
@@ -123,8 +166,8 @@ export const ProductionNode = memo(function ProductionNode({
       data-item-id={node.itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
     >
-      <NodeContent container spacing={2} onClick={handleNodeClick}>
-        <Grid item xs={12} sm="auto" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <NodeContent container onClick={handleNodeClick}>
+        <IconContainer>
           {hasChildren && (
             <IconButton
               size="small"
@@ -135,10 +178,14 @@ export const ProductionNode = memo(function ProductionNode({
             </IconButton>
           )}
           <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
-        </Grid>
+        </IconContainer>
 
-        <Grid item xs={12} sm sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Typography variant="h6" color="text.primary">
+        <InfoContainer>
+          <Typography 
+            variant={detailLevel === 'compact' ? 'subtitle1' : 'h6'} 
+            color="text.primary"
+            noWrap
+          >
             {node.item.name}
           </Typography>
           {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
@@ -151,10 +198,10 @@ export const ProductionNode = memo(function ProductionNode({
               />
             </Box>
           )}
-        </Grid>
+        </InfoContainer>
 
-        {currentRecipe && producer && detailLevel !== 'compact' && (
-          <Grid item xs={12} sm="auto" onClick={e => e.stopPropagation()}>
+        <ControlsContainer onClick={e => e.stopPropagation()}>
+          {currentRecipe && producer && detailLevel !== 'compact' && (
             <MachineAdjustmentControls
               machineCount={actualMachineCount}
               efficiency={efficiency}
@@ -163,10 +210,8 @@ export const ProductionNode = memo(function ProductionNode({
               nominalRate={nominalRate}
               detailLevel={detailLevel}
             />
-          </Grid>
-        )}
+          )}
 
-        <Grid item xs={12} sm="auto" onClick={e => e.stopPropagation()}>
           <ProductionRate
             totalRate={totalRate}
             manualRate={node.manualRate || 0}
@@ -175,13 +220,18 @@ export const ProductionNode = memo(function ProductionNode({
             onClearRate={() => handleManualRateChange(0)}
             detailLevel={detailLevel}
           />
-        </Grid>
+        </ControlsContainer>
       </NodeContent>
 
       {!collapsed && (
         <>
           {node.relationships && (
-            <Box sx={{ mt: 2, px: 2 }}>
+            <Box sx={{ 
+              mt: 2, 
+              px: 2,
+              borderTop: theme => `1px solid ${theme.palette.divider}`,
+              pt: 2
+            }}>
               <ConsumptionItems
                 relationships={node.relationships}
                 itemsMap={itemsMap}
