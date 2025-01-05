@@ -5,9 +5,11 @@
   "main": "dist/index.js",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@mantine/core": "^7.15.2",
     "@mantine/hooks": "^7.15.2",
+    "@mui/material": "^6.3.1",
     "@testing-library/dom": "^10.4.0",
     "cra-template-typescript": "1.2.0",
     "dexie": "^4.0.10",
