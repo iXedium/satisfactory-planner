@@ -1,6 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Recipe, Item } from '../../types/types';
-import { Tooltip, Portal } from '../ui';
+import { Select, MenuItem, Box, Typography, Tooltip, SelectChangeEvent, styled } from '@mui/material';
+import { ItemIcon } from '../ui';
+
+const RecipeMenuItem = styled(MenuItem)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  padding: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  }
+}));
 
 interface CustomRecipeDropdownProps {
   recipes: Recipe[];
@@ -10,117 +21,103 @@ interface CustomRecipeDropdownProps {
 }
 
 export function CustomRecipeDropdown({ recipes, value, onChange, itemsMap }: CustomRecipeDropdownProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hoveredRecipe, setHoveredRecipe] = useState<Recipe | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const tooltipTimeoutRef = useRef<number | undefined>(undefined);
-  
-  useEffect(() => {
-    return () => {
-      if (tooltipTimeoutRef.current) {
-        window.clearTimeout(tooltipTimeoutRef.current);
-      }
-    };
-  }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        setHoveredRecipe(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleRecipeHover = (recipe: Recipe, event: React.MouseEvent<HTMLDivElement>) => {
-    if (tooltipTimeoutRef.current) {
-      window.clearTimeout(tooltipTimeoutRef.current);
-    }
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    setTooltipPosition({
-      x: rect.right + 10,
-      y: Math.min(rect.top, window.innerHeight - 400)
-    });
-    setHoveredRecipe(recipe);
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    onChange(event.target.value);
   };
 
-  const handleRecipeLeave = () => {
-    tooltipTimeoutRef.current = window.setTimeout(() => {
-      setHoveredRecipe(null);
-    }, 100);
+  const getRecipeLabel = (recipe: Recipe): string => {
+    const outputs = Object.entries(recipe.out)
+      .map(([itemId, amount]) => {
+        const item = itemsMap.get(itemId);
+        return item ? `${item.name} (${amount}/min)` : itemId;
+      })
+      .join(', ');
+    return `${recipe.name} → ${outputs}`;
   };
 
-  const handleSelectedClick = (event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    if (!isOpen) {
-      const selectedRecipe = recipes.find(r => r.id === value);
-      if (selectedRecipe) {
-        setTooltipPosition({
-          x: rect.right + 10,
-          y: Math.min(rect.top, window.innerHeight - 400)
-        });
-        setHoveredRecipe(selectedRecipe);
-      }
-    }
-    setIsOpen(!isOpen);
-  };
+  const renderRecipeOption = (recipe: Recipe) => {
+    const mainOutputId = Object.keys(recipe.out)[0];
+    const mainOutput = itemsMap.get(mainOutputId);
 
-  const handleOptionClick = (recipeId: string) => {
-    onChange(recipeId);
-    setIsOpen(false);
-    setHoveredRecipe(null);
+    return (
+      <RecipeMenuItem
+        key={recipe.id}
+        value={recipe.id}
+        onMouseEnter={() => setHoveredRecipe(recipe)}
+        onMouseLeave={() => setHoveredRecipe(null)}
+      >
+        {mainOutput && <ItemIcon iconId={mainOutput.id} size={32} />}
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="body2">{recipe.name}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {Object.entries(recipe.out)
+              .map(([itemId, amount]) => {
+                const item = itemsMap.get(itemId);
+                return item ? `${item.name} (${amount}/min)` : itemId;
+              })
+              .join(', ')}
+          </Typography>
+        </Box>
+      </RecipeMenuItem>
+    );
   };
-
-  const selectedRecipe = recipes.find(r => r.id === value);
 
   return (
-    <div className="custom-recipe-dropdown" ref={dropdownRef}>
-      <div 
-        className="dropdown-selected"
-        onClick={handleSelectedClick}
-        onMouseEnter={(e) => !isOpen && handleRecipeHover(selectedRecipe!, e)}
-        onMouseLeave={() => !isOpen && handleRecipeLeave()}
+    <Box>
+      <Select
+        value={value}
+        onChange={handleChange}
+        displayEmpty
+        renderValue={(selected) => {
+          if (!selected) {
+            return <Typography color="text.secondary">Select a recipe...</Typography>;
+          }
+          const recipe = recipes.find(r => r.id === selected);
+          return recipe ? getRecipeLabel(recipe) : selected;
+        }}
+        sx={{ minWidth: 250 }}
       >
-        {selectedRecipe?.name || 'Select recipe...'}
-        <span className="dropdown-arrow">▼</span>
-      </div>
-      
-      {isOpen && (
-        <div className="dropdown-options">
-          {recipes.map(recipe => (
-            <div
-              key={recipe.id}
-              className={`dropdown-option ${recipe.id === value ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(recipe.id)}
-              onMouseEnter={(e) => handleRecipeHover(recipe, e)}
-              onMouseLeave={handleRecipeLeave}
-            >
-              {recipe.name}
-            </div>
-          ))}
-        </div>
-      )}
+        {recipes.map(renderRecipeOption)}
+      </Select>
 
       {hoveredRecipe && (
-        <Portal>
-          <Tooltip
-            recipe={hoveredRecipe}
-            items={itemsMap}
-            show={true}
-            style={{
-              position: 'fixed',
-              left: `${tooltipPosition.x}px`,
-              top: `${tooltipPosition.y}px`,
-              zIndex: 9999,
-            }}
-          />
-        </Portal>
+        <Tooltip
+          title={
+            <Box>
+              <Typography variant="subtitle2">Inputs:</Typography>
+              {Object.entries(hoveredRecipe.in).map(([itemId, amount]) => {
+                const item = itemsMap.get(itemId);
+                return (
+                  <Box key={itemId} sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                    {item && <ItemIcon iconId={item.id} size={16} />}
+                    <Typography variant="body2">
+                      {item ? item.name : itemId}: {amount}/min
+                    </Typography>
+                  </Box>
+                );
+              })}
+              <Typography variant="subtitle2" sx={{ mt: 1 }}>Outputs:</Typography>
+              {Object.entries(hoveredRecipe.out).map(([itemId, amount]) => {
+                const item = itemsMap.get(itemId);
+                return (
+                  <Box key={itemId} sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                    {item && <ItemIcon iconId={item.id} size={16} />}
+                    <Typography variant="body2">
+                      {item ? item.name : itemId}: {amount}/min
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          }
+          placement="right"
+          arrow
+        >
+          <span style={{ display: 'none' }} />
+        </Tooltip>
       )}
-    </div>
+    </Box>
   );
 } 

@@ -3,10 +3,38 @@ import { ProductionNodeUI, Item } from '../../types/types';
 import { ItemIcon } from '../ui';
 import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls, ProductionRate } from '.';
-import { IconButton, Paper } from '@mui/material';
+import { IconButton, Paper, Box, Typography, Grid, styled } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import '../../styles/components/_tree-view.scss';
+
+const StyledTreeView = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+  '&[data-rate-type="negative"]': {
+    borderLeft: `4px solid ${theme.palette.error.main}`,
+  },
+  '&[data-rate-type="positive"]': {
+    borderLeft: `4px solid ${theme.palette.success.main}`,
+  }
+}));
+
+const TreeViewContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  cursor: 'pointer',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  }
+}));
+
+const TreeViewChildren = styled(Box)(({ theme }) => ({
+  marginLeft: theme.spacing(4),
+  marginTop: theme.spacing(1),
+  '& > *': {
+    marginBottom: theme.spacing(1),
+  }
+}));
 
 interface TreeViewProps {
   node: ProductionNodeUI;
@@ -66,53 +94,45 @@ export function TreeView({
   };
 
   return (
-    <Paper 
-      className={`c-tree-view ${detailLevel}`}
+    <StyledTreeView
+      elevation={1}
       data-item-id={node.itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
-      elevation={1}
-      sx={{ bgcolor: 'background.paper' }}
     >
-      <div 
-        className={`c-tree-view__content ${hasChildren ? 'c-tree-view__content--collapsible' : ''}`}
-        onClick={handleNodeClick}
-      >
+      <TreeViewContent onClick={handleNodeClick}>
         {hasChildren && (
           <IconButton 
-            size="small" 
-            className="c-tree-view__collapse-icon"
+            size="small"
             onClick={() => setCollapsed(!collapsed)}
+            sx={{ color: 'text.secondary' }}
           >
             {collapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         )}
         
-        <div className="c-tree-view__icon">
-          <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
-        </div>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+          <Box>
+            <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
+          </Box>
 
-        <div className="c-tree-view__info">
-          <h3 className="c-tree-view__title">{node.item.name}</h3>
-          {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
-            <div className="c-tree-view__controls" onClick={e => e.stopPropagation()}>
-              <CustomRecipeDropdown
-                recipes={node.availableRecipes}
-                value={node.recipeId || ''}
-                onChange={(value) => node.nodeId && onRecipeChange(node.nodeId, value)}
-                itemsMap={itemsMap}
-              />
-            </div>
-          )}
-        </div>
-
-        {currentRecipe && producer && detailLevel !== 'compact' && (
-          <div className="c-tree-view__building" onClick={e => e.stopPropagation()}>
-            {detailLevel === 'detailed' && (
-              <ItemIcon iconId={producer.toLowerCase()} size={32} />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" color="text.primary">
+              {node.item.name}
+            </Typography>
+            {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
+              <Box onClick={e => e.stopPropagation()} sx={{ mt: 1 }}>
+                <CustomRecipeDropdown
+                  recipes={node.availableRecipes}
+                  value={node.recipeId || ''}
+                  onChange={(value) => node.nodeId && onRecipeChange(node.nodeId, value)}
+                  itemsMap={itemsMap}
+                />
+              </Box>
             )}
-            <div className="c-tree-view__building-info">
-              <span className="c-tree-view__producer-name">{formatBuildingName(producer)}</span>
-              <span className="c-tree-view__nominal-rate">({nominalRate.toFixed(2)}/min)</span>
+          </Box>
+
+          {currentRecipe && producer && detailLevel !== 'compact' && (
+            <Box onClick={e => e.stopPropagation()}>
               <MachineAdjustmentControls
                 machineCount={actualMachineCount}
                 efficiency={efficiency}
@@ -121,39 +141,40 @@ export function TreeView({
                 nominalRate={nominalRate}
                 detailLevel={detailLevel}
               />
-            </div>
-          </div>
-        )}
+            </Box>
+          )}
 
-        <ProductionRate
-          totalRate={totalRate}
-          manualRate={node.manualRate || 0}
-          onManualRateChange={(rate) => node.nodeId && onManualRateChange(node.nodeId, rate)}
-          onOptimalRateClick={() => {}}
-          onClearRate={() => node.nodeId && onManualRateChange(node.nodeId, 0)}
-          detailLevel={detailLevel}
-        />
-      </div>
+          <Box onClick={e => e.stopPropagation()}>
+            <ProductionRate
+              totalRate={totalRate}
+              manualRate={node.manualRate || 0}
+              onManualRateChange={(rate) => node.nodeId && onManualRateChange(node.nodeId, rate)}
+              onOptimalRateClick={() => {}}
+              onClearRate={() => node.nodeId && onManualRateChange(node.nodeId, 0)}
+              detailLevel={detailLevel}
+            />
+          </Box>
+        </Box>
+      </TreeViewContent>
 
       {!collapsed && hasChildren && (
-        <div className="c-tree-view__children">
+        <TreeViewChildren>
           {node.children.map((child) => (
-            <div key={child.itemId} className="c-tree-view__child">
-              <TreeView
-                node={child as ProductionNodeUI}
-                onRecipeChange={onRecipeChange}
-                onManualRateChange={onManualRateChange}
-                onMachineCountChange={onMachineCountChange}
-                machineOverrides={machineOverrides}
-                manualRates={manualRates}
-                detailLevel={detailLevel}
-                itemsMap={itemsMap}
-                sourceCount={sourceCount}
-              />
-            </div>
+            <TreeView
+              key={child.itemId}
+              node={child as ProductionNodeUI}
+              onRecipeChange={onRecipeChange}
+              onManualRateChange={onManualRateChange}
+              onMachineCountChange={onMachineCountChange}
+              machineOverrides={machineOverrides}
+              manualRates={manualRates}
+              detailLevel={detailLevel}
+              itemsMap={itemsMap}
+              sourceCount={sourceCount}
+            />
           ))}
-        </div>
+        </TreeViewChildren>
       )}
-    </Paper>
+    </StyledTreeView>
   );
 } 
