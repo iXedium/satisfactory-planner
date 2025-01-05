@@ -1,0 +1,74 @@
+:root {
+  --primary-color: #ff6934;
+  --primary-hover: #ff8357;
+  --background-darker: #0a0a0a;  /* Darker background */
+  --background-dark: #141414;    /* Darker containers */
+  --background-light: #1e1e1e;   /* Darker elements */
+  --border-color: #2a2a2a;       /* More contrast for borders */
+  --text-primary: #ffffff;
+  --text-secondary: #9e9e9e;
+  --danger-color: #ff4444;
+  --danger-hover: #ff6666;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, 
+body, 
+#root,
+.App {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--background-darker);
+  color: var(--text-primary);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhance contrast for inputs */
+select, input {
+  background-color: var(--background-darker) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Add subtle glow to primary elements */
+button.calculate-button,
+.view-controls button.active {
+  box-shadow: 0 0 10px rgba(255, 105, 52, 0.3);
+}
+
+/* Force dark scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: var(--background-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--background-dark);
+}
+
+/* Ensure contrast in all conditions */
+@media (prefers-color-scheme: light) {
+  html {
+    background-color: var(--background-darker) !important;
+    color: var(--text-primary) !important;
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

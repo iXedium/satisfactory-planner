@@ -1,4 +1,7 @@
 import React from 'react';
+import { Box, TextField, IconButton, Typography, Tooltip } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 interface ProductionRateProps {
   totalRate: number;
@@ -18,39 +21,42 @@ export function ProductionRate({
   detailLevel
 }: ProductionRateProps) {
   return (
-    <div className="production-rate" onClick={e => e.stopPropagation()}>
-      <div className="rate-value">
+    <Box 
+      className="production-rate" 
+      onClick={e => e.stopPropagation()}
+      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+    >
+      <Typography variant="body1" color="text.primary">
         {totalRate.toFixed(2)}/min
-      </div>
+      </Typography>
       {detailLevel !== 'compact' && (
-        <div className="machine-controls manual-rate-controls">
-          <button
-            className="machine-adjust"
-            onClick={onClearRate}
-            title="Clear manual rate"
-          >
-            ×
-          </button>
-          <input
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Tooltip title="Clear manual rate">
+            <IconButton size="small" onClick={onClearRate}>
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <TextField
             type="number"
-            className="manual-rate-input"
+            size="small"
             value={manualRate || 0}
             onChange={(e) => onManualRateChange(parseFloat(e.target.value) || 0)}
             onWheel={(e) => e.currentTarget.blur()}
-            onClick={(e) => e.currentTarget.select()}
+            onClick={(e) => (e.target as HTMLInputElement).select()}
             placeholder="Add rate..."
-            min="0"
-            step="0.1"
+            inputProps={{
+              min: "0",
+              step: "0.1",
+              style: { width: '80px' }
+            }}
           />
-          <button
-            className="machine-adjust"
-            onClick={onOptimalRateClick}
-            title="Set manual rate to achieve 100% efficiency"
-          >
-            ↑
-          </button>
-        </div>
+          <Tooltip title="Set manual rate to achieve 100% efficiency">
+            <IconButton size="small" onClick={onOptimalRateClick}>
+              <ArrowUpwardIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 } 

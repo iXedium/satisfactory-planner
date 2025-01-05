@@ -1,6 +1,9 @@
 import React from 'react';
 import { Recipe } from '../../types/types';
 import { ItemIcon } from '../ui/ItemIcon';
+import { Button, ButtonGroup, Typography, Box } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 interface MachineAdjustmentControlsProps {
   machineCount: number;
@@ -19,10 +22,10 @@ export function MachineAdjustmentControls({
   nominalRate,
   detailLevel
 }: MachineAdjustmentControlsProps) {
-  const getEfficiencyClass = (efficiency: number): string => {
-    if (efficiency === 100) return 'efficiency-optimal';
-    if (efficiency < 100) return 'efficiency-under';
-    return 'efficiency-over';
+  const getEfficiencyColor = (efficiency: number): string => {
+    if (efficiency === 100) return 'success.main';
+    if (efficiency < 100) return 'warning.main';
+    return 'error.main';
   };
 
   const formatBuildingName = (name: string): string => {
@@ -34,50 +37,50 @@ export function MachineAdjustmentControls({
   if (detailLevel === 'compact') return null;
 
   return (
-    <div className="building-container" onClick={e => e.stopPropagation()}>
+    <Box 
+      className="building-container" 
+      onClick={e => e.stopPropagation()}
+      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+    >
       {detailLevel === 'detailed' && producer && (
         <ItemIcon iconId={producer.toLowerCase()} size={32} />
       )}
-      <div className="building-info">
-        {producer && <span className="producer-name">{formatBuildingName(producer)}</span>}
-        {nominalRate && <span className="nominal-rate">({nominalRate.toFixed(2)}/min)</span>}
-        <div className="machine-controls">
-          <button 
-            className="machine-adjust" 
-            onClick={() => onMachineCountChange(machineCount - 1)}
-            disabled={machineCount <= 1}
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        {producer && (
+          <Typography variant="body2" color="text.primary">
+            {formatBuildingName(producer)}
+          </Typography>
+        )}
+        {nominalRate && (
+          <Typography variant="caption" color="text.secondary">
+            ({nominalRate.toFixed(2)}/min)
+          </Typography>
+        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ButtonGroup size="small" variant="outlined">
+            <Button
+              onClick={() => onMachineCountChange(machineCount - 1)}
+              disabled={machineCount <= 1}
+            >
+              <RemoveIcon fontSize="small" />
+            </Button>
+            <Button disabled sx={{ px: 2 }}>
+              {machineCount}
+            </Button>
+            <Button
+              onClick={() => onMachineCountChange(machineCount + 1)}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </ButtonGroup>
+          <Typography 
+            variant="body2" 
+            sx={{ color: getEfficiencyColor(parseFloat(efficiency)) }}
           >
-            -
-          </button>
-          <input
-            type="number"
-            value={machineCount}
-            onChange={(e) => {
-              const count = Math.max(1, parseInt(e.target.value) || 1);
-              onMachineCountChange(count);
-            }}
-            onClick={(e) => e.currentTarget.select()}
-            min="1"
-            className="machine-count-input"
-          />
-          <button 
-            className="machine-adjust" 
-            onClick={() => onMachineCountChange(machineCount + 1)}
-          >
-            +
-          </button>
-          <div 
-            className={`efficiency-value ${getEfficiencyClass(parseFloat(efficiency))}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(efficiency);
-            }}
-            title="Click to copy value"
-          >
-            ({efficiency}%)
-          </div>
-        </div>
-      </div>
-    </div>
+            {efficiency}%
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 } 

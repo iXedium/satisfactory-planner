@@ -3,6 +3,9 @@ import { ProductionNodeUI, Item } from '../../types/types';
 import { ItemIcon } from '../ui';
 import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls, ProductionRate } from '.';
+import { IconButton, Paper } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import '../../styles/components/_tree-view.scss';
 
 interface TreeViewProps {
@@ -54,11 +57,8 @@ export function TreeView({
   const handleNodeClick = (e: React.MouseEvent) => {
     if (!hasChildren) return;
     
-    // Get the clicked element
     const target = e.target as HTMLElement;
-    
-    // Check if we clicked on an interactive element
-    const isInteractive = target.closest('.c-tree-view__controls, select, input, button');
+    const isInteractive = target.closest('.c-tree-view__controls, select, input, button, .MuiIconButton-root');
     
     if (!isInteractive) {
       setCollapsed(!collapsed);
@@ -66,17 +66,25 @@ export function TreeView({
   };
 
   return (
-    <div 
+    <Paper 
       className={`c-tree-view ${detailLevel}`}
       data-item-id={node.itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
+      elevation={1}
+      sx={{ bgcolor: 'background.paper' }}
     >
       <div 
         className={`c-tree-view__content ${hasChildren ? 'c-tree-view__content--collapsible' : ''}`}
         onClick={handleNodeClick}
       >
         {hasChildren && (
-          <span className={`c-tree-view__collapse-icon ${collapsed ? 'c-tree-view__collapse-icon--collapsed' : ''}`}>▼</span>
+          <IconButton 
+            size="small" 
+            className="c-tree-view__collapse-icon"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
         )}
         
         <div className="c-tree-view__icon">
@@ -146,6 +154,6 @@ export function TreeView({
           ))}
         </div>
       )}
-    </div>
+    </Paper>
   );
 } 
