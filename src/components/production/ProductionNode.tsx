@@ -1,19 +1,20 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Item, ProductionNodeUI } from '../../types/types';
 import { ItemIcon } from '../ui';
 import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls } from './MachineAdjustmentControls';
 import { ProductionRate } from './ProductionRate';
 import { ConsumptionItems } from './ConsumptionItems';
-import { Box, Paper, Typography, IconButton, styled, Grid } from '@mui/material';
+import { Box, Paper, Typography, IconButton, styled } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
+// Move styled components outside component to prevent recreation
 const StyledNodeContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
-  transition: 'all 0.2s ease-in-out',
+  transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
   border: `1px solid ${theme.palette.divider}`,
   '&[data-rate-type="negative"]': {
     borderLeft: `4px solid ${theme.palette.error.main}`,
@@ -27,24 +28,27 @@ const StyledNodeContainer = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const NodeContent = styled(Grid)(({ theme }) => ({
+const NodeContent = styled('div')(({ theme }) => ({
   cursor: 'pointer',
   padding: theme.spacing(1.5),
   borderRadius: theme.shape.borderRadius,
-  transition: 'all 0.2s ease-in-out',
+  transition: 'background-color 0.2s ease-in-out',
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: theme.spacing(2),
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
   [theme.breakpoints.down('sm')]: {
     flexDirection: 'column',
-    '& > .MuiGrid-item': {
+    '& > *': {
       width: '100%',
       marginBottom: theme.spacing(1),
     },
   },
 }));
 
-const ChildrenContainer = styled(Box)(({ theme }) => ({
+const ChildrenContainer = styled('div')(({ theme }) => ({
   marginLeft: theme.spacing(4),
   marginTop: theme.spacing(2),
   paddingLeft: theme.spacing(2),
@@ -57,22 +61,22 @@ const ChildrenContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const IconContainer = styled(Box)(({ theme }) => ({
+const IconContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
   minWidth: 'fit-content',
 }));
 
-const InfoContainer = styled(Box)(({ theme }) => ({
+const InfoContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(1),
   flex: 1,
-  minWidth: 0, // Prevents flex item from overflowing
+  minWidth: 0,
 }));
 
-const ControlsContainer = styled(Box)(({ theme }) => ({
+const ControlsContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   gap: theme.spacing(2),
   alignItems: 'flex-start',
@@ -82,6 +86,12 @@ const ControlsContainer = styled(Box)(({ theme }) => ({
     justifyContent: 'space-between',
   },
 }));
+
+// Memoize child components
+const MemoizedConsumptionItems = memo(ConsumptionItems);
+const MemoizedMachineAdjustmentControls = memo(MachineAdjustmentControls);
+const MemoizedProductionRate = memo(ProductionRate);
+const MemoizedCustomRecipeDropdown = memo(CustomRecipeDropdown);
 
 interface ProductionNodeProps {
   node: ProductionNodeUI;
@@ -109,8 +119,10 @@ export const ProductionNode = memo(function ProductionNode({
   sourceCount
 }: ProductionNodeProps) {
   const [collapsed, setCollapsed] = React.useState(false);
-  const hasChildren = node.children.length > 0;
-  const totalRate = node.rate + (node.manualRate || 0);
+  
+  // Memoize derived values
+  const hasChildren = useMemo(() => node.children.length > 0, [node.children.length]);
+  const totalRate = useMemo(() => node.rate + (node.manualRate || 0), [node.rate, node.manualRate]);
 
   // Memoize calculations
   const {
@@ -120,7 +132,7 @@ export const ProductionNode = memo(function ProductionNode({
     actualMachineCount,
     actualCapacity,
     efficiency
-  } = React.useMemo(() => {
+  } = useMemo(() => {
     const recipe = node.recipeId ? node.availableRecipes.find(r => r.id === node.recipeId) : null;
     const nRate = recipe ? (recipe.out[node.itemId] * 60) / recipe.time : 0;
     const prod = recipe ? recipe.producers[0] : null;
@@ -137,7 +149,7 @@ export const ProductionNode = memo(function ProductionNode({
       actualCapacity: capacity,
       efficiency: eff
     };
-  }, [node, totalRate, machineOverrides]);
+  }, [node.recipeId, node.availableRecipes, node.itemId, totalRate, node.nodeId, machineOverrides]);
 
   const handleNodeClick = useCallback((e: React.MouseEvent) => {
     if (!hasChildren) return;
@@ -160,13 +172,29 @@ export const ProductionNode = memo(function ProductionNode({
     if (node.nodeId) onMachineCountChange(node.nodeId, count);
   }, [node.nodeId, onMachineCountChange]);
 
+  const handleOptimalRateClick = useCallback(() => {
+    handleManualRateChange(actualCapacity - node.rate);
+  }, [actualCapacity, node.rate, handleManualRateChange]);
+
+  const handleClearRate = useCallback(() => {
+    handleManualRateChange(0);
+  }, [handleManualRateChange]);
+
+  const handleConsumerClick = useCallback((e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    const element = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+
   return (
     <StyledNodeContainer
       elevation={1}
       data-item-id={node.itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
     >
-      <NodeContent container onClick={handleNodeClick}>
+      <NodeContent onClick={handleNodeClick}>
         <IconContainer>
           {hasChildren && (
             <IconButton
@@ -190,7 +218,7 @@ export const ProductionNode = memo(function ProductionNode({
           </Typography>
           {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
             <Box onClick={e => e.stopPropagation()}>
-              <CustomRecipeDropdown
+              <MemoizedCustomRecipeDropdown
                 recipes={node.availableRecipes}
                 value={node.recipeId || ''}
                 onChange={handleRecipeChange}
@@ -202,7 +230,7 @@ export const ProductionNode = memo(function ProductionNode({
 
         <ControlsContainer onClick={e => e.stopPropagation()}>
           {currentRecipe && producer && detailLevel !== 'compact' && (
-            <MachineAdjustmentControls
+            <MemoizedMachineAdjustmentControls
               machineCount={actualMachineCount}
               efficiency={efficiency}
               onMachineCountChange={handleMachineCountChange}
@@ -212,12 +240,12 @@ export const ProductionNode = memo(function ProductionNode({
             />
           )}
 
-          <ProductionRate
+          <MemoizedProductionRate
             totalRate={totalRate}
             manualRate={node.manualRate || 0}
             onManualRateChange={handleManualRateChange}
-            onOptimalRateClick={() => handleManualRateChange(actualCapacity - node.rate)}
-            onClearRate={() => handleManualRateChange(0)}
+            onOptimalRateClick={handleOptimalRateClick}
+            onClearRate={handleClearRate}
             detailLevel={detailLevel}
           />
         </ControlsContainer>
@@ -232,16 +260,10 @@ export const ProductionNode = memo(function ProductionNode({
               borderTop: theme => `1px solid ${theme.palette.divider}`,
               pt: 2
             }}>
-              <ConsumptionItems
+              <MemoizedConsumptionItems
                 relationships={node.relationships}
                 itemsMap={itemsMap}
-                onConsumerClick={(e: React.MouseEvent, itemId: string) => {
-                  e.stopPropagation();
-                  const element = document.querySelector(`[data-item-id="${itemId}"]`);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
-                }}
+                onConsumerClick={handleConsumerClick}
                 isAccumulated={isAccumulated}
               />
             </Box>
