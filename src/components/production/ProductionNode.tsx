@@ -16,6 +16,7 @@ interface ProductionNodeProps {
   detailLevel?: 'compact' | 'normal' | 'detailed';
   isAccumulated?: boolean;
   itemsMap: Map<string, Item>;
+  sourceCount?: number;
 }
 
 export function ProductionNode({ 

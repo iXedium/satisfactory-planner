@@ -18,9 +18,11 @@
       "resolveJsonModule": true,
       "isolatedModules": true,
       "noEmit": true,
-      "jsx": "react-jsx"
+      "jsx": "react-jsx",
+      "types": ["jest", "@testing-library/jest-dom"]
+
     },
-    "include": [
-      "src"
-    ]
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
+    "exclude": ["node_modules", "**/*.spec.ts", "**/obsolete/**"]
+    
   }

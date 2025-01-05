@@ -2,7 +2,7 @@ import React from 'react';
 import { ProductionNode, Item, Recipe, AccumulatedNodeUI } from '../types/types';
 import { accumulateNodes } from '../utils/nodeAccumulator';
 import { calculateConsumption } from '../utils/consumptionTracker';
-import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
+import { ProductionNode as ProductionNodeComponent } from './production/ProductionNode';
 
 interface ListViewProps {
   nodes: ProductionNode[];

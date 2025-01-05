@@ -4,7 +4,7 @@ import { db } from '../services/database';
 import { ProductionCalculator } from '../services/calculator';
 import { Item, Recipe, ProductionNode, ProductionNodeUI, TargetItem, ResourceSummary, MergedNode } from '../types/types';
 import { ItemIcon } from './ItemIcon';
-import { ProductionNode as ProductionNodeComponent } from './ProductionNode';
+import { ProductionNode as ProductionNodeComponent } from './production/ProductionNode';
 import { ViewToggle } from './ViewToggle';
 import { ListView } from './ListView';
 import { createMergedNodesMap, collectAllNodes } from '../utils/nodeUtils';
