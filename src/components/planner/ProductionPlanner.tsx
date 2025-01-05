@@ -4,8 +4,8 @@ import { ProductionNode as ProductionNodeComponent } from '../production/product
 import { ViewToggle } from '../ViewToggle';
 import { ListView } from '../ListView';
 import { Item, ProductionNode } from '../../types/types';
-import { ItemIcon } from '../ItemIcon';
-
+import { ResourceSummary } from './ResourceSummary';
+import { TargetItemControls } from './TargetItemControls';
 
 export function ProductionPlanner() {
   const {
@@ -38,6 +38,10 @@ export function ProductionPlanner() {
     enhanceProductionNode,
   } = useProductionPlanner();
 
+  const handleSummaryModeToggle = () => {
+    setSummaryMode(mode => mode === 'normal' ? 'compact' : 'normal');
+  };
+
   const renderDetailControls = () => (
     <div className="detail-controls">
       <button
@@ -64,12 +68,6 @@ export function ProductionPlanner() {
     </div>
   );
 
-  const getProductionItems = (items: Item[]) => {
-    return items.filter(item => 
-      ['parts', 'components'].includes(item.category)
-    ).sort((a, b) => a.name.localeCompare(b.name));
-  };
-
   const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
     if (node.itemId === 'root') {
       return (
@@ -95,49 +93,6 @@ export function ProductionPlanner() {
     );
   };
 
-  const renderResourceSummary = () => {
-    if (!resourceSummary) return null;
-
-    return (
-      <div className={`resource-summary ${summaryMode}`}>
-        <div className="summary-header">
-          <h2>Summary</h2>
-          <button
-            className="view-mode-button"
-            onClick={() => setSummaryMode(mode => mode === 'normal' ? 'compact' : 'normal')}
-          >
-            {summaryMode === 'normal' ? 'Compact' : 'Normal'}
-          </button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Rate (/min)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(resourceSummary)
-              .sort(([, a], [, b]) => b - a)
-              .map(([itemId, rate]) => {
-                const item = items.find(i => i.id === itemId);
-                if (!item) return null;
-                return (
-                  <tr key={itemId}>
-                    <td>
-                      <ItemIcon iconId={item.id} />
-                      {item.name}
-                    </td>
-                    <td>{rate.toFixed(2)}</td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
@@ -149,49 +104,14 @@ export function ProductionPlanner() {
           />
           {renderDetailControls()}
         </aside>
-        <div className="targets-container">
-          {targetItems.map((target, index) => (
-            <div key={index} className="target-item">
-              <select
-                value={target.id}
-                onChange={e => updateTargetItem(index, 'id', e.target.value)}
-              >
-                <option value="">Select item...</option>
-                {getProductionItems(items).map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="number"
-                value={target.rate}
-                onChange={e => updateTargetItem(index, 'rate', Number(e.target.value))}
-                min="0.01"
-                step="0.01"
-              />
-
-              <button 
-                className="remove-button"
-                onClick={() => removeTargetItem(index)}
-                disabled={targetItems.length === 1}
-                title="Remove item"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-
-          <div className="target-controls">
-            <button className="add-button" onClick={addTargetItem}>
-              Add Item
-            </button>
-            <button className="calculate-button" onClick={handleCalculate}>
-              Calculate
-            </button>
-          </div>
-        </div>
+        <TargetItemControls
+          targetItems={targetItems}
+          items={items}
+          onAdd={addTargetItem}
+          onRemove={removeTargetItem}
+          onUpdate={updateTargetItem}
+          onCalculate={handleCalculate}
+        />
       </div>
 
       {productionChain && (
@@ -218,7 +138,12 @@ export function ProductionPlanner() {
             onMouseDown={handleResizeStart}
           />
           <div className="resource-summary-container">
-            {renderResourceSummary()}
+            <ResourceSummary
+              resourceSummary={resourceSummary}
+              items={items}
+              summaryMode={summaryMode}
+              onToggleMode={handleSummaryModeToggle}
+            />
           </div>
         </div>
       )}

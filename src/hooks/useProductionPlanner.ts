@@ -56,6 +56,13 @@ export function useProductionPlanner() {
     setRecipesMap(new Map(recipes.map(recipe => [recipe.id, recipe])));
   }, [items, recipes]);
 
+  useEffect(() => {
+    if (calculator && productionChain) {
+      const resources = calculator.calculateTotalResources(productionChain);
+      setResourceSummary(resources);
+    }
+  }, [calculator, productionChain]);
+
   const updateMergedNodes = () => {
     if (!productionChain) return;
     const allNodes = collectAllNodes(productionChain);
@@ -85,10 +92,10 @@ export function useProductionPlanner() {
       )
     };
 
-    setProductionChain(rootNode);
-    
+    // Calculate all derived data in one go
     const allNodes = collectAllNodes(rootNode);
     const consumptionData = calculateConsumption(allNodes);
+    const resources = calculator.calculateTotalResources(rootNode);
 
     if (viewMode === 'list') {
       const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
@@ -116,19 +123,23 @@ export function useProductionPlanner() {
     };
 
     const enhancedRoot = enhanceNodesWithConsumption(rootNode);
-    setProductionChain(enhancedRoot);
+
+    // Update all states in one batch to avoid unnecessary re-renders
+    Promise.resolve().then(() => {
+      setProductionChain(enhancedRoot);
+      setResourceSummary(resources);
+    });
   };
 
   const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
     if (calculator && productionChain) {
       const newChain = calculator.updateRecipe(productionChain, nodeId, newRecipeId);
-      const resources = calculator.calculateTotalResources(newChain);
       const allNodes = collectAllNodes(newChain);
       const consumptionData = calculateConsumption(allNodes);
       
+      // Update all states in one batch
       Promise.resolve().then(() => {
         setProductionChain(newChain);
-        setResourceSummary(resources);
         if (viewMode === 'list') {
           const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
           const mergedNodes = accumulated.map(node => ({
@@ -157,15 +168,14 @@ export function useProductionPlanner() {
     newRates.set(nodeId, manualRate);
     
     const newChain = calculator.updateManualRate(productionChain, nodeId, manualRate);
-    const resources = calculator.calculateTotalResources(newChain);
+    const allNodes = collectAllNodes(newChain);
+    const consumptionData = calculateConsumption(allNodes);
 
+    // Update all states in one batch
     Promise.resolve().then(() => {
       setManualRates(newRates);
       setProductionChain(newChain);
-      setResourceSummary(resources);
       if (viewMode === 'list') {
-        const allNodes = collectAllNodes(newChain);
-        const consumptionData = calculateConsumption(allNodes);
         const accumulated = accumulateNodes(allNodes, itemsMap, recipesMap);
         const mergedNodes = accumulated.map(node => ({
           ...node,
