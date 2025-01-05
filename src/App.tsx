@@ -4,7 +4,7 @@ import './components/planner/ProductionPlanner.css';
 
 function App() {
   return (
-    <div className="App" aria-role="main">
+    <div className="App">
       <ProductionPlanner />
     </div>
   );

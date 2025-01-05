@@ -27,7 +27,7 @@ export function Tooltip({ recipe, items, show, style }: TooltipProps) {
   }));
 
   return (
-    <div className="recipe-tooltip" style={style}>
+    <div className="recipe-tooltip" style={style} data-testid="recipe-tooltip">
       <div className="tooltip-header">
         <h3>{recipe.name}</h3>
         <span className="tooltip-time">{recipe.time}s</span>

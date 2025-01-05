@@ -1,4 +1,4 @@
-export * from './ItemIcon';
-export * from './Portal';
-export * from './Tooltip';
-export * from './ViewToggle'; 
+export { ItemIcon } from './ItemIcon';
+export { Portal } from './Portal';
+export { Tooltip } from './Tooltip';
+export { ViewToggle } from './ViewToggle'; 

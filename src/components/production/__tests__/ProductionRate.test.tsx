@@ -1,10 +1,10 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-import { ProductionRate } from '../ProductionRate';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ProductionRate } from '../productionRate/ProductionRate';
 
 describe('ProductionRate', () => {
   const defaultProps = {
-    totalRate: 10,
+    totalRate: 30,
     manualRate: 0,
     onManualRateChange: jest.fn(),
     onOptimalRateClick: jest.fn(),
@@ -16,49 +16,94 @@ describe('ProductionRate', () => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly with default props', () => {
+  it('renders total rate', () => {
     render(<ProductionRate {...defaultProps} />);
-    expect(screen.getByText('10.00/min')).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton')).toHaveValue(0);
+    expect(screen.getByText('30.00/min')).toBeInTheDocument();
   });
 
-  it('handles manual rate changes', () => {
+  it('shows manual rate controls in normal mode', () => {
     render(<ProductionRate {...defaultProps} />);
-    const input = screen.getByRole('spinbutton');
-    
-    fireEvent.change(input, { target: { value: '5' } });
-    expect(defaultProps.onManualRateChange).toHaveBeenCalledWith(5);
+    const input = screen.getByPlaceholderText('Add rate...');
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveClass('manual-rate-input');
   });
 
-  it('handles optimal rate click', () => {
+  it('hides manual rate controls in compact mode', () => {
+    render(<ProductionRate {...defaultProps} detailLevel="compact" />);
+    expect(screen.queryByPlaceholderText('Add rate...')).not.toBeInTheDocument();
+  });
+
+  it('calls onManualRateChange when input changes', () => {
     render(<ProductionRate {...defaultProps} />);
-    const optimalButton = screen.getByTitle('Set manual rate to achieve 100% efficiency');
     
-    fireEvent.click(optimalButton);
+    const input = screen.getByPlaceholderText('Add rate...');
+    fireEvent.change(input, { target: { value: '15' } });
+    
+    expect(defaultProps.onManualRateChange).toHaveBeenCalledWith(15);
+  });
+
+  it('shows optimal rate button', () => {
+    render(<ProductionRate {...defaultProps} />);
+    const button = screen.getByTitle('Set manual rate to achieve 100% efficiency');
+    expect(button).toBeInTheDocument();
+  });
+
+  it('calls onOptimalRateClick when optimal rate button is clicked', () => {
+    render(<ProductionRate {...defaultProps} />);
+    
+    const button = screen.getByTitle('Set manual rate to achieve 100% efficiency');
+    fireEvent.click(button);
+    
     expect(defaultProps.onOptimalRateClick).toHaveBeenCalled();
   });
 
-  it('handles clear rate click', () => {
-    render(<ProductionRate {...defaultProps} />);
-    const clearButton = screen.getByTitle('Clear manual rate');
+  it('shows clear rate button', () => {
+    render(<ProductionRate {...defaultProps} manualRate={10} />);
+    const button = screen.getByTitle('Clear manual rate');
+    expect(button).toBeInTheDocument();
+  });
+
+  it('calls onClearRate when clear rate button is clicked', () => {
+    render(<ProductionRate {...defaultProps} manualRate={10} />);
     
-    fireEvent.click(clearButton);
+    const button = screen.getByTitle('Clear manual rate');
+    fireEvent.click(button);
+    
     expect(defaultProps.onClearRate).toHaveBeenCalled();
   });
 
-  it('respects detail level prop', () => {
-    const { rerender } = render(<ProductionRate {...defaultProps} detailLevel="compact" />);
-    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
-
-    rerender(<ProductionRate {...defaultProps} detailLevel="normal" />);
-    expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+  it('displays zero when manual rate is zero', () => {
+    render(<ProductionRate {...defaultProps} manualRate={0} />);
+    const input = screen.getByPlaceholderText('Add rate...');
+    expect(input).toHaveValue(0);
   });
 
-  it('formats total rate correctly', () => {
-    const { rerender } = render(<ProductionRate {...defaultProps} />);
-    expect(screen.getByText('10.00/min')).toBeInTheDocument();
+  it('shows only rate value in compact mode', () => {
+    render(<ProductionRate {...defaultProps} detailLevel="compact" />);
+    expect(screen.getByText('30.00/min')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Add rate...')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Set manual rate to achieve 100% efficiency')).not.toBeInTheDocument();
+  });
 
-    rerender(<ProductionRate {...defaultProps} totalRate={5.123} />);
-    expect(screen.getByText('5.12/min')).toBeInTheDocument();
+  it('prevents wheel event on manual rate input', () => {
+    render(<ProductionRate {...defaultProps} />);
+    const input = screen.getByPlaceholderText('Add rate...') as HTMLInputElement;
+    const mockBlur = jest.fn();
+    input.blur = mockBlur;
+    
+    fireEvent.wheel(input);
+    
+    expect(mockBlur).toHaveBeenCalled();
+  });
+
+  it('selects input content on click', () => {
+    render(<ProductionRate {...defaultProps} manualRate={10} />);
+    const input = screen.getByPlaceholderText('Add rate...') as HTMLInputElement;
+    const mockSelect = jest.fn();
+    input.select = mockSelect;
+    
+    fireEvent.click(input);
+    
+    expect(mockSelect).toHaveBeenCalled();
   });
 }); 
