@@ -1,6 +1,36 @@
 import React from 'react';
 import { Item, ProductionRelationship } from '../../types/types';
 import { ItemIcon } from '../ui/ItemIcon';
+import { Box, Typography, Paper, styled } from '@mui/material';
+
+const ConsumptionList = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+}));
+
+const ConsumptionItem = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  padding: theme.spacing(1),
+  cursor: 'pointer',
+  borderRadius: theme.shape.borderRadius,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const ProgressBar = styled(Box)<{ percentage: number }>(({ theme, percentage }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  height: '100%',
+  width: `${percentage}%`,
+  backgroundColor: theme.palette.primary.main,
+  opacity: 0.1,
+  transition: 'width 0.3s ease',
+}));
 
 interface ConsumptionItemsProps {
   relationships?: ProductionRelationship;
@@ -45,42 +75,55 @@ export function ConsumptionItems({
   const storagePercentage = (storageAmount / relationships.totalProduction) * 100;
 
   return (
-    <div className="consumption-list">
-      <div className="consumption-items">
+    <ConsumptionList elevation={1}>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+        Consumption
+      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {withPercentages.map(rel => {
-          const consumerItem = itemsMap.get(rel.itemId);
+          const item = itemsMap.get(rel.itemId);
+          if (!item) return null;
+
           return (
-            <div 
-              key={rel.itemId} 
-              className="consumption-item"
+            <ConsumptionItem
+              key={rel.itemId}
               onClick={(e) => onConsumerClick(e, rel.itemId)}
-              role="button"
-              tabIndex={0}
-              title={`Jump to ${consumerItem?.name || rel.itemId}`}
-              onKeyPress={(e) => e.key === 'Enter' && onConsumerClick(e as any, rel.itemId)}
+              sx={{ position: 'relative', overflow: 'hidden' }}
             >
-              <span className="consumer-name">
-                <ItemIcon iconId={rel.itemId} size={32} />
-                {consumerItem?.name || rel.itemId}
-              </span>
-              <span className="consumer-amount">{rel.amount.toFixed(2)}/min</span>
-              <span className="consumer-percentage">
-                <span className="percentage-primary">{rel.percentageNoStorage.toFixed(1)}%</span>
-                <span className="percentage-secondary"> / {rel.percentage.toFixed(1)}%</span>
-              </span>
-            </div>
+              <ProgressBar percentage={rel.percentage} />
+              <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                <ItemIcon iconId={item.id} size={32} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2">{item.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {rel.amount.toFixed(2)}/min ({rel.percentage.toFixed(1)}%)
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  {rel.nodeIds.size} consumer{rel.nodeIds.size !== 1 ? 's' : ''}
+                </Typography>
+              </Box>
+            </ConsumptionItem>
           );
         })}
-        {storageAmount > 0.01 && (
-          <div className="consumption-item storage">
-            <span className="consumer-name">Storage</span>
-            <span className="consumer-amount">{storageAmount.toFixed(2)}/min</span>
-            <span className="consumer-percentage">
-              ({storagePercentage.toFixed(1)}%)
-            </span>
-          </div>
+
+        {storageAmount > 0 && (
+          <ConsumptionItem sx={{ position: 'relative', overflow: 'hidden' }}>
+            <ProgressBar percentage={storagePercentage} />
+            <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="body2">📦</Typography>
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2">Storage</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {storageAmount.toFixed(2)}/min ({storagePercentage.toFixed(1)}%)
+                </Typography>
+              </Box>
+            </Box>
+          </ConsumptionItem>
         )}
-      </div>
-    </div>
+      </Box>
+    </ConsumptionList>
   );
 } 

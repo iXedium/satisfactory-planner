@@ -5,6 +5,39 @@ import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls } from './MachineAdjustmentControls';
 import { ProductionRate } from './ProductionRate';
 import { ConsumptionItems } from './ConsumptionItems';
+import { Box, Paper, Typography, IconButton, styled } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
+const ProductionNodeContainer = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+  backgroundColor: theme.palette.background.paper,
+  '&[data-rate-type="negative"]': {
+    borderLeft: `4px solid ${theme.palette.error.main}`,
+  },
+  '&[data-rate-type="positive"]': {
+    borderLeft: `4px solid ${theme.palette.success.main}`,
+  }
+}));
+
+const NodeContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: theme.spacing(2),
+  cursor: 'pointer',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  }
+}));
+
+const ChildrenContainer = styled(Box)(({ theme }) => ({
+  marginLeft: theme.spacing(4),
+  marginTop: theme.spacing(2),
+  '& > *': {
+    marginBottom: theme.spacing(1),
+  }
+}));
 
 interface ProductionNodeProps {
   node: ProductionNodeUI;
@@ -47,127 +80,129 @@ export function ProductionNode({
   const handleNodeClick = (e: React.MouseEvent) => {
     if (!hasChildren) return;
     const target = e.target as HTMLElement;
-    const isInteractive = target.closest('.machine-controls, .consumption-list, select, input, button');
+    const isInteractive = target.closest('.MuiSelect-root, .MuiTextField-root, .MuiButtonBase-root, .consumption-list');
     if (!isInteractive) {
       setCollapsed(!collapsed);
     }
   };
 
   const handleConsumerClick = (e: React.MouseEvent, itemId: string) => {
-    e.preventDefault();
     e.stopPropagation();
-    
-    const listView = document.querySelector('.list-view');
-    const targetElement = document.querySelector(`.production-node[data-item-id="${itemId}"]`);
-    
-    if (listView instanceof HTMLElement && targetElement instanceof HTMLElement) {
-      const listViewRect = listView.getBoundingClientRect();
-      const targetRect = targetElement.getBoundingClientRect();
-      const relativeTop = targetRect.top - listViewRect.top;
-      
-      listView.scrollBy({
-        top: relativeTop - 100,
-        behavior: 'smooth'
-      });
-
-      targetElement.classList.add('highlight');
-      setTimeout(() => targetElement.classList.remove('highlight'), 2000);
+    const element = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
   const calculateOptimalManualRate = () => {
-    if (!currentRecipe || !node.nodeId) return;
-    const actualCapacity = actualMachineCount * nominalRate;
-    const optimalManualRate = actualCapacity - node.rate;
-    onManualRateChange(node.nodeId, Math.max(0, optimalManualRate));
+    if (currentRecipe && node.nodeId) {
+      const optimalRate = actualCapacity;
+      onManualRateChange(node.nodeId, optimalRate - node.rate);
+    }
   };
 
   const clearManualRate = () => {
-    if (!node.nodeId) return;
-    onManualRateChange(node.nodeId, 0);
+    if (node.nodeId) {
+      onManualRateChange(node.nodeId, 0);
+    }
   };
 
   return (
-    <div 
-      className={`production-node ${detailLevel}`}
+    <ProductionNodeContainer
+      elevation={1}
       data-item-id={node.itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
     >
-      <div 
-        className={`node-content ${hasChildren ? 'collapsible' : ''}`}
-        onClick={handleNodeClick}
-      >
-        {hasChildren && (
-          <span className={`collapse-icon ${collapsed ? 'collapsed' : ''}`}>▼</span>
-        )}
-        
-        <div className="item-icon-container">
-          <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
-        </div>
-
-        <div 
-          className="name-recipe-container"
-          ref={nameRecipeRef}
-        >
-          <h3>{node.item.name}</h3>
-          {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
-            <div className="machine-controls" onClick={e => e.stopPropagation()}>
-              <CustomRecipeDropdown
-                recipes={node.availableRecipes}
-                value={node.recipeId || ''}
-                onChange={(value) => node.nodeId && onRecipeChange(node.nodeId, value)}
-                itemsMap={itemsMap}
-              />
-            </div>
+      <NodeContent onClick={handleNodeClick}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {hasChildren && (
+            <IconButton
+              size="small"
+              onClick={() => setCollapsed(!collapsed)}
+              sx={{ color: 'text.secondary' }}
+            >
+              {collapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
           )}
-        </div>
+          <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
+        </Box>
 
-        <ConsumptionItems
-          relationships={node.relationships}
-          itemsMap={itemsMap}
-          onConsumerClick={handleConsumerClick}
-          isAccumulated={isAccumulated}
-        />
+        <Box sx={{ flex: 1 }}>
+          <Box ref={nameRecipeRef}>
+            <Typography variant="h6" color="text.primary">
+              {node.item.name}
+            </Typography>
+            {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
+              <Box sx={{ mt: 1 }}>
+                <CustomRecipeDropdown
+                  recipes={node.availableRecipes}
+                  value={node.recipeId || ''}
+                  onChange={(value) => node.nodeId && onRecipeChange(node.nodeId, value)}
+                  itemsMap={itemsMap}
+                />
+              </Box>
+            )}
+          </Box>
 
-        {currentRecipe && producer && detailLevel !== 'compact' && (
-          <MachineAdjustmentControls
-            machineCount={actualMachineCount}
-            efficiency={efficiency}
-            onMachineCountChange={(count) => node.nodeId && onMachineCountChange(node.nodeId, count)}
-            producer={producer}
-            nominalRate={nominalRate}
+          {currentRecipe && producer && detailLevel !== 'compact' && (
+            <Box sx={{ mt: 2 }}>
+              <MachineAdjustmentControls
+                machineCount={actualMachineCount}
+                efficiency={efficiency}
+                onMachineCountChange={(count) => node.nodeId && onMachineCountChange(node.nodeId, count)}
+                producer={producer}
+                nominalRate={nominalRate}
+                detailLevel={detailLevel}
+              />
+            </Box>
+          )}
+        </Box>
+
+        <Box>
+          <ProductionRate
+            totalRate={totalRate}
+            manualRate={node.manualRate || 0}
+            onManualRateChange={(rate) => node.nodeId && onManualRateChange(node.nodeId, rate)}
+            onOptimalRateClick={calculateOptimalManualRate}
+            onClearRate={clearManualRate}
             detailLevel={detailLevel}
           />
-        )}
+        </Box>
+      </NodeContent>
 
-        <ProductionRate
-          totalRate={totalRate}
-          manualRate={node.manualRate || 0}
-          onManualRateChange={(rate) => node.nodeId && onManualRateChange(node.nodeId, rate)}
-          onOptimalRateClick={calculateOptimalManualRate}
-          onClearRate={clearManualRate}
-          detailLevel={detailLevel}
-        />
-      </div>
-
-      {!collapsed && hasChildren && (
-        <div className="node-inputs">
-          {node.children.map((child) => (
-            <div key={child.itemId} className="input-node">
-              <ProductionNode
-                node={child as ProductionNodeUI}
-                onRecipeChange={onRecipeChange}
-                onManualRateChange={onManualRateChange}
-                onMachineCountChange={onMachineCountChange}
-                machineOverrides={machineOverrides}
-                manualRates={manualRates}
-                detailLevel={detailLevel}
+      {!collapsed && (
+        <>
+          {node.relationships && (
+            <Box sx={{ mt: 2 }}>
+              <ConsumptionItems
+                relationships={node.relationships}
                 itemsMap={itemsMap}
+                onConsumerClick={handleConsumerClick}
+                isAccumulated={isAccumulated}
               />
-            </div>
-          ))}
-        </div>
+            </Box>
+          )}
+
+          {hasChildren && (
+            <ChildrenContainer>
+              {node.children.map((child) => (
+                <ProductionNode
+                  key={child.itemId}
+                  node={child as ProductionNodeUI}
+                  onRecipeChange={onRecipeChange}
+                  onManualRateChange={onManualRateChange}
+                  onMachineCountChange={onMachineCountChange}
+                  machineOverrides={machineOverrides}
+                  manualRates={manualRates}
+                  detailLevel={detailLevel}
+                  isAccumulated={isAccumulated}
+                  itemsMap={itemsMap}
+                />
+              ))}
+            </ChildrenContainer>
+          )}
+        </>
       )}
-    </div>
+    </ProductionNodeContainer>
   );
 } 
