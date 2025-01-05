@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ProductionNode } from '../productionNode/ProductionNode';
+import { ProductionNode } from '../ProductionNode';
 import { ProductionNodeUI, Item, Recipe } from '../../../types/types';
 
 describe('ProductionNode', () => {

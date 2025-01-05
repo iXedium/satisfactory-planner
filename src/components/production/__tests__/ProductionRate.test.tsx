@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ProductionRate } from '../productionRate/ProductionRate';
+import { ProductionRate } from '../ProductionRate';
 
 describe('ProductionRate', () => {
   const defaultProps = {

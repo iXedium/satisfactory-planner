@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProductionNode as ProductionNodeComponent } from '../production/productionNode/ProductionNode';
+import { ProductionNode as ProductionNodeComponent } from '../production/ProductionNode';
 import { ListView } from '../production/ListView';
 import { Item, ProductionNode, Recipe, ProductionNodeUI } from '../../types/types';
 
