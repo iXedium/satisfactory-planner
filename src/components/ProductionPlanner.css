@@ -369,7 +369,7 @@ select:hover, input:hover {
   display: inline-block;
   width: 24px;
   height: 24px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'%3E%3Cpath d='M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm-1 19.93v-3.72L5.5 13.1v-2.2l5.5 3.11V10.3L6 7.19v-.99l6 3.4V6.2L7.5 4.09 12 1.47l4.5 2.62L12 6.71l3-1.73v1l-3 1.73v3.4l6-3.4v1l-5 2.8v3.72l5.5-3.11v2.2l-5.5 3.11v3.72L12 19l-1 .93z'/%3E%3C/svg%3E");
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'%3E%3Cpath d='M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm-1 19.93v-3.72L5.5 13.1v-2.2l5.5 3.11V10.3L6 7.19v-.99l6 3.4V6.2L7.5 4.09 12 1.47l4.5 2.62L12 6.71l3-1.73v1l-3 1.73v3.4l6-3.4v1l-5 2.8v3.72l5.5-3.11v2.2l-5.5 3.11v3.72L12 19l-1 .93z'/%3E%3C/svg%3E"); */
   background-size: contain;
   background-repeat: no-repeat;
 }
