@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { ProductionNode, Item, Recipe, AccumulatedNodeUI } from '../../types/types';
 import { accumulateNodes } from '../../utils/nodeAccumulator';
 import { calculateConsumption } from '../../utils/consumptionTracker';
@@ -38,29 +38,86 @@ interface AutoSizerProps {
   width: number;
 }
 
+interface RowProps {
+  index: number;
+  style: React.CSSProperties;
+  data: {
+    nodes: AccumulatedNodeUI[];
+    props: ListViewProps;
+    handleRecipeChange: (nodeId: string, newRecipeId: string) => void;
+  };
+}
+
+// Add interface for node with parent
+interface ProductionNodeWithParent extends ProductionNode {
+  parent: ProductionNode | null;
+}
+
+// Memoize the row component
+const Row = React.memo(function Row({ index, style, data }: RowProps) {
+  const { nodes, props, handleRecipeChange } = data;
+  const node = nodes[index];
+  
+  return (
+    <div style={style}>
+      <ProductionNodeComponent
+        key={`${node.itemId}-${node.recipeId}`}
+        node={node}
+        onRecipeChange={handleRecipeChange}
+        onManualRateChange={props.onManualRateChange}
+        onMachineCountChange={props.onMachineCountChange}
+        machineOverrides={props.machineOverrides}
+        manualRates={props.manualRates}
+        detailLevel={props.detailLevel}
+        isAccumulated={true}
+        sourceCount={node.sourceNodes.length}
+        itemsMap={props.items}
+      />
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison function for better memoization
+  const prevNode = prevProps.data.nodes[prevProps.index];
+  const nextNode = nextProps.data.nodes[nextProps.index];
+  const prevProps_ = prevProps.data.props;
+  const nextProps_ = nextProps.data.props;
+  
+  return (
+    prevNode === nextNode &&
+    prevProps_.detailLevel === nextProps_.detailLevel &&
+    prevProps_.machineOverrides === nextProps_.machineOverrides &&
+    prevProps_.manualRates === nextProps_.manualRates
+  );
+});
+
 export function ListView(props: ListViewProps) {
-  const getAllNodesWithRelationships = useMemo(() => {
-    const allNodes: ProductionNode[] = [];
-    
+  // Calculate item size based on detail level - moved to top
+  const getItemSize = useCallback(() => {
+    switch (props.detailLevel) {
+      case 'compact': return 80;
+      case 'detailed': return 200;
+      default: return 160;
+    }
+  }, [props.detailLevel]);
+
+  // Memoize node processing - only recalculate when nodes structure changes
+  const allNodesWithRelationships = useMemo(() => {
+    const allNodes: ProductionNodeWithParent[] = [];
     const processNode = (node: ProductionNode, parent: ProductionNode | null) => {
       if (node.itemId !== 'root') {
-        const nodeWithParent = {
-          ...node,
-          parent: parent
-        };
-        allNodes.push(nodeWithParent);
+        allNodes.push({ ...node, parent } as ProductionNodeWithParent);
         node.children.forEach(child => processNode(child, node));
       } else {
         node.children.forEach(child => processNode(child, null));
       }
     };
-
     props.nodes.forEach(node => processNode(node, null));
     return allNodes;
   }, [props.nodes]);
 
+  // Memoize consumption and accumulation calculations
   const { consumptionData, accumulatedNodes, enhancedNodes } = useMemo(() => {
-    const consumption = calculateConsumption(getAllNodesWithRelationships);
+    const consumption = calculateConsumption(allNodesWithRelationships);
     const accumulated = accumulateNodes(props.nodes, props.items, props.recipes);
     
     const enhanced = accumulated.map(node => ({
@@ -72,37 +129,29 @@ export function ListView(props: ListViewProps) {
     }));
 
     return { consumptionData: consumption, accumulatedNodes: accumulated, enhancedNodes: enhanced };
-  }, [getAllNodesWithRelationships, props.nodes, props.items, props.recipes]);
+  }, [
+    allNodesWithRelationships,
+    props.nodes,
+    props.items,
+    props.recipes
+  ]);
 
-  const handleRecipeChange = (nodeId: string, newRecipeId: string) => {
+  // Memoize recipe change handler
+  const handleRecipeChange = useCallback((nodeId: string, newRecipeId: string) => {
     const node = accumulatedNodes.find(n => n.sourceNodes.includes(nodeId));
     if (node) {
       node.sourceNodes.forEach(sourceId => {
         props.onRecipeChange(sourceId, newRecipeId);
       });
     }
-  };
+  }, [accumulatedNodes, props.onRecipeChange]);
 
-  const Row = React.memo(({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const node = enhancedNodes[index];
-    return (
-      <div style={style}>
-        <ProductionNodeComponent
-          key={`${node.itemId}-${node.recipeId}`}
-          node={node}
-          onRecipeChange={handleRecipeChange}
-          onManualRateChange={props.onManualRateChange}
-          onMachineCountChange={props.onMachineCountChange}
-          machineOverrides={props.machineOverrides}
-          manualRates={props.manualRates}
-          detailLevel={props.detailLevel}
-          isAccumulated={true}
-          sourceCount={node.sourceNodes.length}
-          itemsMap={props.items}
-        />
-      </div>
-    );
-  });
+  // Memoize list data to prevent unnecessary Row re-renders
+  const listData = useMemo(() => ({
+    nodes: enhancedNodes,
+    props,
+    handleRecipeChange
+  }), [enhancedNodes, props, handleRecipeChange]);
 
   if (accumulatedNodes.length === 0) {
     return (
@@ -123,7 +172,8 @@ export function ListView(props: ListViewProps) {
               height={height}
               width={width}
               itemCount={enhancedNodes.length}
-              itemSize={props.detailLevel === 'compact' ? 80 : 160}
+              itemSize={getItemSize()}
+              itemData={listData}
             >
               {Row}
             </List>

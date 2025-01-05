@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { Item, ProductionNodeUI } from '../../types/types';
+import { Item, ProductionNodeUI, Recipe } from '../../types/types';
 import { ItemIcon } from '../ui';
 import { CustomRecipeDropdown } from '../recipes';
 import { MachineAdjustmentControls } from './MachineAdjustmentControls';
@@ -106,40 +106,77 @@ interface ProductionNodeProps {
   sourceCount?: number;
 }
 
-export const ProductionNode = memo(function ProductionNode({
-  node,
+// Add prop types interface for better memoization
+interface MemoizedProductionNodeProps {
+  nodeId: string;
+  itemId: string;
+  item: Item;
+  recipeId: string | null;
+  availableRecipes: Recipe[];
+  rate: number;
+  manualRate: number | null;
+  children: ProductionNodeUI[];
+  relationships?: any;
+  onRecipeChange: (nodeId: string, recipeId: string) => void;
+  onManualRateChange: (nodeId: string, manualRate: number) => void;
+  onMachineCountChange: (nodeId: string, count: number) => void;
+  machineOverrides: Map<string, number>;
+  manualRates: Map<string, number>;
+  detailLevel: 'compact' | 'normal' | 'detailed';
+  isAccumulated: boolean;
+  itemsMap: Map<string, Item>;
+  sourceCount?: number;
+}
+
+// Create a memoized wrapper component
+const MemoizedProductionNode = memo(function MemoizedProductionNode({
+  nodeId,
+  itemId,
+  item,
+  recipeId,
+  availableRecipes,
+  rate,
+  manualRate,
+  children,
+  relationships,
   onRecipeChange,
   onManualRateChange,
   onMachineCountChange,
   machineOverrides,
   manualRates,
-  detailLevel = 'normal',
-  isAccumulated = false,
+  detailLevel,
+  isAccumulated,
   itemsMap,
-  sourceCount
-}: ProductionNodeProps) {
+  sourceCount,
+  ...props
+}: MemoizedProductionNodeProps) {
+  // Move state outside main render to prevent recreation
   const [collapsed, setCollapsed] = React.useState(false);
   
-  // Memoize derived values
-  const hasChildren = useMemo(() => node.children.length > 0, [node.children.length]);
-  const totalRate = useMemo(() => node.rate + (node.manualRate || 0), [node.rate, node.manualRate]);
+  // Memoize derived values that don't need frequent updates
+  const hasChildren = useMemo(() => children.length > 0, [children.length]);
+  const totalRate = useMemo(() => rate + (manualRate || 0), [rate, manualRate]);
 
-  // Memoize calculations
-  const {
-    currentRecipe,
-    nominalRate,
-    producer,
-    actualMachineCount,
-    actualCapacity,
-    efficiency
-  } = useMemo(() => {
-    const recipe = node.recipeId ? node.availableRecipes.find(r => r.id === node.recipeId) : null;
-    const nRate = recipe ? (recipe.out[node.itemId] * 60) / recipe.time : 0;
-    const prod = recipe ? recipe.producers[0] : null;
-    const defaultCount = recipe ? Math.ceil(totalRate / nRate) : 0;
-    const actualCount = node.nodeId ? machineOverrides.get(node.nodeId) || defaultCount : defaultCount;
+  // Memoize recipe calculations to prevent recalculation on every render
+  const recipeDetails = useMemo(() => {
+    const recipe = recipeId ? availableRecipes.find(r => r.id === recipeId) : null;
+    if (!recipe) {
+      return {
+        currentRecipe: null,
+        nominalRate: 0,
+        producer: null,
+        actualMachineCount: 0,
+        actualCapacity: 0,
+        efficiency: '0'
+      };
+    }
+
+    const nRate = (recipe.out[itemId] * 60) / recipe.time;
+    const prod = recipe.producers[0];
+    const defaultCount = Math.ceil(totalRate / nRate);
+    const actualCount = nodeId ? machineOverrides.get(nodeId) || defaultCount : defaultCount;
     const capacity = actualCount * nRate;
-    const eff = recipe ? ((totalRate / capacity) * 100).toFixed(2) : '0';
+    const eff = ((totalRate / capacity) * 100).toFixed(2);
 
     return {
       currentRecipe: recipe,
@@ -149,32 +186,32 @@ export const ProductionNode = memo(function ProductionNode({
       actualCapacity: capacity,
       efficiency: eff
     };
-  }, [node.recipeId, node.availableRecipes, node.itemId, totalRate, node.nodeId, machineOverrides]);
+  }, [recipeId, availableRecipes, itemId, totalRate, nodeId, machineOverrides]);
 
+  // Memoize handlers to prevent recreation
   const handleNodeClick = useCallback((e: React.MouseEvent) => {
     if (!hasChildren) return;
     const target = e.target as HTMLElement;
-    const isInteractive = target.closest('.MuiSelect-root, .MuiTextField-root, .MuiButtonBase-root, .consumption-list');
-    if (!isInteractive) {
+    if (!target.closest('.MuiSelect-root, .MuiTextField-root, .MuiButtonBase-root, .consumption-list')) {
       setCollapsed(!collapsed);
     }
   }, [hasChildren, collapsed]);
 
   const handleRecipeChange = useCallback((value: string) => {
-    if (node.nodeId) onRecipeChange(node.nodeId, value);
-  }, [node.nodeId, onRecipeChange]);
+    if (nodeId) onRecipeChange(nodeId, value);
+  }, [nodeId, onRecipeChange]);
 
   const handleManualRateChange = useCallback((rate: number) => {
-    if (node.nodeId) onManualRateChange(node.nodeId, rate);
-  }, [node.nodeId, onManualRateChange]);
+    if (nodeId) onManualRateChange(nodeId, rate);
+  }, [nodeId, onManualRateChange]);
 
   const handleMachineCountChange = useCallback((count: number) => {
-    if (node.nodeId) onMachineCountChange(node.nodeId, count);
-  }, [node.nodeId, onMachineCountChange]);
+    if (nodeId) onMachineCountChange(nodeId, count);
+  }, [nodeId, onMachineCountChange]);
 
   const handleOptimalRateClick = useCallback(() => {
-    handleManualRateChange(actualCapacity - node.rate);
-  }, [actualCapacity, node.rate, handleManualRateChange]);
+    handleManualRateChange(recipeDetails.actualCapacity - rate);
+  }, [recipeDetails.actualCapacity, rate, handleManualRateChange]);
 
   const handleClearRate = useCallback(() => {
     handleManualRateChange(0);
@@ -191,7 +228,7 @@ export const ProductionNode = memo(function ProductionNode({
   return (
     <StyledNodeContainer
       elevation={1}
-      data-item-id={node.itemId}
+      data-item-id={itemId}
       data-rate-type={totalRate < 0 ? 'negative' : 'positive'}
     >
       <NodeContent onClick={handleNodeClick}>
@@ -205,7 +242,7 @@ export const ProductionNode = memo(function ProductionNode({
               {collapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
           )}
-          <ItemIcon iconId={node.item.id} size={detailLevel === 'compact' ? 32 : 64} />
+          <ItemIcon iconId={item.id} size={detailLevel === 'compact' ? 32 : 64} />
         </IconContainer>
 
         <InfoContainer>
@@ -214,13 +251,13 @@ export const ProductionNode = memo(function ProductionNode({
             color="text.primary"
             noWrap
           >
-            {node.item.name}
+            {item.name}
           </Typography>
-          {node.availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
+          {availableRecipes.length > 0 && detailLevel !== 'compact' && totalRate >= 0 && (
             <Box onClick={e => e.stopPropagation()}>
               <MemoizedCustomRecipeDropdown
-                recipes={node.availableRecipes}
-                value={node.recipeId || ''}
+                recipes={availableRecipes}
+                value={recipeId || ''}
                 onChange={handleRecipeChange}
                 itemsMap={itemsMap}
               />
@@ -229,20 +266,20 @@ export const ProductionNode = memo(function ProductionNode({
         </InfoContainer>
 
         <ControlsContainer onClick={e => e.stopPropagation()}>
-          {currentRecipe && producer && detailLevel !== 'compact' && (
+          {recipeDetails.currentRecipe && recipeDetails.producer && detailLevel !== 'compact' && (
             <MemoizedMachineAdjustmentControls
-              machineCount={actualMachineCount}
-              efficiency={efficiency}
+              machineCount={recipeDetails.actualMachineCount}
+              efficiency={recipeDetails.efficiency}
               onMachineCountChange={handleMachineCountChange}
-              producer={producer}
-              nominalRate={nominalRate}
+              producer={recipeDetails.producer}
+              nominalRate={recipeDetails.nominalRate}
               detailLevel={detailLevel}
             />
           )}
 
           <MemoizedProductionRate
             totalRate={totalRate}
-            manualRate={node.manualRate || 0}
+            manualRate={manualRate || 0}
             onManualRateChange={handleManualRateChange}
             onOptimalRateClick={handleOptimalRateClick}
             onClearRate={handleClearRate}
@@ -253,7 +290,7 @@ export const ProductionNode = memo(function ProductionNode({
 
       {!collapsed && (
         <>
-          {node.relationships && (
+          {relationships && (
             <Box sx={{ 
               mt: 2, 
               px: 2,
@@ -261,7 +298,7 @@ export const ProductionNode = memo(function ProductionNode({
               pt: 2
             }}>
               <MemoizedConsumptionItems
-                relationships={node.relationships}
+                relationships={relationships}
                 itemsMap={itemsMap}
                 onConsumerClick={handleConsumerClick}
                 isAccumulated={isAccumulated}
@@ -271,7 +308,7 @@ export const ProductionNode = memo(function ProductionNode({
 
           {hasChildren && (
             <ChildrenContainer>
-              {node.children.map((child) => (
+              {children.map((child) => (
                 <ProductionNode
                   key={child.itemId}
                   node={child as ProductionNodeUI}
@@ -290,5 +327,30 @@ export const ProductionNode = memo(function ProductionNode({
         </>
       )}
     </StyledNodeContainer>
+  );
+});
+
+// Main component now just destructures the node prop and passes individual values
+export const ProductionNode = memo(function ProductionNode({
+  node,
+  detailLevel = 'normal',
+  isAccumulated = false,
+  ...props
+}: ProductionNodeProps) {
+  return (
+    <MemoizedProductionNode
+      {...props}
+      nodeId={node.nodeId || ''}
+      itemId={node.itemId}
+      item={node.item}
+      recipeId={node.recipeId}
+      availableRecipes={node.availableRecipes}
+      rate={node.rate}
+      manualRate={node.manualRate || null}
+      children={node.children as ProductionNodeUI[]}
+      relationships={node.relationships}
+      detailLevel={detailLevel}
+      isAccumulated={isAccumulated}
+    />
   );
 }); 
