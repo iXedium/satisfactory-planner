@@ -1,11 +1,9 @@
-import React, { JSX } from 'react';
+import React from 'react';
 import { useProductionPlanner } from '../../hooks/useProductionPlanner';
-import { ProductionNode as ProductionNodeComponent } from '../production/productionNode/ProductionNode';
 import { ViewToggle } from '../ViewToggle';
-import { ListView } from '../ListView';
-import { Item, ProductionNode } from '../../types/types';
 import { ResourceSummary } from './ResourceSummary';
 import { TargetItemControls } from './TargetItemControls';
+import { ProductionChain } from './ProductionChain';
 
 export function ProductionPlanner() {
   const {
@@ -68,31 +66,6 @@ export function ProductionPlanner() {
     </div>
   );
 
-  const renderProductionNode = (node: ProductionNode): JSX.Element | null => {
-    if (node.itemId === 'root') {
-      return (
-        <div className="production-chain">
-          {node.children.map((child, index) => renderProductionNode(child))}
-        </div>
-      );
-    }
-
-    const enhancedNode = enhanceProductionNode(node);
-
-    return (
-      <ProductionNodeComponent
-        node={enhancedNode}
-        onRecipeChange={handleRecipeChange}
-        onManualRateChange={handleManualRateChange}
-        onMachineCountChange={handleMachineCountChange}
-        machineOverrides={machineOverrides}
-        manualRates={manualRates}
-        detailLevel={detailLevel}
-        itemsMap={itemsMap}
-      />
-    );
-  };
-
   return (
     <div className="planner">
       <h1>Satisfactory Production Planner</h1>
@@ -117,21 +90,20 @@ export function ProductionPlanner() {
       {productionChain && (
         <div className="production-result" ref={productionResultRef}>
           <div className="production-chain">
-            {viewMode === 'tree' ? (
-              renderProductionNode(productionChain)
-            ) : (
-              <ListView
-                nodes={mergedNodes}
-                items={itemsMap}
-                recipes={recipesMap}
-                onMachineCountChange={handleMachineCountChange}
-                onManualRateChange={handleManualRateChange}
-                onRecipeChange={handleRecipeChange}
-                machineOverrides={machineOverrides}
-                manualRates={manualRates}
-                detailLevel={detailLevel}
-              />
-            )}
+            <ProductionChain
+              productionChain={productionChain}
+              mergedNodes={mergedNodes}
+              viewMode={viewMode}
+              detailLevel={detailLevel}
+              machineOverrides={machineOverrides}
+              manualRates={manualRates}
+              itemsMap={itemsMap}
+              recipesMap={recipesMap}
+              onRecipeChange={handleRecipeChange}
+              onManualRateChange={handleManualRateChange}
+              onMachineCountChange={handleMachineCountChange}
+              enhanceProductionNode={enhanceProductionNode}
+            />
           </div>
           <div 
             className={`view-resizer ${isDragging ? 'dragging' : ''}`}
