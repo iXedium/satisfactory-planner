@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { ProductionNodeUI, Item } from '../types/types';
-import { ItemIcon } from './ItemIcon';
-import { CustomRecipeDropdown } from './CustomRecipeDropdown';
-import { MachineAdjustmentControls } from './MachineAdjustmentControls';
-import { ProductionRate } from './ProductionRate';
-import '../styles/components/_tree-view.scss';
+import { ProductionNodeUI, Item } from '../../types/types';
+import { ItemIcon } from '../ui';
+import { CustomRecipeDropdown } from '../recipes';
+import { MachineAdjustmentControls, ProductionRate } from '.';
+import '../../styles/components/_tree-view.scss';
 
 interface TreeViewProps {
   node: ProductionNodeUI;
@@ -107,12 +106,12 @@ export function TreeView({
               <span className="c-tree-view__producer-name">{formatBuildingName(producer)}</span>
               <span className="c-tree-view__nominal-rate">({nominalRate.toFixed(2)}/min)</span>
               <MachineAdjustmentControls
-                actualMachineCount={actualMachineCount}
+                machineCount={actualMachineCount}
                 efficiency={efficiency}
                 onMachineCountChange={(count) => node.nodeId && onMachineCountChange(node.nodeId, count)}
-                disabled={!node.nodeId}
-                actualCapacity={actualCapacity}
-                totalRate={totalRate}
+                producer={producer}
+                nominalRate={nominalRate}
+                detailLevel={detailLevel}
               />
             </div>
           </div>
@@ -120,11 +119,11 @@ export function TreeView({
 
         <ProductionRate
           totalRate={totalRate}
-          manualRate={node.manualRate}
-          nodeId={node.nodeId}
+          manualRate={node.manualRate || 0}
+          onManualRateChange={(rate) => node.nodeId && onManualRateChange(node.nodeId, rate)}
+          onOptimalRateClick={() => {}}
+          onClearRate={() => node.nodeId && onManualRateChange(node.nodeId, 0)}
           detailLevel={detailLevel}
-          onManualRateChange={onManualRateChange}
-          actualCapacity={actualCapacity}
         />
       </div>
 
